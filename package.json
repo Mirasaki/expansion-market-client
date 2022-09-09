@@ -1,0 +1,39 @@
+{
+  "name": "green-mountain-trader-client",
+  "version": "1.0.0",
+  "description": "Client for Green Mountain Trader",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node .",
+    "dev": "nodemon run node --trace-warnings .",
+    "docker:build": "docker build --tag green-mountain-trader-client .",
+    "docker:start": "docker run -v $(pwd):/app -v /app/node_modules -p 3000:3000 --env-file ./.env -d --name green-mountain-trader-client green-mountain-trader-client",
+    "docker:restart": "docker restart green-mountain-trader-client",
+    "docker:stop": "docker stop green-mountain-trader-client",
+    "docker:kill": "docker rm -fv green-mountain-trader-client",
+    "docker:logs": "docker logs green-mountain-trader-client -f",
+    "docker:bash": "docker exec -it green-mountain-trader-client bash",
+    "pm2:start": "pm2 start --name=green-mountain-trader-client npm -- run start",
+    "pm2:stop": "pm2 stop green-mountain-trader-client",
+    "pm2:purge": "pm2 stop green-mountain-trader-client && pm2 delete green-mountain-trader-client && pm2 reset green-mountain-trader-client",
+    "pm2:logs": "pm2 logs --lines 300 green-mountain-trader-client",
+    "pm2:logsError": "pm2 logs --err --lines 300 green-mountain-trader-client",
+    "types": "npx -p typescript tsc ./**/*.js --declaration --allowJs --emitDeclarationOnly --outDir types"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@discordjs/rest": "^1.1.0",
+    "@mirasaki/logger": "^1.0.5",
+    "axios": "^0.27.2",
+    "common-tags": "^1.8.2",
+    "discord.js": "^14.3.0",
+    "dotenv": "^16.0.2",
+    "form-data": "^4.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.23.0",
+    "nodemon": "^2.0.19"
+  }
+}

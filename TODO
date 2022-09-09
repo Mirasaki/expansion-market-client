@@ -1,0 +1,10 @@
+# TODO
+
+## General
+
+- Object.entries, replace with ('something' in object) statement where applicable
+
+- backend/config/config.json -> Fix database values
+- search all for DEBUG_ and check if production, logging takes loooooooong shit!
+
+- API monetization & API keys @ https://www.youtube.com/watch?v=MbqSMgMAzxU
