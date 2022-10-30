@@ -1,13 +1,8 @@
-// Api Endpoint
-// Dedicated module with util and reusability
-// Properly understand sequelize models/index.js
-
-const logger = require('@mirasaki/logger');
 const { ApplicationCommandOptionType, AttachmentBuilder } = require('discord.js');
 const { ChatInputCommand } = require('../../classes/Commands');
 const { putItemList } = require('../../modules/in-game-names');
 const { isAllowedContentType, fetchAttachment, colorResolver, getRelativeTime } = require('../../util');
-const { stripIndents } = require('common-tags')
+const { stripIndents } = require('common-tags');
 
 const ATTACHMENT_OPTION_NAME = 'item-list-file';
 const ALLOWED_CONTENT_TYPE = 'application/json; charset=utf-8';
@@ -52,7 +47,7 @@ module.exports = new ChatInputCommand({
     }
 
     // User Feedback, wait for parser
-    let content = `${emojis.wait} ${member}, please be patient while your \`${ATTACHMENT_OPTION_NAME}\` attachment is being parsed/processed...`
+    let content = `${emojis.wait} ${member}, please be patient while your \`${ATTACHMENT_OPTION_NAME}\` attachment is being parsed/processed...`;
     await interaction.editReply(content);
 
     // Fetch the attachment from Discord's API
@@ -75,12 +70,12 @@ module.exports = new ChatInputCommand({
 
     // Notify attachment has been fetched
     const { status, statusText, data, runtime, size } = attachmentResponse;
-    content = `${emojis.success} Fetched your attachment in: **${runtime} ms** (${size} KB)`
+    content += `\n${emojis.success} Fetched your attachment in: **${runtime} ms** (${size} KB) - ${status} ${statusText}`;
     await interaction.editReply(content);
 
     // Notify start API parser
-    content = `${emojis.wait} Saving your item list...\n${content}`
-    await interaction.editReply(content)
+    content += `\n${emojis.wait} Saving your item list...`;
+    await interaction.editReply(content);
 
     // Response from API
     const res = await putItemList(interaction.guild.id, data);
@@ -88,7 +83,7 @@ module.exports = new ChatInputCommand({
     // 200 - OK
     if (res.status === 200) {
       const { data } = res;
-      content = `${emojis.success} Finished processing and saving your item list\n${content.split('\n')[1]}`
+      content += `\n${emojis.success} Finished processing and saving your item list`;
       interaction.editReply({
         content,
         embeds: [{
@@ -116,6 +111,19 @@ module.exports = new ChatInputCommand({
     }
 
     // Unknown error
-    else interaction.editReply(`${emojis.error} ${member}, unexpected error encountered: ${res.code} | ${res.statusText}`);
+    else {
+      const { status, statusText, error, message } = res.data;
+      content += `\n${emojis.error} Your in-game item list couldn't be processed`;
+      interaction.editReply({
+        content,
+        embeds: [{
+          color: colorResolver(colors.error),
+          title: error || 'Unexpected error',
+          description: message,
+          footer: { text: `${status} | ${statusText}` }
+        }]
+      });
+      interaction.editReply();
+    }
   }
 });
