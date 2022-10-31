@@ -13,17 +13,9 @@ const getItemList = async (id) => {
       method: 'GET',
       url: `${BACKEND_URL}/api/in-game-names/${id}`
     });
-    clientResponse = {
-      status: res.status,
-      statusText: res.statusText,
-      data: res.data
-    };
+    clientResponse = res.data;
   } catch (err) {
-    clientResponse = {
-      status: err.response.status,
-      statusText: err.response.statusText,
-      data: err.response.data
-    };
+    clientResponse = err.response.data;
   }
 
   if (DEBUG_ITEM_LIST_REQUESTS === 'true') {
@@ -44,17 +36,9 @@ const putItemList = async (id, itemList) => {
       headers: { 'Content-Type': 'application/json' },
       data: { item_list: itemList }
     });
-    clientResponse = {
-      status: res.status,
-      statusText: res.statusText,
-      data: res.data
-    };
+    clientResponse = res.data;
   } catch (err) {
-    clientResponse = {
-      status: err.response.status,
-      statusText: err.response.statusText,
-      data: err.response.data
-    };
+    clientResponse = err.response.data;
   }
 
   if (DEBUG_ITEM_LIST_REQUESTS === 'true') {
@@ -66,7 +50,52 @@ const putItemList = async (id, itemList) => {
   return clientResponse;
 };
 
+const deleteItemList = async (id) => {
+  let clientResponse;
+  try {
+    const res = await axios({
+      method: 'DELETE',
+      url: `${BACKEND_URL}/api/in-game-names/${id}`
+    });
+    clientResponse = res.data;
+  } catch (err) {
+    clientResponse = err.response.data;
+  }
+
+  if (DEBUG_ITEM_LIST_REQUESTS === 'true') {
+    logger.startLog('[DEL] Item List Request');
+    console.dir(clientResponse, { depth: 1 });
+    logger.endLog('[DEL] Item List Request');
+  }
+
+  return clientResponse;
+};
+
+const fetchInGameName = async (id, item) => {
+  let clientResponse;
+  try {
+    const res = await axios({
+      method: 'GET',
+      url: `${BACKEND_URL}/api/in-game-names/${id}/${item}`,
+      headers: { 'Content-Type': 'application/json' }
+    });
+    clientResponse = res.data;
+  } catch (err) {
+    clientResponse = err.response.data;
+  }
+
+  if (DEBUG_ITEM_LIST_REQUESTS === 'true') {
+    logger.startLog('[GET] Resolve Item In-Game-Name Request');
+    console.dir(clientResponse, { depth: 1 });
+    logger.endLog('[GET] Resolve Item In-Game-Name Request');
+  }
+
+  return clientResponse;
+};
+
 module.exports = {
   getItemList,
-  putItemList
+  putItemList,
+  deleteItemList,
+  fetchInGameName
 };
