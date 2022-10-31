@@ -25,7 +25,7 @@ module.exports = new ChatInputCommand({
   run: async (client, interaction) => {
     // Destructuring
     const { guild, member, options } = interaction;
-    const { emojis } = client.container;
+    const { emojis, colors } = client.container;
     const attachFile = options.getBoolean(ATTACH_FILE_OPTION_NAME);
 
     // Deferring our reply
@@ -57,7 +57,7 @@ module.exports = new ChatInputCommand({
         }],
         files: attachFile ? [
           new AttachmentBuilder(Buffer.from(JSON.stringify(data, null, 2)))
-            .setName('items.export.json')
+            .setName('items.export-parsed.json')
         ] : null
       });
     }
@@ -68,6 +68,17 @@ module.exports = new ChatInputCommand({
     }
 
     // Unknown error
-    else interaction.editReply(`${emojis.error} ${member}, unexpected error encountered: ${res.code} | ${res.statusText}`);
+    else {
+      const { status, statusText, error, message } = res;
+      interaction.editReply({
+        content: `${emojis.error} ${member}, item list configuration couldn't be retrieved.`,
+        embeds: [{
+          color: colorResolver(colors.error),
+          title: error || 'Unexpected error',
+          description: message,
+          footer: { text: `${status} | ${statusText}` }
+        }]
+      });
+    }
   }
 });

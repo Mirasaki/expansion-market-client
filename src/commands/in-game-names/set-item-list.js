@@ -74,7 +74,7 @@ module.exports = new ChatInputCommand({
     await interaction.editReply(content);
 
     // Notify start API parser
-    content += `\n${emojis.wait} Saving your item list...`;
+    content += `\n${emojis.wait} Parsing and saving your item list...`;
     await interaction.editReply(content);
 
     // Response from API
@@ -105,14 +105,14 @@ module.exports = new ChatInputCommand({
         }],
         files: [
           new AttachmentBuilder(Buffer.from(JSON.stringify(data, null, 2)))
-            .setName('items.export.json')
+            .setName('items.export-parsed.json')
         ]
       });
     }
 
     // Unknown error
     else {
-      const { status, statusText, error, message } = res.data;
+      const { status, statusText, error, message } = res;
       content += `\n${emojis.error} Your in-game item list couldn't be processed`;
       interaction.editReply({
         content,
@@ -123,7 +123,6 @@ module.exports = new ChatInputCommand({
           footer: { text: `${status} | ${statusText}` }
         }]
       });
-      interaction.editReply();
     }
   }
 });
