@@ -173,7 +173,19 @@ const getRuntime = (hrtime, decimalPrecision = DEFAULT_DECIMAL_PRECISION) => {
   };
 };
 
-
+/**
+ * Convert a human date string into ms, credits where credits are due: https://stackoverflow.com/questions/49248262/how-to-convert-date-to-milliseconds-by-javascript
+ * @param {string} dateString Human date string, for example: "25-12-2017"
+ * @returns {integer} Date MS
+ */
+const dateStringToMS = (dateString) => {
+  const prepareDate = (d) => {
+    const [day, month, year] = d.split('-'); //Split the string
+    return [year, month - 1, day]; //Return as an array with y,m,d sequence
+    // Note: Month is 0-11, that is why m-1
+  };
+  return new Date(...prepareDate(dateString));
+};
 
 
 /**
@@ -309,6 +321,7 @@ module.exports = {
   wait: sleep,
   sleep,
   getRuntime,
+  dateStringToMS,
 
 
   fetchAttachment,
