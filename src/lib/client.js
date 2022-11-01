@@ -38,13 +38,7 @@ const createWorkingDir = () => {
 module.exports = BackendClient;
 module.exports.tmpDir = tmpDir;
 
-module.exports.getClientDataResponse = (res) => ({
-  status: res.status,
-  statusText: res.statusText,
-  data: res.data
-});
-
-module.exports.getClientErrorResponse = (res) => ({
+module.exports.getClientResponse = (res) => ({
   status: res.status,
   statusText: res.statusText,
   ...res.data
