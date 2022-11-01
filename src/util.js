@@ -17,7 +17,6 @@ const path = require('path');
 const colors = require('./config/colors.json');
 const { stripIndents } = require('common-tags');
 const chalk = require('chalk');
-const axios = require('axios');
 const logger = require('@mirasaki/logger');
 
 // Import our constants
@@ -186,7 +185,6 @@ const getRuntime = (hrtime, decimalPrecision = DEFAULT_DECIMAL_PRECISION) => {
 
 
 
-
 const fetchAttachment = async (attachment, allowedSizeInKB = 1000) => {
   // Destructure from attachment object
   const {
@@ -221,11 +219,13 @@ const fetchAttachment = async (attachment, allowedSizeInKB = 1000) => {
   let res;
   try {
     // Try to fetch the attachment from the CDN url
-    res = await axios({ method: 'GET', url: url });
+    // use fetch instead to allow piping of res.body - no idea how this works with axios
+    res = await fetch(url);
+    // res = await axios({ method: 'GET', url: url });
   } catch (err) {
     // Try to fetch from proxy URL as a fallback if any errors are encounters
     try {
-      res = await axios({ method: 'GET', url: proxyURL });
+      res = await fetch(proxyURL);
     } catch (proxyErr) {
       // Define how to show the errors - more detailed in-dev
       const origFetchErrStr = NODE_ENV === 'production'
@@ -255,7 +255,7 @@ const fetchAttachment = async (attachment, allowedSizeInKB = 1000) => {
   }
 
   // One final check for data availability
-  if (!('data' in res) || typeof res.data === 'undefined') {
+  if (!('body' in res) || typeof res.body === 'undefined') {
     // Debug logging
     logger.syserr('Unexpected error encounter while fetching attachment');
     logger.startLog('Fetch Attachment Response');
@@ -279,11 +279,11 @@ const fetchAttachment = async (attachment, allowedSizeInKB = 1000) => {
   // Returning the actual data if the attachment
   // was successfully fetched
   return {
-    data: res.data,
     status: res.status,
     statusText: res.statusText,
     runtime: runtime.ms,
-    size: attachmentSizeInKB
+    size: attachmentSizeInKB,
+    body: res.body
   };
 };
 
