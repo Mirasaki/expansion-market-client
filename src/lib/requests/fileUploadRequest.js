@@ -25,9 +25,9 @@ const fileUploadRequest = async ({
 }) => {
   let clientResponse;
   // Get our current temporary working directory for file downloads
-  const workDir = BackendClient.tmpDir;
   const endpointTag = endpoint.replace(/\//g, '-');
-  const fileName = `${id}-${endpointTag}.${extension}`;
+  const fileName = `${endpointTag}.${extension}`;
+  const workDir = `data/${id}/`;
 
   // Piping the file to a temporary dir
   const filePath = join(workDir, fileName);
@@ -51,9 +51,9 @@ const fileUploadRequest = async ({
   // Try to make the request
   try {
     const res = await BackendClient(config);
-    clientResponse = BackendClient.getClientDataResponse(res);
+    clientResponse = BackendClient.getClientResponse(res);
   } catch (err) {
-    if (err instanceof AxiosError) clientResponse = BackendClient.getClientErrorResponse(err.response);
+    if (err instanceof AxiosError) clientResponse = BackendClient.getClientResponse(err.response);
 
     // Extensive logging as this is a client-side problem
     else {

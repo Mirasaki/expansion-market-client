@@ -1,10 +1,5 @@
 // Import packages
 const { default: axios } = require('axios');
-const logger = require('@mirasaki/logger');
-const { mkdtempSync } = require('fs');
-const { tmpdir } = require('os');
-const path = require('path');
-const chalk = require('chalk');
 
 // Import from local files
 const pkg = require('../../package.json');
@@ -13,36 +8,37 @@ const { colorResolver } = require('../util');
 
 // Destructure from env and assignments
 const {
-  BACKEND_URL,
-  DEBUG_ENABLED
+  BACKEND_URL
 } = process.env;
 let tmpDir;
-const appPrefix = pkg.name;
 
 // Set config defaults when creating the instance
 const BackendClient = axios.create({
-  baseURL: `${BACKEND_URL}/api/`
-});
-
-const createWorkingDir = () => {
-  try {
-    const tmpDir = mkdtempSync(path.join(tmpdir(), `${appPrefix}-`));
-    // Conditional debug logging
-    if (DEBUG_ENABLED === 'true') logger.debug(`Temporary working directory: ${chalk.green(tmpDir)}`);
-    return tmpDir;
-  } catch (err) {
-    console.error(err);
+  baseURL: `${BACKEND_URL}/api/`,
+  headers: {
+    'User-Agent': `${pkg.name}/${pkg.version} (${process.platform}; Node:${process.version})`,
+    'Connection': 'keep-alive'
   }
-};
+});
 
 module.exports = BackendClient;
 module.exports.tmpDir = tmpDir;
 
-module.exports.getClientResponse = (res) => ({
-  status: res.status,
-  statusText: res.statusText,
-  ...res.data
-});
+module.exports.getClientResponse = (res) => {
+  let clientResponse = {
+    status: res.status,
+    statusText: res.statusText
+  };
+
+  // Save res.data as an array instead of using the spread operator
+  if (Array.isArray(res.data)) clientResponse.data = res.data;
+
+  // Or combine/spread both objects in a new object
+  else clientResponse = { ...clientResponse, ...res.data };
+
+  // Always return the client response
+  return clientResponse;
+};
 
 module.exports.getClientErrorEmbed = ({
   error,
@@ -57,7 +53,3 @@ module.exports.getClientErrorEmbed = ({
     text: `${status} | ${statusText}`
   }
 });
-
-module.exports.init = () => {
-  BackendClient.tmpDir = createWorkingDir();
-};
