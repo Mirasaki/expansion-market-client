@@ -340,7 +340,6 @@ const ThrottleMap = new Map();
  * @returns {boolean} Indicates if the command is actively being throttled.
  * true: It went through and was executed, false: command is actively being throttled / command denied.
  */
-// eslint-disable-next-line sonarjs/cognitive-complexity
 const throttleCommand = (clientCmd, interaction) => {
   const { data, cooldown } = clientCmd;
   const debugStr = chalk.red('[Cmd Throttle]');
