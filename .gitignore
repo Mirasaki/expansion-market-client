@@ -115,8 +115,8 @@ client/commands/testing
 # Documentation: JSDoc
 /docs
 
-# Our generated command table
-/public/html/commands.html
+# Our tmp folder for downloading files to
+/data
 
 # Personal TODO file
 TODO.md
