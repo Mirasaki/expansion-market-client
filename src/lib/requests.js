@@ -140,6 +140,21 @@ const fileUploadRequest = async ({
 };
 
 /*
+ * In-Game Names
+ * Item-List
+ */
+const getInGameNames = async (id) =>
+  await clientRequest('GET', `in-game-names/${id}`);
+const getInGameNameByClass = async (id, name) =>
+  await clientRequest('GET', `in-game-names/${id}/${name}`);
+const deleteInGameNames = async (id) =>
+  await clientRequest('DELETE', `in-game-names/${id}`);
+const putInGameNames = async (id, itemList) =>
+  await clientRequest('PUT', `in-game-names/${id}`, { data: { item_list: itemList } });
+
+
+
+/*
  * Market
  * Categories
  */
@@ -149,10 +164,10 @@ const getMarketCategoryByName = async (id, name) =>
   await clientRequest('GET', `market/categories/${id}/${name}`);
 const deleteMarketCategories = async (id) =>
   await clientRequest('DELETE', `market/categories/${id}`);
-const putMarketCategories = async (id, body) =>
+const putMarketCategories = async (id, readStream) =>
   await fileUploadRequest({
-    id: id,
-    readStream: body,
+    id,
+    readStream,
     endpoint: 'market/categories',
     extension: 'zip',
     workDir: BackendClient.tmpDir
@@ -174,6 +189,11 @@ const putMarketCategories = async (id, body) =>
 module.exports = {
   clientRequest,
   fileUploadRequest,
+
+  getInGameNames,
+  getInGameNameByClass,
+  deleteInGameNames,
+  putInGameNames,
 
   getMarketCategories,
   getMarketCategoryByName,
