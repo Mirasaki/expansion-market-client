@@ -1,13 +1,13 @@
 const { ApplicationCommandOptionType } = require('discord.js');
 const { ChatInputCommand } = require('../../classes/Commands');
+const { MARKET_CATEGORIES_FILE_DESCRIPTION, CONFIRMATION_PROMPT_OPTION_NAME } = require('../../constants');
 const { getClientErrorEmbed } = require('../../lib/client');
 const { deleteMarketCategories } = require('../../lib/requests');
 
-const CONFIRMATION_PROMPT_OPTION_NAME = 'confirmation-prompt';
 
 module.exports = new ChatInputCommand({
   data: {
-    description: 'Clear/delete your Market category configuration',
+    description: `Clear/delete your ${MARKET_CATEGORIES_FILE_DESCRIPTION}`,
     options: [{
       name: CONFIRMATION_PROMPT_OPTION_NAME,
       type: ApplicationCommandOptionType.Boolean,

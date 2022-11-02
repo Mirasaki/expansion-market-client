@@ -35,6 +35,9 @@ const DEFAULT_DECIMAL_PRECISION = 2;
  * Commands & Components
  */
 
+// Global
+const CONFIRMATION_PROMPT_OPTION_NAME = 'confirmation-prompt';
+
 // Help
 const HELP_COMMAND_SELECT_MENU = 'help_select_command';
 const HELP_SELECT_MENU_SEE_MORE_OPTIONS = 'help_see_more';
@@ -44,6 +47,12 @@ const EVAL_CODE_MODAL = 'eval_code_modal';
 const EVAL_CODE_INPUT = 'eval_code_input';
 const ACCEPT_EVAL_CODE_EXECUTION = 'accept-eval-code-execution';
 const DECLINE_EVAL_CODE_EXECUTION = 'decline-eval-code-execution';
+
+// Market Categories
+const MARKET_CATEGORIES_OPTION_NAME = 'market-categories-file';
+const MARKET_CATEGORIES_REAL_FILE_NAME = 'Market.zip';
+const MARKET_CATEGORIES_FILE_DESCRIPTION = 'Market category/item configuration';
+const MARKET_CATEGORY_AUTOCOMPLETE_OPTION = 'category';
 
 const ZERO_WIDTH_SPACE_CHAR_CODE = 8203;
 
@@ -81,6 +90,8 @@ module.exports = {
 
   DEFAULT_DECIMAL_PRECISION,
 
+  CONFIRMATION_PROMPT_OPTION_NAME,
+
   HELP_COMMAND_SELECT_MENU,
   HELP_SELECT_MENU_SEE_MORE_OPTIONS,
 
@@ -88,6 +99,11 @@ module.exports = {
   EVAL_CODE_INPUT,
   ACCEPT_EVAL_CODE_EXECUTION,
   DECLINE_EVAL_CODE_EXECUTION,
+
+  MARKET_CATEGORIES_OPTION_NAME,
+  MARKET_CATEGORIES_REAL_FILE_NAME,
+  MARKET_CATEGORIES_FILE_DESCRIPTION,
+  MARKET_CATEGORY_AUTOCOMPLETE_OPTION,
 
   ZERO_WIDTH_SPACE_CHAR_CODE
 };
