@@ -8,15 +8,58 @@ const { promisify } = require('node:util');
 const { join } = require('path');
 
 // Import from local files
-const { titleCase } = require('../../util');
-const BackendClient = require('../client');
+const { titleCase } = require('../util');
+const BackendClient = require('./client');
 
 // Destructure from env
 const {
   NODE_ENV,
-  DEBUG_FILE_UPLOAD_REQUESTS
+  DEBUG_FILE_UPLOAD_REQUESTS,
+  DEBUG_BASE_REQUESTS
 } = process.env;
 
+// Base request
+const clientRequest = async (method, url, axiosConfig) => {
+  let clientResponse;
+  axiosConfig = { method, url, ...axiosConfig };
+
+  // Try to make the request
+  try {
+    const res = await BackendClient(axiosConfig);
+    clientResponse = BackendClient.getClientResponse(res);
+  } catch (err) {
+    if (err instanceof AxiosError) clientResponse = BackendClient.getClientResponse(err.response);
+
+    // Extensive logging as this is a client-side problem
+    else {
+      logger.syserr('Client side error encountered while performing request:');
+      console.dir(axiosConfig);
+      console.error(err);
+
+      // Building the client response depending on environment
+      clientResponse = {
+        error: 'Error encountered while fetching data',
+        message: NODE_ENV === 'production'
+          ? 'This problem has been logged to the developers, please try again later.'
+          : err.stack
+      };
+    }
+  }
+
+  // Conditional debug logging
+  if (DEBUG_BASE_REQUESTS === 'true') {
+    const endpointDebugTag = titleCase(url.replace(/-/g, ' '));
+    const debugTag = `[${method.toUpperCase()}] ${endpointDebugTag} Request`;
+    logger.startLog(debugTag);
+    console.dir(clientResponse, { depth: 1 });
+    logger.endLog(debugTag);
+  }
+
+  // Return the response
+  return clientResponse;
+};
+
+// File Upload request, PUT
 const fileUploadRequest = async ({
   id,
   readStream,
@@ -96,4 +139,44 @@ const fileUploadRequest = async ({
   return clientResponse;
 };
 
-module.exports = fileUploadRequest;
+/*
+ * Market
+ * Categories
+ */
+const getMarketCategories = async (id) =>
+  await clientRequest('GET', `market/categories/${id}`);
+const getMarketCategoryByName = async (id, name) =>
+  await clientRequest('GET', `market/categories/${id}/${name}`);
+const deleteMarketCategories = async (id) =>
+  await clientRequest('DELETE', `market/categories/${id}`);
+const putMarketCategories = async (id, body) =>
+  await fileUploadRequest({
+    id: id,
+    readStream: body,
+    endpoint: 'market/categories',
+    extension: 'zip',
+    workDir: BackendClient.tmpDir
+  });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+module.exports = {
+  clientRequest,
+  fileUploadRequest,
+
+  getMarketCategories,
+  getMarketCategoryByName,
+  deleteMarketCategories,
+  putMarketCategories
+};
