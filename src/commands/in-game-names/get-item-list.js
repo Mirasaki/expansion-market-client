@@ -2,7 +2,7 @@ const { AttachmentBuilder, ApplicationCommandOptionType } = require('discord.js'
 const { ChatInputCommand } = require('../../classes/Commands');
 const { stripIndents } = require('common-tags');
 const { colorResolver, getRelativeTime } = require('../../util');
-const { getItemList } = require('../../modules/in-game-names');
+const { getInGameNames } = require('../../lib/requests');
 
 const ATTACH_FILE_OPTION_NAME = 'attach-file';
 
@@ -32,7 +32,7 @@ module.exports = new ChatInputCommand({
     await interaction.deferReply();
 
     // Fetching our data
-    const res = await getItemList(guild.id);
+    const res = await getInGameNames(guild.id);
 
     // 200 - OK
     if (res.status === 200) {

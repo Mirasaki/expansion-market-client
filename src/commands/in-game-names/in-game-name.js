@@ -1,6 +1,6 @@
 const { ApplicationCommandOptionType } = require('discord.js');
 const { ChatInputCommand } = require('../../classes/Commands');
-const { fetchInGameName } = require('../../modules/in-game-names');
+const { getInGameNameByClass } = require('../../lib/requests');
 const { colorResolver } = require('../../util');
 
 const CLASS_NAME_OPTION_STRING = 'class-name';
@@ -36,7 +36,7 @@ module.exports = new ChatInputCommand({
     await interaction.deferReply();
 
     // Fetching our data
-    const res = await fetchInGameName(guild.id, query);
+    const res = await getInGameNameByClass(guild.id, query);
 
     // 200 - OK
     if (res.status === 200) {

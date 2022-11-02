@@ -1,8 +1,8 @@
 const { ApplicationCommandOptionType, AttachmentBuilder } = require('discord.js');
 const { ChatInputCommand } = require('../../classes/Commands');
-const { putItemList } = require('../../modules/in-game-names');
 const { isAllowedContentType, fetchAttachment, colorResolver, getRelativeTime } = require('../../util');
 const { stripIndents } = require('common-tags');
+const { putInGameNames } = require('../../lib/requests');
 
 const ATTACHMENT_OPTION_NAME = 'item-list-file';
 const ALLOWED_CONTENT_TYPE = 'application/json; charset=utf-8';
@@ -78,7 +78,7 @@ module.exports = new ChatInputCommand({
     await interaction.editReply(content);
 
     // Response from API
-    const res = await putItemList(interaction.guild.id, data);
+    const res = await putInGameNames(interaction.guild.id, data);
 
     // 200 - OK
     if (res.status === 200) {

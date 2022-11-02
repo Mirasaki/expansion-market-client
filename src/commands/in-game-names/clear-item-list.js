@@ -1,7 +1,7 @@
 const { ApplicationCommandOptionType } = require('discord.js');
 const { ChatInputCommand } = require('../../classes/Commands');
+const { deleteInGameNames } = require('../../lib/requests');
 const { colorResolver } = require('../../util');
-const { deleteItemList } = require('../../modules/in-game-names');
 
 const VERIFICATION_OPTION_NAME = 'verify-clear';
 
@@ -39,7 +39,7 @@ module.exports = new ChatInputCommand({
     await interaction.deferReply();
 
     // Fetching our data
-    const res = await deleteItemList(guild.id);
+    const res = await deleteInGameNames(guild.id);
 
     // 200 - OK
     if (res.status === 200) {
