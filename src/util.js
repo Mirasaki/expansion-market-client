@@ -197,7 +197,7 @@ const dateStringToMS = (dateString) => {
 
 
 
-const fetchAttachment = async (attachment, allowedSizeInKB = 1000) => {
+const fetchAttachment = async (attachment, convertResToJSON = false, allowedSizeInKB = 1000) => {
   // Destructure from attachment object
   const {
     url,
@@ -295,7 +295,9 @@ const fetchAttachment = async (attachment, allowedSizeInKB = 1000) => {
     statusText: res.statusText,
     runtime: runtime.ms,
     size: attachmentSizeInKB,
-    body: res.body
+    body: convertResToJSON
+      ? await res.json()
+      : res.body
   };
 };
 
