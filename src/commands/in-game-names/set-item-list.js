@@ -51,7 +51,7 @@ module.exports = new ChatInputCommand({
     await interaction.editReply(content);
 
     // Fetch the attachment from Discord's API
-    const attachmentResponse = await fetchAttachment(attachment);
+    const attachmentResponse = await fetchAttachment(attachment, true); // true = convertResToJSON
 
     // Return if any errors were encountered
     if ('error' in attachmentResponse) {
@@ -69,7 +69,7 @@ module.exports = new ChatInputCommand({
     // Valid data was received
 
     // Notify attachment has been fetched
-    const { status, statusText, data, runtime, size } = attachmentResponse;
+    const { status, statusText, body, runtime, size } = attachmentResponse;
     content += `\n${emojis.success} Fetched your attachment in: **${runtime} ms** (${size} KB) - ${status} ${statusText}`;
     await interaction.editReply(content);
 
@@ -78,7 +78,7 @@ module.exports = new ChatInputCommand({
     await interaction.editReply(content);
 
     // Response from API
-    const res = await putInGameNames(interaction.guild.id, data);
+    const res = await putInGameNames(interaction.guild.id, body);
 
     // 200 - OK
     if (res.status === 200) {
