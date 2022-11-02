@@ -150,7 +150,10 @@ const getInGameNameByClass = async (id, name) =>
 const deleteInGameNames = async (id) =>
   await clientRequest('DELETE', `in-game-names/${id}`);
 const putInGameNames = async (id, itemList) =>
-  await clientRequest('PUT', `in-game-names/${id}`, { data: { item_list: itemList } });
+  await clientRequest('PUT', `in-game-names/${id}`, {
+    headers: { 'Content-Type': 'application/json' },
+    data: { item_list: itemList }
+  });
 
 
 
@@ -169,6 +172,27 @@ const putMarketCategories = async (id, readStream) =>
     id,
     readStream,
     endpoint: 'market/categories',
+    extension: 'zip',
+    workDir: BackendClient.tmpDir
+  });
+
+
+
+/*
+ * Market
+ * Categories
+ */
+const getMarketTraders = async (id) =>
+  await clientRequest('GET', `market/traders/${id}`);
+const getMarketTraderByName = async (id, name) =>
+  await clientRequest('GET', `market/traders/${id}/${name}`);
+const deleteMarketTraders = async (id) =>
+  await clientRequest('DELETE', `market/traders/${id}`);
+const putMarketTraders = async (id, readStream) =>
+  await fileUploadRequest({
+    id,
+    readStream,
+    endpoint: 'market/traders',
     extension: 'zip',
     workDir: BackendClient.tmpDir
   });
@@ -198,5 +222,10 @@ module.exports = {
   getMarketCategories,
   getMarketCategoryByName,
   deleteMarketCategories,
-  putMarketCategories
+  putMarketCategories,
+
+  getMarketTraders,
+  getMarketTraderByName,
+  deleteMarketTraders,
+  putMarketTraders
 };
