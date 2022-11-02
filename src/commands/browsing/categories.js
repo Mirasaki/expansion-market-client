@@ -165,14 +165,6 @@ module.exports = new ChatInputCommand({
           );
         }
       }
-      console.log(categoryResponse)
-
-
-      embeds.push({
-        color: colorResolver(),
-        description: 'in-dev'
-      })
-
     }
 
 
