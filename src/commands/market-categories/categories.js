@@ -1,7 +1,7 @@
 const { ChatInputCommand } = require('../../classes/Commands');
 const { ApplicationCommandOptionType, AttachmentBuilder } = require('discord.js');
 const { getMarketCategories, getMarketCategoryByName } = require('../../lib/requests.js');
-const { EMBED_DESCRIPTION_MAX_LENGTH, MARKET_CATEGORY_AUTOCOMPLETE_OPTION } = require('../../constants');
+const { EMBED_DESCRIPTION_MAX_LENGTH, MARKET_CATEGORIES_AUTOCOMPLETE_OPTION } = require('../../constants');
 const { colorResolver, getRuntime } = require('../../util');
 const { stripIndents } = require('common-tags/lib');
 const { getClientErrorEmbed } = require('../../lib/client');
@@ -14,10 +14,10 @@ module.exports = new ChatInputCommand({
   },
 
   data: {
-    description: 'Browse all items from a specific category',
+    description: 'Get an overview of available Market categories',
     options: [
       {
-        name: MARKET_CATEGORY_AUTOCOMPLETE_OPTION,
+        name: MARKET_CATEGORIES_AUTOCOMPLETE_OPTION,
         description: 'The category to query',
         type: ApplicationCommandOptionType.String,
         autocomplete: true,
@@ -40,7 +40,7 @@ module.exports = new ChatInputCommand({
     const embeds = [];
 
     // Check OPTIONAL auto-complete enabled "category" option
-    const category = options.getString(MARKET_CATEGORY_AUTOCOMPLETE_OPTION);
+    const category = options.getString(MARKET_CATEGORIES_AUTOCOMPLETE_OPTION);
 
     // Return a list of all categories if no argument is provided
     if (!category) {
