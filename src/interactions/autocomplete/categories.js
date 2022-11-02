@@ -1,5 +1,5 @@
 const { ComponentCommand } = require('../../classes/Commands');
-const { getMarketCategories } = require('../../lib/requests/marketCategories');
+const { getMarketCategories } = require('../../lib/requests.js');
 
 module.exports = new ComponentCommand({
   run: async (client, interaction, query) => {

@@ -2,8 +2,8 @@ const { ApplicationCommandOptionType, AttachmentBuilder } = require('discord.js'
 const { ChatInputCommand } = require('../../classes/Commands');
 const { isAllowedContentType, fetchAttachment, colorResolver, getRelativeTime, getRuntime } = require('../../util');
 const { stripIndents } = require('common-tags');
-const fileUploadRequest = require('../../lib/requests/fileUploadRequest');
 const BackendClient = require('../../lib/client');
+const { putMarketCategories } = require('../../lib/requests.js');
 
 const ATTACHMENT_OPTION_NAME = 'market-categories-file';
 const ALLOWED_CONTENT_TYPE = 'application/zip';
@@ -79,13 +79,7 @@ module.exports = new ChatInputCommand({
 
     // Response from API
     const requestTimerStart = process.hrtime.bigint();
-    const res = await fileUploadRequest({
-      id: guild.id,
-      readStream: body,
-      endpoint: 'market/categories',
-      extension: 'zip',
-      workDir: BackendClient.tmpDir
-    });
+    const res = await putMarketCategories(guild.id, body);
     const requestFetchMS = getRuntime(requestTimerStart).ms;
 
     // Error embed if the request isn't successful

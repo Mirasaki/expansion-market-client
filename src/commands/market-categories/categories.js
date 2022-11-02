@@ -1,6 +1,6 @@
 const { ChatInputCommand } = require('../../classes/Commands');
 const { ApplicationCommandOptionType, AttachmentBuilder } = require('discord.js');
-const { getMarketCategories, getMarketCategoryByName } = require('../../lib/requests/marketCategories');
+const { getMarketCategories, getMarketCategoryByName } = require('../../lib/requests.js');
 const { EMBED_DESCRIPTION_MAX_LENGTH } = require('../../constants');
 const { colorResolver, getRuntime } = require('../../util');
 const { stripIndents } = require('common-tags/lib');
