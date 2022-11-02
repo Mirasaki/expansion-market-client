@@ -154,6 +154,11 @@ const putInGameNames = async (id, itemList) =>
     headers: { 'Content-Type': 'application/json' },
     data: { item_list: itemList }
   });
+const getInGameNameByClassBulk = async (id, items) =>
+  await clientRequest('GET', `in-game-names/${id}/bulk`, {
+    headers: { 'Content-Type': 'application/json' },
+    data: { items }
+  });
 
 
 
@@ -218,6 +223,7 @@ module.exports = {
   getInGameNameByClass,
   deleteInGameNames,
   putInGameNames,
+  getInGameNameByClassBulk,
 
   getMarketCategories,
   getMarketCategoryByName,
