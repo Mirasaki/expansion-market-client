@@ -26,7 +26,6 @@ module.exports = new ChatInputCommand({
     }]
   },
 
-  // eslint-disable-next-line sonarjs/cognitive-complexity
   run: (client, interaction) => {
     // Destructuring
     const { member } = interaction;
