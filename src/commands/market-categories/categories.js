@@ -112,7 +112,7 @@ module.exports = new ChatInputCommand({
       });
     }
 
-    // A CATEGORY_AUTOCOMPLETE_OPTION category has been provided
+    // A MARKET_CATEGORY_AUTOCOMPLETE_OPTION category has been provided
     // Receives the FILE NAME
     // { name: cat.displayName, value: cat.categoryName }
     else {
