@@ -11,7 +11,6 @@ const { clearApplicationCommandData, refreshSlashCommandData } = require('./hand
 const { getFiles, titleCase, getRuntime } = require('./util');
 const path = require('path');
 const clientExtensions = require('./client');
-const BackendClient = require('./lib/client');
 
 // Clear the console in non-production modes & print vanity
 process.env.NODE_ENV !== 'production' && console.clear();
@@ -212,9 +211,6 @@ const main = () => {
 
   // Registering our listeners
   registerListeners();
-
-  // Initialize our backend request client
-  BackendClient.init();
 
   /**
  * Finished initializing
