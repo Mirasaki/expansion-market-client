@@ -1,7 +1,7 @@
 const { ChatInputCommand } = require('../../classes/Commands');
 const { ApplicationCommandOptionType, AttachmentBuilder } = require('discord.js');
 const { getMarketCategories, getMarketCategoryByName } = require('../../lib/requests.js');
-const { EMBED_DESCRIPTION_MAX_LENGTH, MARKET_CATEGORIES_AUTOCOMPLETE_OPTION } = require('../../constants');
+const { MARKET_CATEGORIES_AUTOCOMPLETE_OPTION } = require('../../constants');
 const { colorResolver, getRuntime } = require('../../util');
 const { stripIndents } = require('common-tags/lib');
 const { getClientErrorEmbed } = require('../../lib/client');
@@ -18,7 +18,7 @@ module.exports = new ChatInputCommand({
     options: [
       {
         name: MARKET_CATEGORIES_AUTOCOMPLETE_OPTION,
-        description: 'The category to query',
+        description: `The ${MARKET_CATEGORIES_AUTOCOMPLETE_OPTION} to query`,
         type: ApplicationCommandOptionType.String,
         autocomplete: true,
         required: false
@@ -84,32 +84,28 @@ module.exports = new ChatInputCommand({
           .join('\n')
         : 'None';
 
-      // Create a new file if we're over character limit
-      if (overviewString.length > EMBED_DESCRIPTION_MAX_LENGTH) {
-        files.push(
-          new AttachmentBuilder(
-            Buffer.from(overviewString.replace(/[*`]/g, ''))
-          ).setName('categories-overview.txt')
-        );
-      }
+      // Create a new file with a quick overview
+      files.push(
+        new AttachmentBuilder(
+          Buffer.from(overviewString.replace(/[*`]/g, ''))
+        ).setName('categories-overview.txt')
+      );
 
       // Statistics and overviewString if not uploaded as file instead
       embeds.push({
         color: colorResolver(),
         title: `Categories for ${guild.name}`,
-        description: overviewString.length <= EMBED_DESCRIPTION_MAX_LENGTH
-          ? overviewString
-          : stripIndents`
-            __**Statistics:**__
-            **Categories:** ${data.length}
-            **Items:** ${totalItems}
+        description: stripIndents`
+          __**Statistics:**__
+          **Categories:** ${data.length}
+          **Items:** ${totalItems}
 
-            **Category with most items:** ${categoryWithMostItems.displayName} (${categoryWithMostItems.items.length} items)
-            **Empty Categories:** ${emptyCategoryString}
+          **Category with most items:** ${categoryWithMostItems.displayName} (${categoryWithMostItems.items.length} items)
+          **Empty Categories:** ${emptyCategoryString}
 
-            **Created:** <t:${Math.round(new Date(data[0].createdAt).getTime() / 1000)}>
-            **Updated:** <t:${Math.round(new Date(data[0].updatedAt).getTime() / 1000)}:R>
-          `,
+          **Created:** <t:${Math.round(new Date(data[0].createdAt).getTime() / 1000)}>
+          **Updated:** <t:${Math.round(new Date(data[0].updatedAt).getTime() / 1000)}:R>
+        `,
         footer: {
           text: `Analyzed ${data.length} categories in ${getRuntime(runtimeStart).ms} ms`
         }
