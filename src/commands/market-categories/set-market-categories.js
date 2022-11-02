@@ -50,7 +50,7 @@ module.exports = new ChatInputCommand({
     }
 
     // User Feedback, wait for parser
-    let content = `${emojis.wait} ${member}, please be patient while your \`${ATTACHMENT_OPTION_NAME}\` attachment is being parsed/processed...`;
+    let content = `${emojis.wait} ${member}, please be patient while your \`${ATTACHMENT_OPTION_NAME}\` attachment is being retrieved...`;
     await interaction.editReply(content);
 
     // Fetch the attachment from Discord's API
@@ -58,15 +58,19 @@ module.exports = new ChatInputCommand({
 
     // Return if any errors were encountered
     if ('error' in attachmentResponse) {
-      interaction.editReply({ embeds: [BackendClient.getClientErrorEmbed(attachmentResponse)] });
+      content += `\n${emojis.error} Couldn't retrieve attachment, this command has been cancelled`;
+      interaction.editReply({
+        content,
+        embeds: [BackendClient.getClientErrorEmbed(attachmentResponse)]
+      });
       return;
     }
 
     // Valid data was received
 
     // Notify attachment has been fetched
-    const { status, statusText, runtime, size, body } = attachmentResponse;
-    content += `\n${emojis.success} Fetched your attachment in: **${runtime} ms** (${size} KB) - ${status} ${statusText}`;
+    const { runtime, size, body } = attachmentResponse;
+    content += `\n${emojis.success} Fetched your attachment in: **${runtime} ms** (${size} KB)`;
     await interaction.editReply(content);
 
     // Notify start API parser
@@ -86,12 +90,13 @@ module.exports = new ChatInputCommand({
 
     // Error embed if the request isn't successful
     if (res.status !== 200) {
-      content += `\n${emojis.error} This file couldn't be processed`;
+      content += `\n${emojis.error} This file couldn't be parsed/processed`;
       interaction.editReply({
         content,
         embeds: [BackendClient.getClientErrorEmbed(res)]
       });
     }
+
 
     // 200 - OK - Success
     else {
@@ -101,7 +106,7 @@ module.exports = new ChatInputCommand({
         0 // Initial accumulator
       );
 
-      content += `\n${emojis.success} Finished processing and saving your ${ATTACHMENT_FILE_DESCRIPTION} in: **${requestFetchMS} ms**`;
+      content += `\n${emojis.success} Finished parsing and saving your ${ATTACHMENT_FILE_DESCRIPTION} in: **${requestFetchMS} ms**`;
       interaction.editReply({
         content,
         embeds: [{
