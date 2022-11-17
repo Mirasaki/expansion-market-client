@@ -50,7 +50,7 @@ module.exports = new ChatInputCommand({
       // Check data availability
       if (!('data' in categoriesResponse) || !categoriesResponse.data[0]) {
         interaction.editReply({
-          content: `${emojis.error} ${member}, you currently don't have any categories configured, use **/set-market-categories** before you can use this.`
+          content: `${emojis.error} ${member}, you currently don't have any categories configured, use **/set-categories** before you can use this.`
         });
         return; // Escape the command early
       }
