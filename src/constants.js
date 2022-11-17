@@ -68,7 +68,7 @@ const MARKET_TRADERS_AUTOCOMPLETE_OPTION = 'trader';
 const MARKET_TRADER_ZONES_OPTION_NAME = 'market-zones-file';
 const MARKET_TRADER_ZONES_REAL_FILE_NAME = 'traderzones.zip';
 const MARKET_TRADER_ZONES_FILE_DESCRIPTION = 'Market trader-zones configuration';
-const MARKET_TRADER_ZONES_AUTOCOMPLETE_OPTION = 'zones';
+const MARKET_TRADER_ZONES_AUTOCOMPLETE_OPTION = 'trader-zone';
 
 
 module.exports = {
