@@ -48,8 +48,7 @@ const clientRequest = async (method, url, axiosConfig) => {
 
   // Conditional debug logging
   if (DEBUG_BASE_REQUESTS === 'true') {
-    const endpointDebugTag = titleCase(url.replace(/-/g, ' '));
-    const debugTag = `[${method.toUpperCase()}] ${endpointDebugTag} Request`;
+    const debugTag = `[${method.toUpperCase()}] ${url} Request`;
     logger.startLog(debugTag);
     console.dir(clientResponse, { depth: Array.isArray(clientResponse.data) ? 2 : 1 });
     logger.endLog(debugTag);
@@ -177,8 +176,7 @@ const putMarketCategories = async (id, readStream) =>
     id,
     readStream,
     endpoint: 'market/categories',
-    extension: 'zip',
-    workDir: BackendClient.tmpDir
+    extension: 'zip'
   });
 
 
@@ -198,8 +196,7 @@ const putMarketTraders = async (id, readStream) =>
     id,
     readStream,
     endpoint: 'market/traders',
-    extension: 'zip',
-    workDir: BackendClient.tmpDir
+    extension: 'zip'
   });
 
 
@@ -209,18 +206,17 @@ const putMarketTraders = async (id, readStream) =>
  * Trader Zones
  */
 const getMarketTraderZones = async (id) =>
-  await clientRequest('GET', `market/traders/zones/${id}`);
+  await clientRequest('GET', `market/trader-zones/${id}`);
 const getMarketTraderZoneByName = async (id, name) =>
-  await clientRequest('GET', `market/traders/zones/${id}/${name}`);
+  await clientRequest('GET', `market/trader-zones/${id}/${name}`);
 const deleteMarketTraderZones = async (id) =>
-  await clientRequest('DELETE', `market/traders/zones/${id}`);
+  await clientRequest('DELETE', `market/trader-zones/${id}`);
 const putMarketTraderZones = async (id, readStream) =>
   await fileUploadRequest({
     id,
     readStream,
-    endpoint: 'market/traders/zones',
-    extension: 'zip',
-    workDir: BackendClient.tmpDir
+    endpoint: 'market/trader-zones',
+    extension: 'zip'
   });
 
 
