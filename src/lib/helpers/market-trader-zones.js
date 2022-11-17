@@ -19,12 +19,12 @@ const resolveSellPricePercent = (float) => {
 // You can set the stock for each individual item or set it
 // to 0 (meaning traders in this zone will only start selling the item
 // after players have sold at least one of the respective item to the trader).
-const resolveStockEntry = () => {
+// const resolveStockEntry = () => {
 
-};
+// };
 
 module.exports = {
   resolveBuyPricePercent,
-  resolveSellPricePercent,
-  resolveStockEntry
+  resolveSellPricePercent
+  // resolveStockEntry
 };
