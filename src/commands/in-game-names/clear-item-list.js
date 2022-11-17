@@ -43,19 +43,19 @@ module.exports = new ChatInputCommand({
 
     // 200 - OK
     if (res.status === 200) {
-      interaction.editReply(`${emojis.success} ${member}, in-game item list configuration has been deleted.`);
+      interaction.editReply(`${emojis.success} ${member}, item list configuration has been deleted.`);
     }
 
     // Not Found
     else if (res.status === 404) {
-      interaction.editReply(`${emojis.error} ${member}, couldn't find an in-game names configuration for this server. Use **/set-item-list** first.`);
+      interaction.editReply(`${emojis.error} ${member}, no item list configuration active for this server. Use **/set-item-list** instead.`);
     }
 
     // Unknown error
     else {
       const { status, statusText, error, message } = res;
       interaction.editReply({
-        content: `${emojis.error} ${member}, in-game item list configuration couldn't be deleted.`,
+        content: `${emojis.error} ${member}, item list configuration couldn't be deleted.`,
         embeds: [{
           color: colorResolver(colors.error),
           title: error || 'Unexpected error',
