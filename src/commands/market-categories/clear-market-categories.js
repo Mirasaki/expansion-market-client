@@ -48,6 +48,13 @@ module.exports = new ChatInputCommand({
       });
     }
 
+    // 404 - Not Found
+    else if (res.status === 404) {
+      interaction.editReply({
+        content: `${emojis.error} ${member}, there is no ${MARKET_CATEGORIES_FILE_DESCRIPTION} active for this server.`
+      });
+    }
+
     // Not 200/OK
     else {
       interaction.editReply({
