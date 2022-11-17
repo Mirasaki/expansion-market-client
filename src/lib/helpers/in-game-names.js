@@ -31,12 +31,15 @@ const bulkResolveInGameNames = async (id, items, prettifyUnresolved = true) => {
     && 'data' in clientRes
     && 'resolved' in clientRes.data
   ) {
+    // Prettify unresolved names if request
     if (prettifyUnresolved) clientRes.data.unresolved = clientRes.data.unresolved.map((item) => prettifyClassName(item));
-    return clientRes.data;
+    return clientRes.data; // Or return the default response
   }
+
+  // No Item list configured - build replica response with all unresolved
   else return prettifyUnresolved
-    ? items.map((item) => prettifyClassName(item))
-    : items;
+    ? { resolved: [], unresolved: items.map((item) => prettifyClassName(item)) }
+    : { resolved: [], unresolved: items };
 };
 
 // This function takes the items queried to the bulk resolve endpoint
