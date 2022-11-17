@@ -2,7 +2,7 @@ const { ApplicationCommandOptionType } = require('discord.js');
 const { ChatInputCommand } = require('../../classes/Commands');
 const { MARKET_TRADERS_FILE_DESCRIPTION, CONFIRMATION_PROMPT_OPTION_NAME, CONFIRMATION_PROMPT_OPTION_DESCRIPTION } = require('../../constants');
 const { getClientErrorEmbed } = require('../../lib/client');
-const { deleteMarketCategories } = require('../../lib/requests');
+const { deleteMarketTraders } = require('../../lib/requests');
 
 
 module.exports = new ChatInputCommand({
@@ -39,12 +39,19 @@ module.exports = new ChatInputCommand({
     }
 
     // Checked true on confirmation prompt
-    const res = await deleteMarketCategories(guild.id);
+    const res = await deleteMarketTraders(guild.id);
 
-    // 200 - OK - Deleted {{num}} categories
+    // 200 - OK - Deleted {{num}} traders
     if (res.status === 200) {
       interaction.editReply({
         content: `${emojis.success} ${member}, ${res.message}`
+      });
+    }
+
+    // 404 - Not Found
+    else if (res.status === 404) {
+      interaction.editReply({
+        content: `${emojis.error} ${member}, there is no ${MARKET_TRADERS_FILE_DESCRIPTION} active for this server.`
       });
     }
 
