@@ -9,8 +9,8 @@ module.exports = new ChatInputCommand({
   permLevel: 'Administrator',
   cooldown: {
     type: 'guild',
-    usages: 2,
-    duration: 30
+    usages: 1,
+    duration: 60
   },
   data: {
     description: 'Clear/delete the in-game item list configuration for this server',

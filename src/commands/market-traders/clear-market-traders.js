@@ -6,6 +6,11 @@ const { deleteMarketCategories } = require('../../lib/requests');
 
 
 module.exports = new ChatInputCommand({
+  cooldown: {
+    usages: 1,
+    duration: 30,
+    type: 'guild'
+  },
   data: {
     description: `Clear/delete your ${MARKET_TRADERS_FILE_DESCRIPTION}`,
     options: [{

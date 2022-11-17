@@ -12,7 +12,7 @@ module.exports = new ChatInputCommand({
   cooldown: {
     type: 'guild',
     usages: 1,
-    duration: 30
+    duration: 60
   },
   data: {
     description: 'Upload your server\'s in-game item names list so you can use in-game names instead of class names. You wouldn\'t want your player-base having to learn class names, would you?',

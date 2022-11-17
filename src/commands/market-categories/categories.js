@@ -10,7 +10,7 @@ module.exports = new ChatInputCommand({
   cooldown: {
     type: 'guild',
     usages: 2,
-    duration: 30
+    duration: 20
   },
 
   data: {
