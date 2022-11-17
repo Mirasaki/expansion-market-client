@@ -185,7 +185,7 @@ const putMarketCategories = async (id, readStream) =>
 
 /*
  * Market
- * Categories
+ * Traders
  */
 const getMarketTraders = async (id) =>
   await clientRequest('GET', `market/traders/${id}`);
@@ -204,7 +204,24 @@ const putMarketTraders = async (id, readStream) =>
 
 
 
-
+/*
+ * Market
+ * Trader Zones
+ */
+const getMarketTraderZones = async (id) =>
+  await clientRequest('GET', `market/traders/zones/${id}`);
+const getMarketTraderZoneByName = async (id, name) =>
+  await clientRequest('GET', `market/traders/zones/${id}/${name}`);
+const deleteMarketTraderZones = async (id) =>
+  await clientRequest('DELETE', `market/traders/zones/${id}`);
+const putMarketTraderZones = async (id, readStream) =>
+  await fileUploadRequest({
+    id,
+    readStream,
+    endpoint: 'market/traders/zones',
+    extension: 'zip',
+    workDir: BackendClient.tmpDir
+  });
 
 
 
@@ -233,5 +250,10 @@ module.exports = {
   getMarketTraders,
   getMarketTraderByName,
   deleteMarketTraders,
-  putMarketTraders
+  putMarketTraders,
+
+  getMarketTraderZones,
+  getMarketTraderZoneByName,
+  deleteMarketTraderZones,
+  putMarketTraderZones
 };
