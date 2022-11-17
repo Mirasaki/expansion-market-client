@@ -51,7 +51,7 @@ const clientRequest = async (method, url, axiosConfig) => {
     const endpointDebugTag = titleCase(url.replace(/-/g, ' '));
     const debugTag = `[${method.toUpperCase()}] ${endpointDebugTag} Request`;
     logger.startLog(debugTag);
-    console.dir(clientResponse, { depth: 1 });
+    console.dir(clientResponse, { depth: Array.isArray(clientResponse.data) ? 2 : 1 });
     logger.endLog(debugTag);
   }
 
