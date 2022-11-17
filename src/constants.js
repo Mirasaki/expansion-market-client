@@ -40,7 +40,7 @@ const ZERO_WIDTH_SPACE_CHAR_CODE = 8203;
 // Global
 const CONFIRMATION_PROMPT_OPTION_NAME = 'confirmation-prompt';
 const CONFIRMATION_PROMPT_OPTION_DESCRIPTION = 'Are you absolutely sure you want to clear this data?';
-const MISSING_IN_GAME_NAME_STATE_TAG = '(*)';
+const MISSING_IN_GAME_NAME_STATE_TAG = '(-)';
 
 // Help
 const HELP_COMMAND_SELECT_MENU = 'help_select_command';
