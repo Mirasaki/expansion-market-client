@@ -221,7 +221,23 @@ const putMarketTraderZones = async (id, readStream) =>
 
 
 
-
+/*
+ * Market
+ * Trader Zones
+ */
+const getMarketTraderMaps = async (id) =>
+  await clientRequest('GET', `market/trader-maps/${id}`);
+const getMarketTraderMapByName = async (id, name) =>
+  await clientRequest('GET', `market/trader-maps/${id}/${name}`);
+const deleteMarketTraderMaps = async (id) =>
+  await clientRequest('DELETE', `market/trader-maps/${id}`);
+const putMarketTraderMaps = async (id, readStream) =>
+  await fileUploadRequest({
+    id,
+    readStream,
+    endpoint: 'market/trader-maps',
+    extension: 'zip'
+  });
 
 
 
@@ -251,5 +267,10 @@ module.exports = {
   getMarketTraderZones,
   getMarketTraderZoneByName,
   deleteMarketTraderZones,
-  putMarketTraderZones
+  putMarketTraderZones,
+
+  getMarketTraderMaps,
+  getMarketTraderMapByName,
+  deleteMarketTraderMaps,
+  putMarketTraderMaps
 };
