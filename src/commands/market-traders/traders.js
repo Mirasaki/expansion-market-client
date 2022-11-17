@@ -1,6 +1,6 @@
 const { ChatInputCommand } = require('../../classes/Commands');
 const { ApplicationCommandOptionType, AttachmentBuilder } = require('discord.js');
-const { getMarketTraders, getMarketCategoryByName } = require('../../lib/requests.js');
+const { getMarketTraders, getMarketTraderByName } = require('../../lib/requests.js');
 const { MARKET_TRADERS_AUTOCOMPLETE_OPTION } = require('../../constants');
 const { colorResolver, getRuntime } = require('../../util');
 const { stripIndents } = require('common-tags/lib');
@@ -136,50 +136,72 @@ module.exports = new ChatInputCommand({
 
     // A MARKET_TRADERS_AUTOCOMPLETE_OPTION trader has been provided
     // Receives the FILE NAME
-    // { name: trader.displayName, value: trader.categoryName }
+    // { name: trader.displayName, value: trader.traderName }
     else {
-      const categoryResponse = await getMarketCategoryByName(guild.id, trader);
+      const traderResponse = await getMarketTraderByName(guild.id, trader);
 
       // Handle errors - Most likely trader couldn't be found
-      if (categoryResponse.status !== 200) {
-        embeds.push(getClientErrorEmbed(categoryResponse));
+      if (traderResponse.status !== 200) {
+        embeds.push(getClientErrorEmbed(traderResponse));
       }
 
-      // 200 - OK - Category Query Success
+      // 200 - OK - Trader Query Success
       else {
-        const { data } = categoryResponse;
+        const { data } = traderResponse;
 
-        // Category details
+        // Resolving currencies
+        const currenciesInGameNames = await bulkResolveInGameNames(guild.id, data.currencies);
+        const resolvedCurrencyArray = matchResolvedInGameNameArray(data.currencies, currenciesInGameNames);
+        const formattedCurrencies = formatAmountInCurrency(resolvedCurrencyArray);
+
+        // Trader details
         embeds.push({
-          color: colorResolver(`#${data.color.slice(0, 6)}`),
+          color: colorResolver(),
           title: data.displayName,
           description: stripIndents`
               __**Statistics:**__
-              **Items:** ${data.items.length}
-              **Initial Stock:** ${data.initStockPercent}%
+              **Categories Configured:** ${data.categories.length}
+              **Items Configured:** ${Object.values(data.items).length}
+
+              **Required Humanity:** ${data.minRequiredHumanity} - ${data.maxRequiredHumanity}
+
+              **Currencies Used:**
+              ${formattedCurrencies.join('\n')}
               
-  
               **Created:** <t:${Math.round(new Date(data.createdAt).getTime() / 1000)}>
               **Updated:** <t:${Math.round(new Date(data.updatedAt).getTime() / 1000)}:R>
             `,
           footer: {
             text: stripIndents`
-              File: ${data.categoryName}.json
+              File: ${data.traderName}.json
               Completed in ${getRuntime(runtimeStart).ms} ms
             `
           }
         });
 
+        // [DEV] - Consider if we want to add this
         // Create a new file attachment if the trader has items configured
-        if (data.items[0]) {
-          files.push(
-            new AttachmentBuilder(
-              Buffer.from(
-                JSON.stringify(data.items, null, 2)
-              )
-            ).setName(`${data.categoryName}-items.json`)
-          );
-        }
+        // if (Object.values(data.items)[0]) {
+        //   files.push(
+        //     new AttachmentBuilder(
+        //       Buffer.from(
+        //         JSON.stringify(data.items, null, 2)
+        //       )
+        //     ).setName(`${data.traderName}-items.json`)
+        //   );
+        // }
+
+        // [DEV] - Consider if we want to add this
+        // Create a new file attachment if the trader has items configured
+        // if (data.categories[0]) {
+        //   files.push(
+        //     new AttachmentBuilder(
+        //       Buffer.from(
+        //         JSON.stringify(data.categories, null, 2)
+        //       )
+        //     ).setName(`${data.traderName}-categories.json`)
+        //   );
+        // }
       }
     }
 
