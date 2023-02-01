@@ -1,6 +1,6 @@
 const { ApplicationCommandOptionType, AttachmentBuilder } = require('discord.js');
 const { ChatInputCommand } = require('../../classes/Commands');
-const { isAllowedContentType, fetchAttachment, colorResolver, getRelativeTime } = require('../../util');
+const { isAllowedContentType, fetchAttachment, colorResolver } = require('../../util');
 const { stripIndents } = require('common-tags');
 const { putInGameNames } = require('../../lib/requests');
 
@@ -95,13 +95,10 @@ module.exports = new ChatInputCommand({
             **Empty in-game names:** ${data.undefinedInGameName.length}
             **Not in trader config:** ${data.notInTraderConfig.length}
             **Missing from item list:** ${data.notInItemList.length}
-          `,
-          footer: {
-            text: stripIndents`
-              Updated: ${getRelativeTime(data.updatedAt)}
-              Created: ${getRelativeTime(data.createdAt)}
-            `
-          }
+
+            **Created:** <t:${Math.round(new Date(data.createdAt).getTime() / 1000)}>
+            **Updated:** <t:${Math.round(new Date(data.updatedAt).getTime() / 1000)}:R>
+          `
         }],
         files: [
           new AttachmentBuilder(Buffer.from(JSON.stringify(data, null, 2)))

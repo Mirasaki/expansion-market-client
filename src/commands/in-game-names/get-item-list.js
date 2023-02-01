@@ -1,7 +1,7 @@
 const { AttachmentBuilder, ApplicationCommandOptionType } = require('discord.js');
 const { ChatInputCommand } = require('../../classes/Commands');
 const { stripIndents } = require('common-tags');
-const { colorResolver, getRelativeTime } = require('../../util');
+const { colorResolver } = require('../../util');
 const { getInGameNames } = require('../../lib/requests');
 
 const ATTACH_FILE_OPTION_NAME = 'attach-file';
@@ -47,13 +47,10 @@ module.exports = new ChatInputCommand({
             **Empty in-game names:** ${data.undefinedInGameName.length}
             **Not in trader config:** ${data.notInTraderConfig.length}
             **Missing from item list:** ${data.notInItemList.length}
-          `,
-          footer: {
-            text: stripIndents`
-              Updated: ${getRelativeTime(data.updatedAt)}
-              Created: ${getRelativeTime(data.createdAt)}
-            `
-          }
+
+            **Created:** <t:${Math.round(new Date(data.createdAt).getTime() / 1000)}>
+            **Updated:** <t:${Math.round(new Date(data.updatedAt).getTime() / 1000)}:R>
+          `
         }],
         files: attachFile ? [
           new AttachmentBuilder(Buffer.from(JSON.stringify(data, null, 2)))
