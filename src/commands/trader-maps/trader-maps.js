@@ -45,7 +45,7 @@ module.exports = new ChatInputCommand({
     // Return a list of all maps if no argument is provided
     if (!map) {
       // Fetching from database
-      const tradersResponse = await getMarketTraderMaps(guild.id); // [DEV]
+      const tradersResponse = await getMarketTraderMaps(guild.id);
 
       // Check data availability
       if (!('data' in tradersResponse) || !tradersResponse.data[0]) {

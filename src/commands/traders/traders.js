@@ -47,7 +47,7 @@ module.exports = new ChatInputCommand({
     // Return a list of all traders if no argument is provided
     if (!trader) {
       // Fetching from database
-      const tradersResponse = await getMarketTraders(guild.id); // [DEV]
+      const tradersResponse = await getMarketTraders(guild.id);
 
       // Check data availability
       if (!('data' in tradersResponse) || !tradersResponse.data[0]) {
@@ -117,8 +117,8 @@ module.exports = new ChatInputCommand({
           **Categories Configured:** ${totalCategories}
           **Trader-Specific Items Configured:** ${totalItems}
 
-          **Category with most categories:** ${traderWithMostCategories.displayName} (${traderWithMostCategories.categories.length} categories)
-          **Category with most items:** ${traderWithMostItems.displayName} (${Object.keys(traderWithMostItems.items).length} items)
+          **Trader with most categories:** ${traderWithMostCategories.displayName} (${traderWithMostCategories.categories.length} categories)
+          **Trader with most items:** ${traderWithMostItems.displayName} (${Object.keys(traderWithMostItems.items).length} items)
 
           **Empty Traders:** ${emptyTraderString}
 
@@ -178,30 +178,6 @@ module.exports = new ChatInputCommand({
             `
           }
         });
-
-        // [DEV] - Consider if we want to add this
-        // Create a new file attachment if the trader has items configured
-        // if (Object.values(data.items)[0]) {
-        //   files.push(
-        //     new AttachmentBuilder(
-        //       Buffer.from(
-        //         JSON.stringify(data.items, null, 2)
-        //       )
-        //     ).setName(`${data.traderName}-items.json`)
-        //   );
-        // }
-
-        // [DEV] - Consider if we want to add this
-        // Create a new file attachment if the trader has items configured
-        // if (data.categories[0]) {
-        //   files.push(
-        //     new AttachmentBuilder(
-        //       Buffer.from(
-        //         JSON.stringify(data.categories, null, 2)
-        //       )
-        //     ).setName(`${data.traderName}-categories.json`)
-        //   );
-        // }
       }
     }
 

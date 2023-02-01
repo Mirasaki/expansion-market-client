@@ -46,7 +46,7 @@ module.exports = new ChatInputCommand({
     // Return a list of all trader-zones if no argument is provided
     if (!traderZone) {
       // Fetching from database
-      const traderZoneResponse = await getMarketTraderZones(guild.id); // [DEV]
+      const traderZoneResponse = await getMarketTraderZones(guild.id);
 
       // Check data availability
       if (!('data' in traderZoneResponse) || !traderZoneResponse.data[0]) {
