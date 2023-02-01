@@ -20,8 +20,8 @@ module.exports = new ChatInputCommand({
         name: CLASS_NAME_OPTION_STRING,
         description: 'The class name of the item',
         type: ApplicationCommandOptionType.String,
-        required: true
-        // autocomplete: true [DEV] - Implement autocomplete
+        required: true,
+        autocomplete: true
       }
     ]
   },
