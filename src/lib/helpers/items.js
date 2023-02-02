@@ -55,7 +55,7 @@ const resolveBuyPriceOutput = async (item, trader, zone) => {
   const buyDynamicLow = Math.round((item.minPriceThreshold / 100) * activeBuyPercent);
 
   // Resolve the currency name to display
-  const currencyDisplayName = await resolveInGameName(trader.GuildId, trader.lowestCurrency);
+  const currencyDisplayName = await resolveInGameName(trader.MarketServerId, trader.lowestCurrency);
 
   // Construct our final string
   const buyPrice = item.hasStaticPrice
@@ -91,7 +91,7 @@ const resolveSellPriceOutput = async (item, trader, zone) => {
   const sellDynamicLow = Math.round((item.minPriceThreshold / 100) * activeSellPercent);
 
   // Resolve the currency name to display
-  const currencyDisplayName = await resolveInGameName(trader.GuildId, trader.lowestCurrency);
+  const currencyDisplayName = await resolveInGameName(trader.MarketServerId, trader.lowestCurrency);
 
   // Construct our final string
   const sellPrice = item.hasStaticPrice
@@ -111,7 +111,7 @@ const getItemDataEmbed = async (className, category, trader) => {
   console.log('\n\n\n');
   console.dir({ trader, item }, { depth: 1 });
   console.log('\n\n\n');
-  const ign = await resolveInGameName(category.GuildId, className);
+  const ign = await resolveInGameName(category.MarketServerId, className);
   const map = trader.MarketTraderMap;
   const zone = map.MarketTraderZoneConfig;
 
@@ -191,7 +191,7 @@ const getItemDataEmbed = async (className, category, trader) => {
 
   // Display SpawnAttachments conditionally
   if (item.spawnAttachments.length >= 1) {
-    const attachmentsInGameNames = item.spawnAttachments.map((attachment) => resolveInGameName(trader.GuildId, attachment));
+    const attachmentsInGameNames = item.spawnAttachments.map((attachment) => resolveInGameName(trader.MarketServerId, attachment));
     embed.fields.push({
       name: 'Attachments',
       value: `\`\`\`diff\n• ${attachmentsInGameNames.join('\n• ')}\`\`\``,
@@ -201,7 +201,7 @@ const getItemDataEmbed = async (className, category, trader) => {
 
   // Display Variants conditionally
   if (item.variants.length >= 1) {
-    const variantsInGameNames = item.variants.map((variant) => resolveInGameName(trader.GuildId, variant));
+    const variantsInGameNames = item.variants.map((variant) => resolveInGameName(trader.MarketServerId, variant));
     embed.fields.push({
       name: 'Variants',
       value: `\`\`\`diff\n• ${variantsInGameNames.join('\n• ')}\`\`\``,
