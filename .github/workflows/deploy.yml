@@ -1,0 +1,54 @@
+name: Deploy
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  notify-start:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Discord Webhook - Notify Start Deploy
+        uses: tsickert/discord-webhook@v5.3.0
+        continue-on-error: true
+        with:
+          webhook-url: ${{ secrets.DEPLOYMENT_WEBHOOK_URL }}
+          embed-author-name: "⬇️ Client | Expansion Market Trader"
+          embed-author-url: "https://gmt.mirasaki.dev/"
+          embed-color: 14228765
+          embed-description: "⌛ Deploying **`${{ github.repository }}`**...\n📤 Service is now temporarily unavailable."
+  deploy:
+    needs: notify-start
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Deploy to Production
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            export NVM_DIR=~/.nvm
+            source ~/.nvm/nvm.sh
+            cd /var/www/green-mountain-trader-client
+            pm2 stop gmt-client
+            git pull origin main
+            npm install
+            pm2 restart gmt-client
+  notify-finish:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Discord Webhook - Notify Finish Deploy
+        uses: tsickert/discord-webhook@v5.3.0
+        with:
+          webhook-url: ${{ secrets.DEPLOYMENT_WEBHOOK_URL }}
+          embed-author-name: "⬆️ Client | Expansion Market Trader"
+          embed-author-url: "https://gmt.mirasaki.dev/"
+          embed-color: 45317
+          embed-description: "✅ Finished deploying [**`@${{ github.repository }}`**](${{ github.server_url }}/${{ github.repository }})\n📥 [Service](https://gmt.mirasaki.dev/) is back online"
