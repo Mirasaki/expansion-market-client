@@ -3,13 +3,17 @@ const { ChatInputCommand } = require('../../classes/Commands');
 const { isAllowedContentType, fetchAttachment, colorResolver, getRelativeTime, getRuntime } = require('../../util');
 const { stripIndents } = require('common-tags');
 const BackendClient = require('../../lib/client');
-const { putMarketCategories } = require('../../lib/requests.js');
+const { putMarketTraders } = require('../../lib/requests.js');
 
+// Constants & Helpers
 const {
-  MARKET_CATEGORIES_FILE_DESCRIPTION,
-  MARKET_CATEGORIES_OPTION_NAME,
-  MARKET_CATEGORIES_REAL_FILE_NAME
+  MARKET_TRADERS_FILE_DESCRIPTION,
+  MARKET_TRADERS_OPTION_NAME,
+  MARKET_TRADERS_REAL_FILE_NAME
 } = require('../../constants');
+const { bulkResolveInGameNames, matchResolvedInGameNameArray } = require('../../lib/helpers/in-game-names');
+const { getAllCurrencies, formatAmountInCurrency } = require('../../lib/helpers/market-traders');
+const { marketServerOption, hasValidMarketServer } = require('../../lib/helpers/marketServers');
 
 const ALLOWED_CONTENT_TYPE = 'application/zip';
 
@@ -21,12 +25,13 @@ module.exports = new ChatInputCommand({
     duration: 60
   },
   data: {
-    description: `Upload your server's ${MARKET_CATEGORIES_FILE_DESCRIPTION}`,
+    description: `Upload your server's ${MARKET_TRADERS_FILE_DESCRIPTION}`,
     options: [
+      marketServerOption,
       {
         type: ApplicationCommandOptionType.Attachment,
-        name: MARKET_CATEGORIES_OPTION_NAME,
-        description: `Your "${MARKET_CATEGORIES_REAL_FILE_NAME}" file.`,
+        name: MARKET_TRADERS_OPTION_NAME,
+        description: `Your "${MARKET_TRADERS_REAL_FILE_NAME}" file.`,
         required: true
       }
     ]
@@ -40,8 +45,12 @@ module.exports = new ChatInputCommand({
     // Deferring our reply
     await interaction.deferReply();
 
+    // Check has valid market config option
+    const server = await hasValidMarketServer(interaction);
+    if (server === false) return;
+
     // Assign user's attachment
-    const attachment = interaction.options.getAttachment(MARKET_CATEGORIES_OPTION_NAME);
+    const attachment = interaction.options.getAttachment(MARKET_TRADERS_OPTION_NAME);
 
     // Return if content type is not allowed
     const contentIsAllowed = isAllowedContentType(ALLOWED_CONTENT_TYPE, attachment.contentType);
@@ -53,7 +62,7 @@ module.exports = new ChatInputCommand({
     }
 
     // User Feedback, wait for parser
-    let content = `${emojis.wait} ${member}, please be patient while your \`${MARKET_CATEGORIES_OPTION_NAME}\` attachment is being retrieved...`;
+    let content = `${emojis.wait} ${member}, please be patient while your \`${MARKET_TRADERS_OPTION_NAME}\` attachment is being retrieved...`;
     await interaction.editReply(content);
 
     // Fetch the attachment from Discord's API
@@ -77,12 +86,12 @@ module.exports = new ChatInputCommand({
     await interaction.editReply(content);
 
     // Notify start API parser
-    content += `\n${emojis.wait} Parsing and saving your ${MARKET_CATEGORIES_FILE_DESCRIPTION}...`;
+    content += `\n${emojis.wait} Parsing and saving your ${MARKET_TRADERS_FILE_DESCRIPTION}...`;
     await interaction.editReply(content);
 
     // Response from API
     const requestTimerStart = process.hrtime.bigint();
-    const res = await putMarketCategories(guild.id, body);
+    const res = await putMarketTraders(server, body);
     const requestFetchMS = getRuntime(requestTimerStart).ms;
 
     // Error embed if the request isn't successful
@@ -98,20 +107,35 @@ module.exports = new ChatInputCommand({
     // 200 - OK - Success
     else {
       const { data } = res;
+
+      // Calculate totals
+      const totalCategories = data.reduce(
+        (accumulator, currValue) => accumulator += currValue.categories.length, 0 // Initial accumulator
+      );
       const totalItems = data.reduce(
-        (accumulator, currValue) => accumulator += currValue.items.length,
-        0 // Initial accumulator
+        (accumulator, currValue) => accumulator += Object.values(currValue.items).length, 0
       );
 
-      content += `\n${emojis.success} Finished parsing and saving your ${MARKET_CATEGORIES_FILE_DESCRIPTION} in: **${requestFetchMS} ms**`;
+      // Resolving currencies
+      const uniqueCurrenciesUsed = getAllCurrencies(data); // OR getAllLowestCurrencies(data)
+      const currenciesInGameNames = await bulkResolveInGameNames(server, uniqueCurrenciesUsed);
+      const resolvedCurrencyArray = matchResolvedInGameNameArray(uniqueCurrenciesUsed, currenciesInGameNames);
+      const formattedCurrencies = formatAmountInCurrency(resolvedCurrencyArray);
+
+      // Replying to the interaction
+      content += `\n${emojis.success} Finished parsing and saving your ${MARKET_TRADERS_FILE_DESCRIPTION} in: **${requestFetchMS} ms**`;
       interaction.editReply({
         content,
         embeds: [{
           color: colorResolver(),
-          title: `${MARKET_CATEGORIES_FILE_DESCRIPTION} for: ${guild.name}`,
+          title: `${MARKET_TRADERS_FILE_DESCRIPTION} for: ${guild.name}`,
           description: stripIndents`
-            **Parsed Categories:** ${data.length}
-            **Total Items:** ${totalItems}
+            **Parsed Traders:** ${data.length}
+            **Categories Configured:** ${totalCategories}
+            **Trader-Specific Items Configured:** ${totalItems}
+
+            **Currencies Used:**
+            ${formattedCurrencies.join('\n')}
           `,
           footer: {
             text: stripIndents`
@@ -122,7 +146,7 @@ module.exports = new ChatInputCommand({
         }],
         files: [
           new AttachmentBuilder(Buffer.from(JSON.stringify(data, null, 2)))
-            .setName(`${MARKET_CATEGORIES_REAL_FILE_NAME}-parsed.json`)
+            .setName(`${MARKET_TRADERS_REAL_FILE_NAME}-parsed.json`)
         ]
       });
     }

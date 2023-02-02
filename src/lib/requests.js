@@ -2,7 +2,7 @@
 const logger = require('@mirasaki/logger');
 const { AxiosError } = require('axios');
 const FormData = require('form-data');
-const { createWriteStream, createReadStream } = require('node:fs');
+const { createWriteStream, createReadStream, existsSync, mkdirSync } = require('node:fs');
 const { pipeline } = require('node:stream');
 const { promisify } = require('node:util');
 const { join } = require('path');
@@ -70,6 +70,9 @@ const fileUploadRequest = async ({
   const endpointTag = endpoint.replace(/\//g, '-');
   const fileName = `${endpointTag}.${extension}`;
   const workDir = `data/${id}/`;
+
+  // Check if the directory exists
+  if (!existsSync(workDir)) mkdirSync(workDir);
 
   // Piping the file to a temporary dir
   const filePath = join(workDir, fileName);
@@ -247,6 +250,19 @@ const getAllMarketItems = async (id) =>
 const getMarketItemByName = async (id, className) =>
   await clientRequest('GET', `market/items/${id}/${className}`);
 
+/*
+ * Market Server
+ */
+const getAllMarketServers = async (id) =>
+  await clientRequest('GET', `market/servers/${id}`);
+const createMarketServer = async (id, data) =>
+  await clientRequest('POST', `market/servers/${id}`, {
+    data,
+    headers: new Headers({ 'content-type': 'application/json' })
+  });
+const deleteMarketServer = async (id, marketServerId) =>
+  await clientRequest('DELETE', `market/servers/${id}/${marketServerId}`);
+
 
 
 
@@ -282,5 +298,9 @@ module.exports = {
   putMarketTraderMaps,
 
   getAllMarketItems,
-  getMarketItemByName
+  getMarketItemByName,
+
+  getAllMarketServers,
+  createMarketServer,
+  deleteMarketServer
 };

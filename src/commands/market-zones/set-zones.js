@@ -11,6 +11,7 @@ const {
   MARKET_TRADER_ZONES_OPTION_NAME,
   MARKET_TRADER_ZONES_REAL_FILE_NAME
 } = require('../../constants');
+const { hasValidMarketServer, marketServerOption } = require('../../lib/helpers/marketServers');
 
 const ALLOWED_CONTENT_TYPE = 'application/zip';
 
@@ -24,6 +25,7 @@ module.exports = new ChatInputCommand({
   data: {
     description: `Upload your server's ${MARKET_TRADER_ZONES_FILE_DESCRIPTION}`,
     options: [
+      marketServerOption,
       {
         type: ApplicationCommandOptionType.Attachment,
         name: MARKET_TRADER_ZONES_OPTION_NAME,
@@ -40,6 +42,10 @@ module.exports = new ChatInputCommand({
 
     // Deferring our reply
     await interaction.deferReply();
+
+    // Check has valid market config option
+    const server = await hasValidMarketServer(interaction);
+    if (server === false) return;
 
     // Assign user's attachment
     const attachment = interaction.options.getAttachment(MARKET_TRADER_ZONES_OPTION_NAME);
@@ -83,7 +89,7 @@ module.exports = new ChatInputCommand({
 
     // Response from API
     const requestTimerStart = process.hrtime.bigint();
-    const res = await putMarketTraderZones(guild.id, body);
+    const res = await putMarketTraderZones(server, body);
     const requestFetchMS = getRuntime(requestTimerStart).ms;
 
     // Error embed if the request isn't successful

@@ -3,6 +3,7 @@ const { ChatInputCommand } = require('../../classes/Commands');
 const { isAllowedContentType, fetchAttachment, colorResolver } = require('../../util');
 const { stripIndents } = require('common-tags');
 const { putInGameNames } = require('../../lib/requests');
+const { marketServerOption, hasValidMarketServer } = require('../../lib/helpers/marketServers');
 
 const ATTACHMENT_OPTION_NAME = 'item-list-file';
 const ALLOWED_CONTENT_TYPE = 'application/json; charset=utf-8';
@@ -17,6 +18,7 @@ module.exports = new ChatInputCommand({
   data: {
     description: 'Upload your server\'s in-game item names list so you can use in-game names instead of class names. You wouldn\'t want your player-base having to learn class names, would you?',
     options: [
+      marketServerOption,
       {
         type: ApplicationCommandOptionType.Attachment,
         name: ATTACHMENT_OPTION_NAME,
@@ -33,6 +35,10 @@ module.exports = new ChatInputCommand({
 
     // Deferring our reply
     await interaction.deferReply();
+
+    // Check has valid market config option
+    const server = await hasValidMarketServer(interaction);
+    if (server === false) return;
 
     // Assign user's attachment
     const attachment = interaction.options.getAttachment(ATTACHMENT_OPTION_NAME);
@@ -78,7 +84,7 @@ module.exports = new ChatInputCommand({
     await interaction.editReply(content);
 
     // Response from API
-    const res = await putInGameNames(interaction.guild.id, body);
+    const res = await putInGameNames(server, body);
 
     // 200 - OK
     if (res.status === 200) {

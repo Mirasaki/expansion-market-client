@@ -1,5 +1,6 @@
 const { ApplicationCommandOptionType } = require('discord.js');
 const { ChatInputCommand } = require('../../classes/Commands');
+const { marketServerOption, hasValidMarketServer } = require('../../lib/helpers/marketServers');
 const { deleteInGameNames } = require('../../lib/requests');
 const { colorResolver } = require('../../util');
 
@@ -14,16 +15,19 @@ module.exports = new ChatInputCommand({
   },
   data: {
     description: 'Clear/delete the in-game item list configuration for this server',
-    options: [{
-      type: ApplicationCommandOptionType.Boolean,
-      name: VERIFICATION_OPTION_NAME,
-      description: 'Are you absolutely sure you want to clear/delete this data?',
-      required: true
-    }]
+    options: [
+      marketServerOption,
+      {
+        type: ApplicationCommandOptionType.Boolean,
+        name: VERIFICATION_OPTION_NAME,
+        description: 'Are you absolutely sure you want to clear/delete this data?',
+        required: true
+      }
+    ]
   },
   run: async (client, interaction) => {
     // Destructuring
-    const { guild, member, options } = interaction;
+    const { member, options } = interaction;
     const { emojis, colors } = client.container;
     const confirmDelete = options.getBoolean(VERIFICATION_OPTION_NAME);
 
@@ -38,8 +42,12 @@ module.exports = new ChatInputCommand({
     // Deferring our reply
     await interaction.deferReply();
 
+    // Check has valid market config option
+    const server = await hasValidMarketServer(interaction);
+    if (server === false) return;
+
     // Fetching our data
-    const res = await deleteInGameNames(guild.id);
+    const res = await deleteInGameNames(server);
 
     // 200 - OK
     if (res.status === 200) {

@@ -1,5 +1,6 @@
 const { ApplicationCommandOptionType } = require('discord.js');
 const { ChatInputCommand } = require('../../classes/Commands');
+const { marketServerOption, hasValidMarketServer } = require('../../lib/helpers/marketServers');
 const { getInGameNameByClass } = require('../../lib/requests');
 const { colorResolver } = require('../../util');
 
@@ -16,6 +17,7 @@ module.exports = new ChatInputCommand({
   data: {
     description: 'Display the in-game name for an item/class name',
     options: [
+      marketServerOption,
       {
         name: CLASS_NAME_OPTION_STRING,
         description: 'The class name of the item',
@@ -28,15 +30,19 @@ module.exports = new ChatInputCommand({
 
   run: async (client, interaction) => {
     // Destructuring
-    const { member, options, guild } = interaction;
+    const { member, options } = interaction;
     const { emojis, colors } = client.container;
     const query = options.getString(CLASS_NAME_OPTION_STRING);
 
     // Deferring our reply
     await interaction.deferReply();
 
+    // Check has valid market config option
+    const server = await hasValidMarketServer(interaction);
+    if (server === false) return;
+
     // Fetching our data
-    const res = await getInGameNameByClass(guild.id, query);
+    const res = await getInGameNameByClass(server, query);
 
     // 200 - OK
     if (res.status === 200) {

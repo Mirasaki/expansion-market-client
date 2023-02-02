@@ -1,10 +1,11 @@
 const { ComponentCommand } = require('../../classes/Commands');
+const { MARKET_SERVER_CONFIGURATION_OPTION } = require('../../constants');
 const { getMarketCategories } = require('../../lib/requests.js');
 
 module.exports = new ComponentCommand({
   run: async (client, interaction, query) => {
-    const { guild } = interaction;
-    const categories = await getMarketCategories(guild.id); // Cached in back-end
+    const serverId = interaction.options.getString(MARKET_SERVER_CONFIGURATION_OPTION);
+    const categories = await getMarketCategories(serverId); // Cached in back-end
 
     // Return nothing if there's no category configuration
     if (!('data' in categories) || !categories.data[0]) return [];

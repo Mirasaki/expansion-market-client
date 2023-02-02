@@ -5,6 +5,7 @@ const { MARKET_TRADER_MAPS_AUTOCOMPLETE_OPTION, EMBED_DESCRIPTION_MAX_LENGTH } =
 const { colorResolver, getRuntime } = require('../../util');
 const { stripIndents } = require('common-tags/lib');
 const { getClientErrorEmbed } = require('../../lib/client');
+const { marketServerOption, hasValidMarketServer } = require('../../lib/helpers/marketServers');
 
 module.exports = new ChatInputCommand({
   cooldown: {
@@ -16,6 +17,7 @@ module.exports = new ChatInputCommand({
   data: {
     description: 'Get an overview of available/configured Market trader-maps',
     options: [
+      marketServerOption,
       {
         name: MARKET_TRADER_MAPS_AUTOCOMPLETE_OPTION,
         description: `The ${MARKET_TRADER_MAPS_AUTOCOMPLETE_OPTION} to query`,
@@ -34,6 +36,10 @@ module.exports = new ChatInputCommand({
     // Deferring our reply
     await interaction.deferReply();
 
+    // Check has valid market config option
+    const server = await hasValidMarketServer(interaction);
+    if (server === false) return;
+
     // Declarations
     const runtimeStart = process.hrtime.bigint();
     const files = [];
@@ -45,7 +51,7 @@ module.exports = new ChatInputCommand({
     // Return a list of all maps if no argument is provided
     if (!map) {
       // Fetching from database
-      const tradersResponse = await getMarketTraderMaps(guild.id);
+      const tradersResponse = await getMarketTraderMaps(server);
 
       // Check data availability
       if (!('data' in tradersResponse) || !tradersResponse.data[0]) {
@@ -97,7 +103,7 @@ module.exports = new ChatInputCommand({
     // Receives the identifier
     // { name: map.identifier, value: map.traderName }
     else {
-      const mapResponse = await getMarketTraderMapByName(guild.id, map);
+      const mapResponse = await getMarketTraderMapByName(server, map);
 
       // Handle errors - Most likely map couldn't be found
       if (mapResponse.status !== 200) {

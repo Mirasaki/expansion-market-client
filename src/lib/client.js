@@ -26,8 +26,8 @@ module.exports.tmpDir = tmpDir;
 
 module.exports.getClientResponse = (res) => {
   let clientResponse = {
-    status: res.status,
-    statusText: res.statusText
+    status: res?.status,
+    statusText: res?.statusText
   };
 
   // Save res.data as an array instead of using the spread operator

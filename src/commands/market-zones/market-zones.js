@@ -6,6 +6,7 @@ const { colorResolver, getRuntime } = require('../../util');
 const { stripIndents } = require('common-tags/lib');
 const { getClientErrorEmbed } = require('../../lib/client');
 const { resolveSellPricePercent, resolveBuyPricePercent } = require('../../lib/helpers/market-trader-zones');
+const { marketServerOption, hasValidMarketServer } = require('../../lib/helpers/marketServers');
 
 module.exports = new ChatInputCommand({
   cooldown: {
@@ -17,6 +18,7 @@ module.exports = new ChatInputCommand({
   data: {
     description: 'Get an overview of available Market trader-zones',
     options: [
+      marketServerOption,
       {
         name: MARKET_TRADER_ZONES_AUTOCOMPLETE_OPTION,
         description: `The ${MARKET_TRADER_ZONES_AUTOCOMPLETE_OPTION} to query`,
@@ -35,6 +37,10 @@ module.exports = new ChatInputCommand({
     // Deferring our reply
     await interaction.deferReply();
 
+    // Check has valid market config option
+    const server = await hasValidMarketServer(interaction);
+    if (server === false) return;
+
     // Declarations
     const runtimeStart = process.hrtime.bigint();
     const files = [];
@@ -46,7 +52,7 @@ module.exports = new ChatInputCommand({
     // Return a list of all trader-zones if no argument is provided
     if (!traderZone) {
       // Fetching from database
-      const traderZoneResponse = await getMarketTraderZones(guild.id);
+      const traderZoneResponse = await getMarketTraderZones(server);
 
       // Check data availability
       if (!('data' in traderZoneResponse) || !traderZoneResponse.data[0]) {
@@ -121,7 +127,7 @@ module.exports = new ChatInputCommand({
     // Receives the FILE NAME
     // { name: traderZone.m_DisplayName, value: traderZone.zoneName }
     else {
-      const traderZoneResponse = await getMarketTraderZoneByName(guild.id, traderZone);
+      const traderZoneResponse = await getMarketTraderZoneByName(server, traderZone);
 
       // Handle errors - Most likely traderZone couldn't be found
       if (traderZoneResponse.status !== 200) {

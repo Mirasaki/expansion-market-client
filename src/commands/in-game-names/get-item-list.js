@@ -3,6 +3,7 @@ const { ChatInputCommand } = require('../../classes/Commands');
 const { stripIndents } = require('common-tags');
 const { colorResolver } = require('../../util');
 const { getInGameNames } = require('../../lib/requests');
+const { hasValidMarketServer, marketServerOption } = require('../../lib/helpers/marketServers');
 
 const ATTACH_FILE_OPTION_NAME = 'attach-file';
 
@@ -15,12 +16,15 @@ module.exports = new ChatInputCommand({
   },
   data: {
     description: 'Display your in-game-names configuration, shows only configuration counts by default, but you can choose to include to full configuration as a command option',
-    options: [{
-      type: ApplicationCommandOptionType.Boolean,
-      name: ATTACH_FILE_OPTION_NAME,
-      description: 'Attach the raw configuration as a file upload',
-      required: false
-    }]
+    options: [
+      marketServerOption,
+      {
+        type: ApplicationCommandOptionType.Boolean,
+        name: ATTACH_FILE_OPTION_NAME,
+        description: 'Attach the raw configuration as a file upload',
+        required: false
+      }
+    ]
   },
   run: async (client, interaction) => {
     // Destructuring
@@ -31,8 +35,12 @@ module.exports = new ChatInputCommand({
     // Deferring our reply
     await interaction.deferReply();
 
+    // Check has valid market config option
+    const server = await hasValidMarketServer(interaction);
+    if (server === false) return;
+
     // Fetching our data
-    const res = await getInGameNames(guild.id);
+    const res = await getInGameNames(server);
 
     // 200 - OK
     if (res.status === 200) {

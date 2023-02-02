@@ -5,6 +5,7 @@ const { MARKET_CATEGORIES_AUTOCOMPLETE_OPTION } = require('../../constants');
 const { colorResolver, getRuntime } = require('../../util');
 const { stripIndents } = require('common-tags/lib');
 const { getClientErrorEmbed } = require('../../lib/client');
+const { marketServerOption, hasValidMarketServer } = require('../../lib/helpers/marketServers');
 
 module.exports = new ChatInputCommand({
   cooldown: {
@@ -16,6 +17,7 @@ module.exports = new ChatInputCommand({
   data: {
     description: 'Get an overview of available Market categories',
     options: [
+      marketServerOption,
       {
         name: MARKET_CATEGORIES_AUTOCOMPLETE_OPTION,
         description: `The ${MARKET_CATEGORIES_AUTOCOMPLETE_OPTION} to query`,
@@ -34,6 +36,10 @@ module.exports = new ChatInputCommand({
     // Deferring our reply
     await interaction.deferReply();
 
+    // Check has valid market config option
+    const server = await hasValidMarketServer(interaction);
+    if (server === false) return;
+
     // Declarations
     const runtimeStart = process.hrtime.bigint();
     const files = [];
@@ -45,7 +51,7 @@ module.exports = new ChatInputCommand({
     // Return a list of all categories if no argument is provided
     if (!category) {
       // Fetching from database
-      const categoriesResponse = await getMarketCategories(guild.id);
+      const categoriesResponse = await getMarketCategories(server);
 
       // Check data availability
       if (!('data' in categoriesResponse) || !categoriesResponse.data[0]) {
@@ -116,7 +122,7 @@ module.exports = new ChatInputCommand({
     // Receives the FILE NAME
     // { name: cat.displayName, value: cat.categoryName }
     else {
-      const categoryResponse = await getMarketCategoryByName(guild.id, category);
+      const categoryResponse = await getMarketCategoryByName(server, category);
 
       // Handle errors - Most likely category couldn't be found
       if (categoryResponse.status !== 200) {
@@ -160,7 +166,6 @@ module.exports = new ChatInputCommand({
         }
       }
     }
-
 
     // Reply to the command - no matter of logic
     interaction.editReply({

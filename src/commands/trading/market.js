@@ -5,6 +5,7 @@ const { resolveInGameName } = require('../../lib/helpers/in-game-names');
 const { getMarketItemByName } = require('../../lib/requests');
 const { getItemDataEmbed } = require('../../lib/helpers/items');
 const { getRuntime } = require('../../util');
+const { hasValidMarketServer, marketServerOption } = require('../../lib/helpers/marketServers');
 
 module.exports = new ChatInputCommand({
   aliases: ['trader'],
@@ -12,6 +13,7 @@ module.exports = new ChatInputCommand({
   data: {
     description: 'Search the available Expansion Market items',
     options: [
+      marketServerOption,
       {
         name: MARKET_BROWSE_AUTOCOMPLETE_OPTION,
         description: `The ${MARKET_BROWSE_AUTOCOMPLETE_OPTION} to query`,
@@ -29,6 +31,10 @@ module.exports = new ChatInputCommand({
     // Deferring our reply
     await interaction.deferReply();
 
+    // Check has valid market config option
+    const server = await hasValidMarketServer(interaction);
+    if (server === false) return;
+
     // Declarations
     const runtimeStart = process.hrtime.bigint();
     const embeds = [];
@@ -36,12 +42,12 @@ module.exports = new ChatInputCommand({
     // Check REQUIRED auto-complete enabled "item" option
     const className = options.getString(MARKET_BROWSE_AUTOCOMPLETE_OPTION);
 
-    const res = await getMarketItemByName(guild.id, className);
+    const res = await getMarketItemByName(server, className);
 
     // Return if not OK
     if (res.status !== 200) {
       interaction.editReply({
-        content: `${emojis.error} ${member}, ${res.message}`
+        content: `${emojis.error} ${member} - ${res.message}`
       });
       return;
     }
@@ -49,7 +55,7 @@ module.exports = new ChatInputCommand({
     // Return early if item is not tradable
     if (!res.traders || !res.traders[0]) {
       interaction.editReply({
-        content: `${emojis.error} ${member}, \`${resolveInGameName(guild.id, className)}\` currently isn't tradable`
+        content: `${emojis.error} ${member}, \`${resolveInGameName(server, className)}\` currently isn't tradable`
       });
       return;
     }

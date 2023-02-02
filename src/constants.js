@@ -56,29 +56,32 @@ const DECLINE_EVAL_CODE_EXECUTION = 'decline-eval-code-execution';
 const MARKET_CATEGORIES_OPTION_NAME = 'market-categories-file';
 const MARKET_CATEGORIES_REAL_FILE_NAME = 'Market.zip';
 const MARKET_CATEGORIES_FILE_DESCRIPTION = 'Market category/item configuration';
-const MARKET_CATEGORIES_AUTOCOMPLETE_OPTION = 'category';
+const MARKET_CATEGORIES_AUTOCOMPLETE_OPTION = 'market-category';
 
 // Market Traders
 const MARKET_TRADERS_OPTION_NAME = 'market-traders-file';
 const MARKET_TRADERS_REAL_FILE_NAME = 'Traders.zip';
 const MARKET_TRADERS_FILE_DESCRIPTION = 'Market trader configuration';
-const MARKET_TRADERS_AUTOCOMPLETE_OPTION = 'trader';
+const MARKET_TRADERS_AUTOCOMPLETE_OPTION = 'market-trader';
 
 // Market Trader Zones
 const MARKET_TRADER_ZONES_OPTION_NAME = 'market-zones-file';
 const MARKET_TRADER_ZONES_REAL_FILE_NAME = 'traderzones.zip';
 const MARKET_TRADER_ZONES_FILE_DESCRIPTION = 'Market trader-zones configuration';
-const MARKET_TRADER_ZONES_AUTOCOMPLETE_OPTION = 'trader-zone';
+const MARKET_TRADER_ZONES_AUTOCOMPLETE_OPTION = 'market-zone';
 
-// Market Trader Maps
+// Market Maps
 const MARKET_TRADER_MAPS_OPTION_NAME = 'market-maps-file';
 const MARKET_TRADER_MAPS_REAL_FILE_NAME = 'traders-map.zip';
 const MARKET_TRADER_MAPS_FILE_DESCRIPTION = 'Market trader-maps configuration';
-const MARKET_TRADER_MAPS_AUTOCOMPLETE_OPTION = 'trader-map';
+const MARKET_TRADER_MAPS_AUTOCOMPLETE_OPTION = 'market-map';
 
 // Market Browsing
 const MARKET_BROWSE_AUTOCOMPLETE_OPTION = 'item';
 
+// Market Server Config
+const MARKET_SERVER_CONFIGURATION_OPTION = 'market-server-config';
+const MARKET_SERVER_CONFIGURATION_DESCRIPTION = 'Server configuration this applies to';
 
 module.exports = {
   EMBED_MAX_FIELDS_LENGTH,
@@ -146,5 +149,9 @@ module.exports = {
   MARKET_TRADER_MAPS_FILE_DESCRIPTION,
   MARKET_TRADER_MAPS_AUTOCOMPLETE_OPTION,
 
-  MARKET_BROWSE_AUTOCOMPLETE_OPTION
+  MARKET_BROWSE_AUTOCOMPLETE_OPTION,
+
+
+  MARKET_SERVER_CONFIGURATION_OPTION,
+  MARKET_SERVER_CONFIGURATION_DESCRIPTION
 };

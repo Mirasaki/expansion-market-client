@@ -7,6 +7,7 @@ const { stripIndents } = require('common-tags/lib');
 const { getClientErrorEmbed } = require('../../lib/client');
 const { getAllCurrencies, formatAmountInCurrency } = require('../../lib/helpers/market-traders');
 const { bulkResolveInGameNames, matchResolvedInGameNameArray } = require('../../lib/helpers/in-game-names');
+const { hasValidMarketServer, marketServerOption } = require('../../lib/helpers/marketServers');
 
 module.exports = new ChatInputCommand({
   cooldown: {
@@ -18,6 +19,7 @@ module.exports = new ChatInputCommand({
   data: {
     description: 'Get an overview of available Market traders',
     options: [
+      marketServerOption,
       {
         name: MARKET_TRADERS_AUTOCOMPLETE_OPTION,
         description: `The ${MARKET_TRADERS_AUTOCOMPLETE_OPTION} to query`,
@@ -36,6 +38,10 @@ module.exports = new ChatInputCommand({
     // Deferring our reply
     await interaction.deferReply();
 
+    // Check has valid market config option
+    const server = await hasValidMarketServer(interaction);
+    if (server === false) return;
+
     // Declarations
     const runtimeStart = process.hrtime.bigint();
     const files = [];
@@ -47,7 +53,7 @@ module.exports = new ChatInputCommand({
     // Return a list of all traders if no argument is provided
     if (!trader) {
       // Fetching from database
-      const tradersResponse = await getMarketTraders(guild.id);
+      const tradersResponse = await getMarketTraders(server);
 
       // Check data availability
       if (!('data' in tradersResponse) || !tradersResponse.data[0]) {
@@ -76,7 +82,7 @@ module.exports = new ChatInputCommand({
 
       // Resolving currencies
       const uniqueCurrenciesUsed = getAllCurrencies(data); // OR getAllLowestCurrencies(data)
-      const currenciesInGameNames = await bulkResolveInGameNames(guild.id, uniqueCurrenciesUsed);
+      const currenciesInGameNames = await bulkResolveInGameNames(server, uniqueCurrenciesUsed);
       const resolvedCurrencyArray = matchResolvedInGameNameArray(uniqueCurrenciesUsed, currenciesInGameNames);
       const formattedCurrencies = formatAmountInCurrency(resolvedCurrencyArray);
 
@@ -138,7 +144,7 @@ module.exports = new ChatInputCommand({
     // Receives the FILE NAME
     // { name: trader.displayName, value: trader.traderName }
     else {
-      const traderResponse = await getMarketTraderByName(guild.id, trader);
+      const traderResponse = await getMarketTraderByName(server, trader);
 
       // Handle errors - Most likely trader couldn't be found
       if (traderResponse.status !== 200) {
@@ -150,7 +156,7 @@ module.exports = new ChatInputCommand({
         const { data } = traderResponse;
 
         // Resolving currencies
-        const currenciesInGameNames = await bulkResolveInGameNames(guild.id, data.currencies);
+        const currenciesInGameNames = await bulkResolveInGameNames(server, data.currencies);
         const resolvedCurrencyArray = matchResolvedInGameNameArray(data.currencies, currenciesInGameNames);
         const formattedCurrencies = formatAmountInCurrency(resolvedCurrencyArray);
 

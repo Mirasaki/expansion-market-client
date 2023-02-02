@@ -1,10 +1,11 @@
 const { ComponentCommand } = require('../../classes/Commands');
+const { MARKET_SERVER_CONFIGURATION_OPTION } = require('../../constants');
 const { getInGameNames } = require('../../lib/requests.js');
 
 module.exports = new ComponentCommand({
   run: async (client, interaction, query) => {
-    const { guild } = interaction;
-    const inGameNames = await getInGameNames(guild.id); // Cached in back-end
+    const serverId = interaction.options.getString(MARKET_SERVER_CONFIGURATION_OPTION);
+    const inGameNames = await getInGameNames(serverId); // Cached in back-end
 
     // Return nothing if there's no in-game-name configuration
     if (

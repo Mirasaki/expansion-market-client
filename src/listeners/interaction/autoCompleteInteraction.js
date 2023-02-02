@@ -19,11 +19,12 @@ module.exports = async (client, interaction) => {
 
   // Get our command name query
   const query = interaction.options.getFocused()?.toLowerCase() || '';
-  const autoCompleteQueryHandler = autoCompletes.get(commandName);
+  const focusedAC = interaction.options._hoistedOptions.find(({ focused }) => focused === true);
+  const autoCompleteQueryHandler = autoCompletes.get(focusedAC?.name);
 
   // Check if a query handler is found
   if (!autoCompleteQueryHandler) {
-    logger.syserr(`Missing AutoComplete query handler for ${commandName}`);
+    logger.syserr(`Missing AutoComplete query handler for ${focusedAC.name}`);
     return;
   }
 

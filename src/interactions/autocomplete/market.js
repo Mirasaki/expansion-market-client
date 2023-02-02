@@ -1,17 +1,18 @@
 const { ComponentCommand } = require('../../classes/Commands');
+const { MARKET_SERVER_CONFIGURATION_OPTION } = require('../../constants');
 const { prettifyClassName } = require('../../lib/helpers/in-game-names');
 const { resolveAllPossibleItems } = require('../../lib/helpers/items');
 const { getInGameNames, getAllMarketItems } = require('../../lib/requests.js');
 
 module.exports = new ComponentCommand({
   run: async (client, interaction, query) => {
-    const { guild } = interaction;
-    const inGameNames = await getInGameNames(guild.id); // Cached in back-end
+    const serverId = interaction.options.getString(MARKET_SERVER_CONFIGURATION_OPTION);
+    const inGameNames = await getInGameNames(serverId); // Cached in back-end
 
     // Find all possible combinations of in-game-names
     // and classnames, prettified, of course
     let everything;
-    if (inGameNames.status !== 200) everything = (await getAllMarketItems(guild.id))
+    if (inGameNames.status !== 200) everything = (await getAllMarketItems(serverId))
       .data
       .map((className) => ({ name: prettifyClassName(className, false), value: className }));
     else everything = resolveAllPossibleItems(inGameNames.data);

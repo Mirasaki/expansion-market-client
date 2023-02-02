@@ -1,8 +1,9 @@
 const { ApplicationCommandOptionType } = require('discord.js');
 const { ChatInputCommand } = require('../../classes/Commands');
-const { MARKET_TRADERS_FILE_DESCRIPTION, CONFIRMATION_PROMPT_OPTION_NAME, CONFIRMATION_PROMPT_OPTION_DESCRIPTION } = require('../../constants');
+const { MARKET_TRADER_MAPS_FILE_DESCRIPTION, CONFIRMATION_PROMPT_OPTION_NAME, CONFIRMATION_PROMPT_OPTION_DESCRIPTION } = require('../../constants');
 const { getClientErrorEmbed } = require('../../lib/client');
-const { deleteMarketTraders } = require('../../lib/requests');
+const { marketServerOption, hasValidMarketServer } = require('../../lib/helpers/marketServers');
+const { deleteMarketTraderMaps } = require('../../lib/requests');
 
 
 module.exports = new ChatInputCommand({
@@ -12,23 +13,30 @@ module.exports = new ChatInputCommand({
     type: 'guild'
   },
   data: {
-    description: `Clear/delete your ${MARKET_TRADERS_FILE_DESCRIPTION}`,
-    options: [{
-      name: CONFIRMATION_PROMPT_OPTION_NAME,
-      description: CONFIRMATION_PROMPT_OPTION_DESCRIPTION,
-      type: ApplicationCommandOptionType.Boolean,
-      required: true
-    }]
+    description: `Clear/delete your ${MARKET_TRADER_MAPS_FILE_DESCRIPTION}`,
+    options: [
+      marketServerOption,
+      {
+        name: CONFIRMATION_PROMPT_OPTION_NAME,
+        description: CONFIRMATION_PROMPT_OPTION_DESCRIPTION,
+        type: ApplicationCommandOptionType.Boolean,
+        required: true
+      }
+    ]
   },
 
   run: async (client, interaction) => {
     // Destructuring
-    const { member, guild, options } = interaction;
+    const { member, options } = interaction;
     const { emojis } = client.container;
     const confirmationPrompt = options.getBoolean(CONFIRMATION_PROMPT_OPTION_NAME);
 
     // Deferring our reply
     await interaction.deferReply();
+
+    // Check has valid market config option
+    const server = await hasValidMarketServer(interaction);
+    if (server === false) return;
 
     // Didn't check the confirmation prompt
     if (confirmationPrompt !== true) {
@@ -39,19 +47,19 @@ module.exports = new ChatInputCommand({
     }
 
     // Checked true on confirmation prompt
-    const res = await deleteMarketTraders(guild.id);
+    const res = await deleteMarketTraderMaps(server);
 
     // 200 - OK - Deleted {{num}} traders
     if (res.status === 200) {
       interaction.editReply({
-        content: `${emojis.success} ${member}, ${res.message}`
+        content: `${emojis.success} ${member} - ${res.message}`
       });
     }
 
     // 404 - Not Found
     else if (res.status === 404) {
       interaction.editReply({
-        content: `${emojis.error} ${member}, there is no ${MARKET_TRADERS_FILE_DESCRIPTION} active for this server.`
+        content: `${emojis.error} ${member}, there is no ${MARKET_TRADER_MAPS_FILE_DESCRIPTION} active for this server.`
       });
     }
 
