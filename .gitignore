@@ -123,3 +123,6 @@ TODO.md
 
 # In-development, Intellisense for events/listeners
 typings.d.ts
+
+# Redis cache
+dump.rdb
