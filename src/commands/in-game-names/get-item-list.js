@@ -44,7 +44,7 @@ module.exports = new ChatInputCommand({
           description: stripIndents`
             **Id:** ${data.id}
             **Valid entries:** ${Object.entries(data.valid).length}
-            **Empty in-game names:** ${data.undefinedInGameName.length}
+            **Empty in-game names:** ${data.emptyInGameName.length}
             **Not in trader config:** ${data.notInTraderConfig.length}
             **Missing from item list:** ${data.notInItemList.length}
 

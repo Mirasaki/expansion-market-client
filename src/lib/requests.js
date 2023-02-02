@@ -239,6 +239,13 @@ const putMarketTraderMaps = async (id, readStream) =>
     extension: 'zip'
   });
 
+/*
+ * Market Items
+ */
+const getAllMarketItems = async (id) =>
+  await clientRequest('GET', `market/items/${id}`);
+const getMarketItemByName = async (id, className) =>
+  await clientRequest('GET', `market/items/${id}/${className}`);
 
 
 
@@ -272,5 +279,8 @@ module.exports = {
   getMarketTraderMaps,
   getMarketTraderMapByName,
   deleteMarketTraderMaps,
-  putMarketTraderMaps
+  putMarketTraderMaps,
+
+  getAllMarketItems,
+  getMarketItemByName
 };

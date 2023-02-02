@@ -8,7 +8,7 @@ const prettifyClassName = (className, applyTag = true) => {
   const prettyClassName = titleCase(className.replaceAll(/[-_]/g, ' '));
   return applyTag
     ? applyMissingInGameNameTag(prettyClassName)
-    : prettifyClassName;
+    : prettyClassName;
 };
 
 const applyMissingInGameNameTag = (str) => `${str} ${MISSING_IN_GAME_NAME_STATE_TAG}`;

@@ -1,0 +1,87 @@
+const { ApplicationCommandOptionType } = require('discord.js');
+const { ChatInputCommand } = require('../../classes/Commands');
+const { MARKET_BROWSE_AUTOCOMPLETE_OPTION } = require('../../constants');
+const { resolveInGameName } = require('../../lib/helpers/in-game-names');
+const { getMarketItemByName } = require('../../lib/requests');
+const { getItemDataEmbed } = require('../../lib/helpers/items');
+const { getRuntime } = require('../../util');
+
+module.exports = new ChatInputCommand({
+  aliases: ['trader'],
+  global: false,
+  data: {
+    description: 'Search the available Expansion Market items',
+    options: [
+      {
+        name: MARKET_BROWSE_AUTOCOMPLETE_OPTION,
+        description: `The ${MARKET_BROWSE_AUTOCOMPLETE_OPTION} to query`,
+        type: ApplicationCommandOptionType.String,
+        autocomplete: true,
+        required: true
+      }
+    ]
+  },
+  run: async (client, interaction) => {
+    // Destructuring
+    const { member, guild, options } = interaction;
+    const { emojis } = client.container;
+
+    // Deferring our reply
+    await interaction.deferReply();
+
+    // Declarations
+    const runtimeStart = process.hrtime.bigint();
+    const embeds = [];
+
+    // Check REQUIRED auto-complete enabled "item" option
+    const className = options.getString(MARKET_BROWSE_AUTOCOMPLETE_OPTION);
+
+    const res = await getMarketItemByName(guild.id, className);
+
+    // Return if not OK
+    if (res.status !== 200) {
+      interaction.editReply({
+        content: `${emojis.error} ${member}, ${res.message}`
+      });
+      return;
+    }
+
+    // Return early if item is not tradable
+    if (!res.traders || !res.traders[0]) {
+      interaction.editReply({
+        content: `${emojis.error} ${member}, \`${resolveInGameName(guild.id, className)}\` currently isn't tradable`
+      });
+      return;
+    }
+
+    // Construct our embed response
+    const { category } = res;
+    for await (const trader of res.traders) {
+      embeds.push(await getItemDataEmbed(className, category, trader));
+    }
+
+    // Fail-safe!
+    // We can't reply to an interaction without content and 0 embeds =)
+    if (!embeds[0]) {
+      interaction.editReply({
+        content: `${emojis.error} ${member}, server configuration for Expansion-Market is incomplete! Be sure you use all of the \`/set\` commands - use /support if you're encountering issues.`
+      });
+      return;
+    }
+
+    // Prepend guild branding to first embed
+    embeds[0].author = {
+      name: `${guild.name} - Market`,
+      iconURL: guild.iconURL({ dynamic: true })
+    };
+
+    // Append performance measure to final embed
+    embeds[embeds.length - 1].footer = {
+      text: `Parsed and analyzed in: ${getRuntime(runtimeStart).ms} ms`,
+      iconURL: client.user.displayAvatarURL()
+    };
+
+    // Reply to the interaction
+    interaction.editReply({ embeds });
+  }
+});

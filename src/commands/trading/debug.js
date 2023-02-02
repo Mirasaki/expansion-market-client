@@ -5,7 +5,7 @@ module.exports = new ChatInputCommand({
   nsfw: true,
   enabled: false,
   data: {
-    description: 'Debug a specific items',
+    description: 'Debug a specific item',
     type: ApplicationCommandType.ChatInput,
     default_member_permissions: 0, // Administrator restricted, still check in actual command
     options: [
