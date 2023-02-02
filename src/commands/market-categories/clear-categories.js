@@ -6,6 +6,7 @@ const { marketServerOption, hasValidMarketServer } = require('../../lib/helpers/
 const { deleteMarketCategories } = require('../../lib/requests');
 
 module.exports = new ChatInputCommand({
+  global: true,
   cooldown: {
     usages: 1,
     duration: 30,

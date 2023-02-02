@@ -8,6 +8,7 @@ const { getClientErrorEmbed } = require('../../lib/client');
 const { marketServerOption, hasValidMarketServer } = require('../../lib/helpers/marketServers');
 
 module.exports = new ChatInputCommand({
+  global: true,
   cooldown: {
     type: 'guild',
     usages: 2,

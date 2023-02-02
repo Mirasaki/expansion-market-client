@@ -9,6 +9,7 @@ const ATTACHMENT_OPTION_NAME = 'item-list-file';
 const ALLOWED_CONTENT_TYPE = 'application/json; charset=utf-8';
 
 module.exports = new ChatInputCommand({
+  global: true,
   permLevel: 'Administrator',
   cooldown: {
     type: 'guild',

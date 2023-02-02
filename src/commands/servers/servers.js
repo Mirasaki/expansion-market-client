@@ -6,6 +6,7 @@ const { colorResolver } = require('../../util');
 
 // Windows (ctrl+space) for auto-complete IntelliSense options
 module.exports = new ChatInputCommand({
+  global: true,
   data: {
     description: 'View all your active server configurations'
   },

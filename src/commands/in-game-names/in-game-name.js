@@ -9,6 +9,7 @@ const ERROR_ITEM_UNRESOLVED = 'ItemUnresolved';
 const ERROR_NO_ITEM_LIST = 'NoItemList';
 
 module.exports = new ChatInputCommand({
+  global: true,
   cooldown: {
     type: 'user',
     usages: 2,

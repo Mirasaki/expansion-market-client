@@ -6,6 +6,7 @@ const { ApplicationCommandOptionType } = require('discord.js');
 
 // Windows (ctrl+space) for auto-complete IntelliSense options
 module.exports = new ChatInputCommand({
+  global: true,
   data: {
     description: 'Create a new server configuration',
     options: [

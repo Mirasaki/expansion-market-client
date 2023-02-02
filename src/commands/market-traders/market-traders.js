@@ -10,6 +10,7 @@ const { bulkResolveInGameNames, matchResolvedInGameNameArray } = require('../../
 const { hasValidMarketServer, marketServerOption } = require('../../lib/helpers/marketServers');
 
 module.exports = new ChatInputCommand({
+  global: true,
   cooldown: {
     type: 'guild',
     usages: 2,

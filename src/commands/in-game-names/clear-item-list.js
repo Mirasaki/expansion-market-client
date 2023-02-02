@@ -7,6 +7,7 @@ const { colorResolver } = require('../../util');
 const VERIFICATION_OPTION_NAME = 'verify-clear';
 
 module.exports = new ChatInputCommand({
+  global: true,
   permLevel: 'Administrator',
   cooldown: {
     type: 'guild',

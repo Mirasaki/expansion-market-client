@@ -7,6 +7,7 @@ const { getGuildMarketServerArr } = require('../../lib/helpers/marketServers');
 
 // Windows (ctrl+space) for auto-complete IntelliSense options
 module.exports = new ChatInputCommand({
+  global: true,
   data: {
     description: 'Remove a server configuration',
     options: [

@@ -8,6 +8,7 @@ const { hasValidMarketServer, marketServerOption } = require('../../lib/helpers/
 const ATTACH_FILE_OPTION_NAME = 'attach-file';
 
 module.exports = new ChatInputCommand({
+  global: true,
   permLevel: 'Administrator',
   cooldown: {
     type: 'guild',

@@ -8,8 +8,8 @@ const { getRuntime } = require('../../util');
 const { hasValidMarketServer, marketServerOption } = require('../../lib/helpers/marketServers');
 
 module.exports = new ChatInputCommand({
+  global: true,
   aliases: ['trader'],
-  global: false,
   data: {
     description: 'Search the available Expansion Market items',
     options: [

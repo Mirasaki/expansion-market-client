@@ -7,6 +7,7 @@ const { deleteMarketTraders } = require('../../lib/requests');
 
 
 module.exports = new ChatInputCommand({
+  global: true,
   cooldown: {
     usages: 1,
     duration: 30,

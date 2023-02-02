@@ -9,6 +9,7 @@ const { resolveSellPricePercent, resolveBuyPricePercent } = require('../../lib/h
 const { marketServerOption, hasValidMarketServer } = require('../../lib/helpers/marketServers');
 
 module.exports = new ChatInputCommand({
+  global: true,
   cooldown: {
     type: 'guild',
     usages: 2,

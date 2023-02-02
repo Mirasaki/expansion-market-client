@@ -6,6 +6,7 @@ const { hasValidMarketServer, marketServerOption } = require('../../lib/helpers/
 const { deleteMarketTraderZones } = require('../../lib/requests');
 
 module.exports = new ChatInputCommand({
+  global: true,
   cooldown: {
     usages: 1,
     duration: 30,
