@@ -2,7 +2,7 @@
 const logger = require('@mirasaki/logger');
 const { AxiosError } = require('axios');
 const FormData = require('form-data');
-const { createWriteStream, createReadStream, existsSync, mkdirSync } = require('node:fs');
+const { createWriteStream, createReadStream, existsSync, mkdirSync, rmSync } = require('node:fs');
 const { Agent } = require('node:http');
 const { Agent: HTTPSAgent } = require('node:https');
 const { pipeline } = require('node:stream');
@@ -69,7 +69,7 @@ const clientRequest = async (method, url, axiosConfig) => {
   return clientResponse;
 };
 
-// File Upload request, PUT
+// File Upload request, POST
 const fileUploadRequest = async ({
   id,
   readStream,
@@ -80,7 +80,8 @@ const fileUploadRequest = async ({
   // Get our current temporary working directory for file downloads
   const endpointTag = endpoint.replace(/\//g, '-');
   const fileName = `${endpointTag}.${extension}`;
-  const workDir = `data/${id}/`;
+  if (!existsSync('data')) mkdirSync('data');
+  const workDir = `data/${id ? 'validate' : id}/`;
 
   // Check if the directory exists
   if (!existsSync(workDir)) mkdirSync(workDir);
@@ -96,8 +97,8 @@ const fileUploadRequest = async ({
 
   // Create our axios request config
   const config = {
-    method: 'PUT',
-    url: `${endpoint}/${id}`,
+    method: 'POST',
+    url: `${endpoint}${ id ? `/${id}` : '' }`,
     headers: {
       ...formData.getHeaders()
     },
@@ -147,11 +148,14 @@ const fileUploadRequest = async ({
   // Conditional debug logging
   if (DEBUG_FILE_UPLOAD_REQUESTS === 'true') {
     const endpointDebugTag = titleCase(endpointTag.replace(/-/g, ' '));
-    const debugTag = `[PUT] ${endpointDebugTag} File Upload Request`;
+    const debugTag = `[POST] ${endpointDebugTag} File Upload Request`;
     logger.startLog(debugTag);
     console.dir(clientResponse, { depth: 1 });
     logger.endLog(debugTag);
   }
+
+  // Delete the file
+  rmSync(filePath);
 
   // Return our client response data
   return clientResponse;
@@ -168,7 +172,7 @@ const getInGameNameByClass = async (id, name) =>
 const deleteInGameNames = async (id) =>
   await clientRequest('DELETE', `in-game-names/${id}`);
 const putInGameNames = async (id, itemList) =>
-  await clientRequest('PUT', `in-game-names/${id}`, {
+  await clientRequest('POST', `in-game-names/${id}`, {
     headers: { 'Content-Type': 'application/json' },
     data: { item_list: itemList }
   });
@@ -281,6 +285,36 @@ const deleteMarketServer = async (id, marketServerId) =>
 
 
 
+/*
+ * Validation
+ */
+const validateTraders = async (readStream) =>
+  await fileUploadRequest({
+    readStream,
+    endpoint: 'validate/traders',
+    extension: 'zip'
+  });
+const validateCategories = async (readStream) =>
+  await fileUploadRequest({
+    readStream,
+    endpoint: 'validate/categories',
+    extension: 'zip'
+  });
+const validateTraderZones = async (readStream) =>
+  await fileUploadRequest({
+    readStream,
+    endpoint: 'validate/trader/zones',
+    extension: 'zip'
+  });
+const validateMaps = async (readStream) =>
+  await fileUploadRequest({
+    readStream,
+    endpoint: 'validate/trader/maps',
+    extension: 'zip'
+  });
+
+
+
 
 
 module.exports = {
@@ -318,5 +352,10 @@ module.exports = {
 
   getAllMarketServers,
   createMarketServer,
-  deleteMarketServer
+  deleteMarketServer,
+
+  validateTraders,
+  validateCategories,
+  validateTraderZones,
+  validateMaps
 };
