@@ -13,18 +13,18 @@ const prettifyClassName = (className, applyTag = true) => {
 
 const applyMissingInGameNameTag = (str) => `${str} ${MISSING_IN_GAME_NAME_STATE_TAG}`;
 
-const resolveInGameName = async (id, className, prettifyUnresolved = true) => {
+const resolveInGameName = async (id, className, prettifyUnresolved = true, applyTag = true) => {
   const clientRes = await getInGameNameByClass(id, className);
   if (
     clientRes.status === 200
     && 'data' in clientRes
   ) return clientRes.data;
   else return prettifyUnresolved
-    ? prettifyClassName(className)
+    ? prettifyClassName(className, applyTag)
     : className;
 };
 
-const bulkResolveInGameNames = async (id, items, prettifyUnresolved = true) => {
+const bulkResolveInGameNames = async (id, items, prettifyUnresolved = true, applyTag = true) => {
   const clientRes = await getInGameNameByClassBulk(id, items);
   if (
     clientRes.status === 200
@@ -32,13 +32,13 @@ const bulkResolveInGameNames = async (id, items, prettifyUnresolved = true) => {
     && 'resolved' in clientRes.data
   ) {
     // Prettify unresolved names if request
-    if (prettifyUnresolved) clientRes.data.unresolved = clientRes.data.unresolved.map((item) => prettifyClassName(item));
+    if (prettifyUnresolved) clientRes.data.unresolved = clientRes.data.unresolved.map((item) => prettifyClassName(item, applyTag));
     return clientRes.data; // Or return the default response
   }
 
   // No Item list configured - build replica response with all unresolved
   else return prettifyUnresolved
-    ? { resolved: [], unresolved: items.map((item) => prettifyClassName(item)) }
+    ? { resolved: [], unresolved: items.map((item) => prettifyClassName(item, applyTag)) }
     : { resolved: [], unresolved: items };
 };
 
