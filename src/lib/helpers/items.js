@@ -191,7 +191,8 @@ const getItemDataEmbed = async (className, category, trader) => {
 
   // Display SpawnAttachments conditionally
   if (item.spawnAttachments.length >= 1) {
-    const attachmentsInGameNames = item.spawnAttachments.map((attachment) => resolveInGameName(trader.MarketServerId, attachment));
+    // [DEV] - Bulk Resolve
+    const attachmentsInGameNames = item.spawnAttachments.map(async (attachment) => await resolveInGameName(trader.MarketServerId, attachment));
     embed.fields.push({
       name: 'Attachments',
       value: `\`\`\`diff\n• ${attachmentsInGameNames.join('\n• ')}\`\`\``,
@@ -201,7 +202,8 @@ const getItemDataEmbed = async (className, category, trader) => {
 
   // Display Variants conditionally
   if (item.variants.length >= 1) {
-    const variantsInGameNames = item.variants.map((variant) => resolveInGameName(trader.MarketServerId, variant));
+    // [DEV] - Bulk Resolve
+    const variantsInGameNames = item.variants.map(async (variant) => await resolveInGameName(trader.MarketServerId, variant));
     embed.fields.push({
       name: 'Variants',
       value: `\`\`\`diff\n• ${variantsInGameNames.join('\n• ')}\`\`\``,

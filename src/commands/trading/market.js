@@ -55,7 +55,7 @@ module.exports = new ChatInputCommand({
     // Return early if item is not tradable
     if (!res.traders || !res.traders[0]) {
       interaction.editReply({
-        content: `${emojis.error} ${member}, \`${resolveInGameName(server, className)}\` currently isn't tradable`
+        content: `${emojis.error} ${member}, \`${await resolveInGameName(server, className)}\` currently isn't tradable`
       });
       return;
     }
