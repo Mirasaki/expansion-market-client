@@ -28,7 +28,10 @@ const clientRequest = async (method, url, axiosConfig) => {
     const res = await BackendClient(axiosConfig);
     clientResponse = BackendClient.getClientResponse(res);
   } catch (err) {
-    if (err instanceof AxiosError) clientResponse = BackendClient.getClientResponse(err.response);
+    if (
+      err instanceof AxiosError
+      && err.response
+    ) clientResponse = BackendClient.getClientResponse(err.response);
 
     // Extensive logging as this is a client-side problem
     else {
@@ -98,7 +101,10 @@ const fileUploadRequest = async ({
     const res = await BackendClient(config);
     clientResponse = BackendClient.getClientResponse(res);
   } catch (err) {
-    if (err instanceof AxiosError) clientResponse = BackendClient.getClientResponse(err.response);
+    if (
+      err instanceof AxiosError
+      && err.response
+    ) clientResponse = BackendClient.getClientResponse(err.response);
 
     // Extensive logging as this is a client-side problem
     else {
