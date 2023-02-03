@@ -170,7 +170,7 @@ module.exports = new ChatInputCommand({
               **Categories Configured:** ${data.categories.length}
               **Items Configured:** ${Object.values(data.items).length}
 
-              **Required Humanity:** ${data.minRequiredHumanity} - ${data.maxRequiredHumanity}
+              **Required Humanity:** ${data.minRequiredReputation} - ${data.maxRequiredReputation}
 
               **Currencies Used:**
               ${formattedCurrencies.join('\n')}
