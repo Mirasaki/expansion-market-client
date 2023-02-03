@@ -108,9 +108,6 @@ const resolveSellPriceOutput = async (item, trader, zone) => {
 
 const getItemDataEmbed = async (className, category, trader) => {
   const item = category.items[0];
-  console.log('\n\n\n');
-  console.dir({ trader, item }, { depth: 1 });
-  console.log('\n\n\n');
   const ign = await resolveInGameName(category.MarketServerId, className);
   const map = trader.MarketTraderMap;
   const zone = map.MarketTraderZoneConfig;
@@ -189,29 +186,35 @@ const getItemDataEmbed = async (className, category, trader) => {
     });
   }
 
+  // Properly organize embed content
+  let hasSpacing = false;
+
   // Display SpawnAttachments conditionally
   if (item.spawnAttachments.length >= 1) {
     const resolvedCurrencyArray = matchResolvedInGameNameArray(
       item.spawnAttachments,
-      await bulkResolveInGameNames(category.MarketServerId, item.spawnAttachments)
+      await bulkResolveInGameNames(category.MarketServerId, item.spawnAttachments, true, false),
+      false // Already prettified
     );
     embed.fields.push({
       name: 'Attachments',
       value: `\`\`\`diff\n• ${resolvedCurrencyArray.join('\n• ')}\`\`\``,
-      inline: true
+      inline: hasSpacing
     });
+    hasSpacing = true;
   }
 
   // Display Variants conditionally
   if (item.variants.length >= 1) {
     const resolvedCurrencyArray = matchResolvedInGameNameArray(
       item.variants,
-      await bulkResolveInGameNames(category.MarketServerId, item.variants)
+      await bulkResolveInGameNames(category.MarketServerId, item.variants, true, false),
+      false // Already prettified
     );
     embed.fields.push({
       name: 'Variants',
       value: `\`\`\`diff\n• ${resolvedCurrencyArray.join('\n• ')}\`\`\``,
-      inline: true
+      inline: hasSpacing
     });
   }
 
