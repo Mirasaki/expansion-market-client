@@ -3,6 +3,8 @@ const logger = require('@mirasaki/logger');
 const { AxiosError } = require('axios');
 const FormData = require('form-data');
 const { createWriteStream, createReadStream, existsSync, mkdirSync } = require('node:fs');
+const { Agent } = require('node:http');
+const { Agent: HTTPSAgent } = require('node:https');
 const { pipeline } = require('node:stream');
 const { promisify } = require('node:util');
 const { join } = require('path');
@@ -21,7 +23,13 @@ const {
 // Base request
 const clientRequest = async (method, url, axiosConfig) => {
   let clientResponse;
-  axiosConfig = { method, url, ...axiosConfig };
+  axiosConfig = {
+    method,
+    url,
+    ...axiosConfig,
+    httpAgent: new Agent({ keepAlive: true }),
+    httpsAgent: new HTTPSAgent({ keepAlive: true })
+  };
 
   // Try to make the request
   try {
@@ -93,7 +101,9 @@ const fileUploadRequest = async ({
     headers: {
       ...formData.getHeaders()
     },
-    data: formData
+    data: formData,
+    httpAgent: new Agent({ keepAlive: true }),
+    httpsAgent: new HTTPSAgent({ keepAlive: true })
   };
 
   // Try to make the request
