@@ -1,6 +1,6 @@
 const { stripIndents } = require('common-tags');
 const { colorResolver } = require('../../util');
-const { prettifyClassName, resolveInGameName } = require('./in-game-names');
+const { prettifyClassName, resolveInGameName, bulkResolveInGameNames, matchResolvedInGameNameArray } = require('./in-game-names');
 
 const resolveAllPossibleItems = (data) => {
   const { valid, notInItemList } = data;
@@ -142,7 +142,7 @@ const getItemDataEmbed = async (className, category, trader) => {
   // Define our initial, unconditional embed
   const embed = {
     title: ign,
-    color: colorResolver(category.color.slice(1)),
+    color: colorResolver(),
     fields: [
       {
         name: 'Category',
@@ -191,22 +191,26 @@ const getItemDataEmbed = async (className, category, trader) => {
 
   // Display SpawnAttachments conditionally
   if (item.spawnAttachments.length >= 1) {
-    // [DEV] - Bulk Resolve
-    const attachmentsInGameNames = item.spawnAttachments.map(async (attachment) => await resolveInGameName(trader.MarketServerId, attachment));
+    const resolvedCurrencyArray = matchResolvedInGameNameArray(
+      item.spawnAttachments,
+      await bulkResolveInGameNames(category.MarketServerId, item.spawnAttachments)
+    );
     embed.fields.push({
       name: 'Attachments',
-      value: `\`\`\`diff\n• ${attachmentsInGameNames.join('\n• ')}\`\`\``,
+      value: `\`\`\`diff\n• ${resolvedCurrencyArray.join('\n• ')}\`\`\``,
       inline: true
     });
   }
 
   // Display Variants conditionally
   if (item.variants.length >= 1) {
-    // [DEV] - Bulk Resolve
-    const variantsInGameNames = item.variants.map(async (variant) => await resolveInGameName(trader.MarketServerId, variant));
+    const resolvedCurrencyArray = matchResolvedInGameNameArray(
+      item.variants,
+      await bulkResolveInGameNames(category.MarketServerId, item.variants)
+    );
     embed.fields.push({
       name: 'Variants',
-      value: `\`\`\`diff\n• ${variantsInGameNames.join('\n• ')}\`\`\``,
+      value: `\`\`\`diff\n• ${resolvedCurrencyArray.join('\n• ')}\`\`\``,
       inline: true
     });
   }
