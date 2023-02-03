@@ -19,8 +19,8 @@ module.exports = new ChatInputCommand({
   permLevel: 'Administrator',
   cooldown: {
     type: 'guild',
-    usages: 1,
-    duration: 60
+    usages: 2,
+    duration: 1800
   },
   data: {
     description: `Upload your server's ${MARKET_CATEGORIES_FILE_DESCRIPTION}`,
