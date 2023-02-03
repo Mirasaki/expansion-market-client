@@ -53,7 +53,8 @@ module.exports = new ChatInputCommand({
     }
 
     // Return early if item is not tradable
-    if (!res.traders || !res.traders[0]) {
+    const { category, traders } = res.data;
+    if (!traders || !traders[0]) {
       interaction.editReply({
         content: `${emojis.error} ${member}, \`${await resolveInGameName(server, className)}\` currently isn't tradable`
       });
@@ -61,8 +62,7 @@ module.exports = new ChatInputCommand({
     }
 
     // Construct our embed response
-    const { category } = res;
-    for await (const trader of res.traders) {
+    for await (const trader of traders) {
       embeds.push(await getItemDataEmbed(className, category, trader));
     }
 
