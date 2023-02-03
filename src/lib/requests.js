@@ -43,7 +43,7 @@ const clientRequest = async (method, url, axiosConfig) => {
       clientResponse = {
         error: 'Error encountered while fetching data',
         message: NODE_ENV === 'production'
-          ? 'This problem has been logged to the developers, please try again later.'
+          ? 'An unexpected error has occurred, this problem has been logged to the developers, please try again later.'
           : err.stack
       };
     }
