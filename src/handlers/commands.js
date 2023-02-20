@@ -649,7 +649,7 @@ const generateCommandOverviewEmbed = (commands, interaction) => {
     ...sortCommandsByCategory(
       // Filtering out command the user doesn't have access to
       commands.concat(contextMenus)
-        .filter((cmd) => cmd.permLevel <= member.permLevel)
+        .filter((cmd) => cmd.enabled && cmd.permLevel <= member.permLevel)
     )
       .map((entry) => {
         return {
