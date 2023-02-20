@@ -209,7 +209,8 @@ const getItemDataEmbed = async (className, category, trader) => {
     const resolvedCurrencyArray = matchResolvedInGameNameArray(
       item.variants,
       await bulkResolveInGameNames(category.MarketServerId, item.variants, true, false),
-      false // Already prettified
+      false, // Already prettified
+      true
     );
     embed.fields.push({
       name: 'Variants',
