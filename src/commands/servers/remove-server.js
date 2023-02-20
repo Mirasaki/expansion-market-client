@@ -2,8 +2,7 @@
 // are ignored by our command file handler
 const { deleteMarketServer } = require('../../lib/requests');
 const { ChatInputCommand } = require('../../classes/Commands');
-const { ApplicationCommandOptionType } = require('discord.js');
-const { getGuildMarketServerArr } = require('../../lib/helpers/marketServers');
+const { getGuildMarketServerArr, marketServerOption, hasValidMarketServer } = require('../../lib/helpers/marketServers');
 
 // Windows (ctrl+space) for auto-complete IntelliSense options
 module.exports = new ChatInputCommand({
@@ -11,31 +10,18 @@ module.exports = new ChatInputCommand({
   data: {
     description: 'Remove a server configuration',
     options: [
-      {
-        name: 'server',
-        description: 'The server configuration to remove',
-        type: ApplicationCommandOptionType.String,
-        required: true,
-        autocomplete: true
-      }
+      marketServerOption
     ]
   },
   run: async (client, interaction) => {
-    const { guild, member, options } = interaction;
+    const { guild, member } = interaction;
     const { emojis } = client.container;
 
     await interaction.deferReply();
 
-    const servers = await getGuildMarketServerArr(guild.id);
-    const server = options.getString('server');
-    const activeServer = servers.find(({ value }) => server === value);
-
-    if (!activeServer) {
-      interaction.editReply({
-        content: `${emojis.error} ${member}, invalid server configuration provided.`
-      });
-      return;
-    }
+    // Check has valid market config option
+    const server = await hasValidMarketServer(interaction);
+    if (server === false) return;
 
     const res = await deleteMarketServer(guild.id, server);
 
@@ -47,7 +33,7 @@ module.exports = new ChatInputCommand({
     }
 
     interaction.editReply({
-      content: `${emojis.success} ${member}, removed Market server configuration \`${activeServer.name} - ${activeServer.value}\``
+      content: `${emojis.success} ${member}, removed Market server configuration \`${server}\``
     });
   }
 });
