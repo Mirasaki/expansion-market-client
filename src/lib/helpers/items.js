@@ -1,4 +1,5 @@
 const { stripIndents } = require('common-tags');
+const { MARKET_ANNOTATION_3_STR } = require('../../constants');
 const { colorResolver } = require('../../util');
 const { prettifyClassName, resolveInGameName, bulkResolveInGameNames, matchResolvedInGameNameArray } = require('./in-game-names');
 
@@ -129,16 +130,19 @@ const getItemDataEmbed = async (className, category, trader) => {
   // Trader#Items annotation - More specific annotation, takes priority over Trader#Categories below
   if (traderAnnotation) {
     hasAnnotation = true;
-    activeAnnotation = String(traderAnnotation[1]);
+    activeAnnotation = Number(traderAnnotation[1]);
   }
   // Trader#Categories annotation
   else if (categoryAnnotation) {
     hasAnnotation = categoryAnnotation.indexOf(':') >= 1;
-    activeAnnotation = categoryAnnotation.slice(
+    activeAnnotation = Number(categoryAnnotation.slice(
       categoryAnnotation.indexOf(':') + 1,
       categoryAnnotation.length
-    );
+    ));
   }
+
+  // Early escape hatch for className:3 (only available for attachments etc)
+  if (activeAnnotation === 3) return MARKET_ANNOTATION_3_STR;
 
   // Define our initial, unconditional embed
   const embed = {
@@ -163,7 +167,7 @@ const getItemDataEmbed = async (className, category, trader) => {
       {
         name: 'Buy',
         value: `\`\`\`diff\n${
-          hasAnnotation && (activeAnnotation === '2' || activeAnnotation === '3')
+          hasAnnotation && (activeAnnotation === 2 || activeAnnotation === 3)
             ? '- n/a'
             : await resolveBuyPriceOutput(item, trader, zone)
         }\n\`\`\``,
@@ -172,7 +176,7 @@ const getItemDataEmbed = async (className, category, trader) => {
       {
         name: 'Sell',
         value: `\`\`\`diff\n${
-          hasAnnotation && (activeAnnotation === '0' || activeAnnotation === '3')
+          hasAnnotation && (activeAnnotation === 0 || activeAnnotation === 3)
             ? '+ n/a'
             : await resolveSellPriceOutput(item, trader, zone)
         }\n\`\`\``,
@@ -223,7 +227,7 @@ const getItemDataEmbed = async (className, category, trader) => {
     });
   }
 
-
+  // Always return the embed
   return embed;
 };
 
