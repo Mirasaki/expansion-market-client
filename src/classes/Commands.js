@@ -203,6 +203,7 @@ class CommandBase {
   /**
    * The callback executed when the command is ran
    * @member {CommandCallback}
+   * @return {Promise<void>}
    */
   run = () => {};
 
