@@ -19,6 +19,7 @@ const ALLOWED_CONTENT_TYPE = 'application/zip';
 
 module.exports = new ChatInputCommand({
   global: true,
+  enabled:  false,
   permLevel: 'Administrator',
   cooldown: {
     type: 'guild',

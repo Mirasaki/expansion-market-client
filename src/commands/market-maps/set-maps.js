@@ -16,6 +16,7 @@ const { hasValidMarketServer, marketServerOption } = require('../../lib/helpers/
 const ALLOWED_CONTENT_TYPE = 'application/zip';
 
 module.exports = new ChatInputCommand({
+  enabled:  false,
   global: true,
   permLevel: 'Administrator',
   cooldown: {
