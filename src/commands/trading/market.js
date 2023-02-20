@@ -1,6 +1,6 @@
 const { ApplicationCommandOptionType } = require('discord.js');
 const { ChatInputCommand } = require('../../classes/Commands');
-const { MARKET_BROWSE_AUTOCOMPLETE_OPTION } = require('../../constants');
+const { MARKET_BROWSE_AUTOCOMPLETE_OPTION, NO_MARKET_CONFIG_OPTION_VALUE, NO_MARKET_CONFIG_DISPLAY_STR } = require('../../constants');
 const { resolveInGameName } = require('../../lib/helpers/in-game-names');
 const { getMarketItemByName } = require('../../lib/requests');
 const { getItemDataEmbed } = require('../../lib/helpers/items');
@@ -41,6 +41,12 @@ module.exports = new ChatInputCommand({
 
     // Check REQUIRED auto-complete enabled "item" option
     const className = options.getString(MARKET_BROWSE_AUTOCOMPLETE_OPTION);
+
+    // Check missing config
+    if (className === NO_MARKET_CONFIG_OPTION_VALUE) {
+      interaction.editReply(`${emojis.error} ${member}, ${NO_MARKET_CONFIG_DISPLAY_STR}`);
+      return;
+    }
 
     const res = await getMarketItemByName(server, className);
 
