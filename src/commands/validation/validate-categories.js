@@ -15,7 +15,7 @@ const { stripIndents } = require('common-tags');
 const ALLOWED_CONTENT_TYPE = 'application/zip';
 
 module.exports = new ChatInputCommand({
-  global: false,
+  global: true,
   permLevel: 'Administrator',
   cooldown: {
     type: 'guild',
