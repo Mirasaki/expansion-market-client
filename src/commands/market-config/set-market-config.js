@@ -6,7 +6,6 @@ const setTradersCommand = require('../market-traders/set-traders');
 const setZonesCommand = require('../market-zones/set-zones');
 const setMapsCommand = require('../market-maps/set-maps');
 
-
 const {
   MARKET_CATEGORIES_FILE_DESCRIPTION,
   MARKET_CATEGORIES_OPTION_NAME,
@@ -21,7 +20,7 @@ const {
 
 
 module.exports = new ChatInputCommand({
-  global: false,
+  global: true,
   permLevel: 'Administrator',
   cooldown: {
     type: 'guild',
