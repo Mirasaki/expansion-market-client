@@ -2,7 +2,7 @@
 // are ignored by our command file handler
 const { deleteMarketServer } = require('../../lib/requests');
 const { ChatInputCommand } = require('../../classes/Commands');
-const { getGuildMarketServerArr, marketServerOption, hasValidMarketServer } = require('../../lib/helpers/marketServers');
+const { marketServerOption, hasValidMarketServer } = require('../../lib/helpers/marketServers');
 
 // Windows (ctrl+space) for auto-complete IntelliSense options
 module.exports = new ChatInputCommand({
