@@ -82,6 +82,8 @@ const MARKET_BROWSE_AUTOCOMPLETE_OPTION = 'item';
 // Market Server Config
 const MARKET_SERVER_CONFIGURATION_OPTION = 'market-server-config';
 const MARKET_SERVER_CONFIGURATION_DESCRIPTION = 'Server configuration this applies to';
+const NO_MARKET_CONFIG_OPTION_VALUE = '__UNUSED__';
+const NO_MARKET_CONFIG_DISPLAY_STR = 'this command has been cancelled because there is no Expansion-Market configuration active for this identifier, please use `/set-market-config` first, and try again.';
 
 module.exports = {
   EMBED_MAX_FIELDS_LENGTH,
@@ -153,5 +155,7 @@ module.exports = {
 
 
   MARKET_SERVER_CONFIGURATION_OPTION,
-  MARKET_SERVER_CONFIGURATION_DESCRIPTION
+  MARKET_SERVER_CONFIGURATION_DESCRIPTION,
+  NO_MARKET_CONFIG_OPTION_VALUE,
+  NO_MARKET_CONFIG_DISPLAY_STR
 };
