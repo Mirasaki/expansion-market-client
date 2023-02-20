@@ -46,10 +46,10 @@ const bulkResolveInGameNames = async (id, items, prettifyUnresolved = true, appl
 // and the response, and with that builds a new array (instead of object response)
 // that replaces input with the output > IF < it's resolved
 // API "data" response matches characters (upper/lower- case), so no need to do any conversions
-const matchResolvedInGameNameArray = (items, data, prettifyUnresolved = true) => {
+const matchResolvedInGameNameArray = (items, data, prettifyUnresolved = true, appendClassInParenthesis = false) => {
   const newArr = [];
   for (const className of items) {
-    if (className in data.resolved) newArr.push(data.resolved[className]);
+    if (className in data.resolved) newArr.push(`${data.resolved[className]}${appendClassInParenthesis ? ` (${className})` : ''}`);
     else newArr.push(prettifyUnresolved ? prettifyClassName(className) : className);
   }
   return newArr;
