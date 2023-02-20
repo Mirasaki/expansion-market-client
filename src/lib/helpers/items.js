@@ -9,7 +9,11 @@ const resolveAllPossibleItems = (data) => {
   // into our notInItemList array
   return notInItemList
     .map((e) => ({ name: prettifyClassName(e, false), value: e }))
-    .concat( Object.entries(valid).map(([k, v]) => ({ name: v, value: k })) );
+    .concat( Object.entries(valid).map(([k, v]) => ({ name: v, value: k })) )
+    .map(({ name, value }, i, arr) => {
+      if (arr.filter((e) => e.name === name).length > 1) return { name: `${name} (${value})`, value };
+      else return { name, value };
+    });
 };
 
 const resolveItemStock = (item, category, zone) => {
