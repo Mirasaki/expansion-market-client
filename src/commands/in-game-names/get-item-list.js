@@ -18,13 +18,13 @@ module.exports = new ChatInputCommand({
   data: {
     description: 'Display your in-game-names configuration, shows only configuration counts by default, but you can choose to include to full configuration as a command option',
     options: [
-      marketServerOption,
       {
         type: ApplicationCommandOptionType.Boolean,
         name: ATTACH_FILE_OPTION_NAME,
         description: 'Attach the raw configuration as a file upload',
         required: false
-      }
+      },
+      marketServerOption
     ]
   },
   run: async (client, interaction) => {

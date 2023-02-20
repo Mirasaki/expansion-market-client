@@ -13,14 +13,14 @@ module.exports = new ChatInputCommand({
   data: {
     description: 'Search the available Expansion Market items',
     options: [
-      marketServerOption,
       {
         name: MARKET_BROWSE_AUTOCOMPLETE_OPTION,
         description: `The ${MARKET_BROWSE_AUTOCOMPLETE_OPTION} to query`,
         type: ApplicationCommandOptionType.String,
         autocomplete: true,
         required: true
-      }
+      },
+      marketServerOption
     ]
   },
   run: async (client, interaction) => {

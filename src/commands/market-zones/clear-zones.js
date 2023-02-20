@@ -16,13 +16,13 @@ module.exports = new ChatInputCommand({
   data: {
     description: `Clear/delete your ${MARKET_TRADER_ZONES_FILE_DESCRIPTION}`,
     options: [
-      marketServerOption,
       {
         name: CONFIRMATION_PROMPT_OPTION_NAME,
         description: CONFIRMATION_PROMPT_OPTION_DESCRIPTION,
         type: ApplicationCommandOptionType.Boolean,
         required: true
-      }
+      },
+      marketServerOption
     ]
   },
 

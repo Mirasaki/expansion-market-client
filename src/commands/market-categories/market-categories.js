@@ -18,14 +18,14 @@ module.exports = new ChatInputCommand({
   data: {
     description: 'Get an overview of available Market categories',
     options: [
-      marketServerOption,
       {
         name: MARKET_CATEGORIES_AUTOCOMPLETE_OPTION,
         description: `The ${MARKET_CATEGORIES_AUTOCOMPLETE_OPTION} to query`,
         type: ApplicationCommandOptionType.String,
         autocomplete: true,
         required: false
-      }
+      },
+      marketServerOption
     ]
   },
 

@@ -1,6 +1,6 @@
 const { ApplicationCommandOptionType } = require('discord.js');
 const { ChatInputCommand } = require('../../classes/Commands');
-const { marketServerOption, hasValidMarketServer } = require('../../lib/helpers/marketServers');
+const { hasValidMarketServer, requiredMarketServerOption } = require('../../lib/helpers/marketServers');
 const setCategoriesCommand = require('../market-categories/set-categories');
 const setTradersCommand = require('../market-traders/set-traders');
 const setZonesCommand = require('../market-zones/set-zones');
@@ -30,7 +30,7 @@ module.exports = new ChatInputCommand({
   data: {
     description: `Upload your server's ${MARKET_CATEGORIES_FILE_DESCRIPTION}`,
     options: [
-      marketServerOption,
+      requiredMarketServerOption,
       // Categories
       {
         type: ApplicationCommandOptionType.Attachment,

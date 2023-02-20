@@ -1,19 +1,22 @@
 const { ComponentCommand } = require('../../classes/Commands');
-const { MARKET_SERVER_CONFIGURATION_OPTION, NO_MARKET_CONFIG_OPTION_VALUE } = require('../../constants');
+const { NO_MARKET_CONFIG_OPTION_VALUE } = require('../../constants');
 const { prettifyClassName } = require('../../lib/helpers/in-game-names');
 const { resolveAllPossibleItems } = require('../../lib/helpers/items');
+const { hasValidMarketServerAutoComplete } = require('../../lib/helpers/marketServers');
 const { getInGameNames, getAllMarketItems } = require('../../lib/requests.js');
 
 module.exports = new ComponentCommand({
   run: async (client, interaction, query) => {
-    const serverId = interaction.options.getString(MARKET_SERVER_CONFIGURATION_OPTION);
-    const inGameNames = await getInGameNames(serverId); // Cached in back-end
+    // Check has valid market config option
+    const server = await hasValidMarketServerAutoComplete(interaction);
+    if (server === false) return;
+    const inGameNames = await getInGameNames(server); // Cached in back-end
 
     // Find all possible combinations of in-game-names
     // and classnames, prettified, of course
     let everything;
     if (inGameNames.status !== 200) {
-      const allRawItems = await getAllMarketItems(serverId);
+      const allRawItems = await getAllMarketItems(server);
       if (!allRawItems.data || !allRawItems.data[0]) {
         everything = [{ name: 'No configuration, please use /set-market-config', value: NO_MARKET_CONFIG_OPTION_VALUE }];
       }

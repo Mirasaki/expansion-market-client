@@ -18,14 +18,14 @@ module.exports = new ChatInputCommand({
   data: {
     description: 'Display the in-game name for an item/class name',
     options: [
-      marketServerOption,
       {
         name: CLASS_NAME_OPTION_STRING,
         description: 'The class name of the item',
         type: ApplicationCommandOptionType.String,
         required: true,
         autocomplete: true
-      }
+      },
+      marketServerOption
     ]
   },
 

@@ -18,14 +18,14 @@ module.exports = new ChatInputCommand({
   data: {
     description: 'Get an overview of available/configured Market trader-maps',
     options: [
-      marketServerOption,
       {
         name: MARKET_TRADER_MAPS_AUTOCOMPLETE_OPTION,
         description: `The ${MARKET_TRADER_MAPS_AUTOCOMPLETE_OPTION} to query`,
         type: ApplicationCommandOptionType.String,
         autocomplete: true,
         required: false
-      }
+      },
+      marketServerOption
     ]
   },
 

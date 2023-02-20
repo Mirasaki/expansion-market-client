@@ -17,13 +17,13 @@ module.exports = new ChatInputCommand({
   data: {
     description: 'Clear/delete the in-game item list configuration for this server',
     options: [
-      marketServerOption,
       {
         type: ApplicationCommandOptionType.Boolean,
         name: VERIFICATION_OPTION_NAME,
         description: 'Are you absolutely sure you want to clear/delete this data?',
         required: true
-      }
+      },
+      marketServerOption
     ]
   },
   run: async (client, interaction) => {

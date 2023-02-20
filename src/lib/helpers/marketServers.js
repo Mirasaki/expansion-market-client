@@ -7,9 +7,10 @@ const marketServerOption = {
   name: MARKET_SERVER_CONFIGURATION_OPTION,
   description: MARKET_SERVER_CONFIGURATION_DESCRIPTION,
   type: ApplicationCommandOptionType.String,
-  required: true,
+  required: false,
   autocomplete: true
 };
+
 
 const hasValidMarketServer = async (interaction) => {
   const { guild, options, member } = interaction;
@@ -17,7 +18,7 @@ const hasValidMarketServer = async (interaction) => {
   // Assign server variables
   const servers = await getGuildMarketServerArr(guild.id);
   const server = options.getString(MARKET_SERVER_CONFIGURATION_OPTION);
-  const activeServer = servers.find(({ value }) => server === value);
+  const activeServer = server ? server : servers[0].value;
 
   // Check valid server was supplied
   if (!activeServer) {
@@ -28,7 +29,20 @@ const hasValidMarketServer = async (interaction) => {
   }
 
   // Is OK
-  else return server;
+  else return activeServer;
+};
+
+const hasValidMarketServerAutoComplete = async (interaction) => {
+  const { guild, options } = interaction;
+
+  // Assign server variables
+  const servers = await getGuildMarketServerArr(guild.id);
+  const server = options.getString(MARKET_SERVER_CONFIGURATION_OPTION);
+  const activeServer = server ? server : servers[0].value;
+
+  // Check valid server was supplied
+  if (!activeServer) return false;
+  else return activeServer;
 };
 
 const getGuildMarketServerArr = async (id) => {
@@ -43,5 +57,6 @@ const getGuildMarketServerArr = async (id) => {
 module.exports = {
   marketServerOption,
   hasValidMarketServer,
+  hasValidMarketServerAutoComplete,
   getGuildMarketServerArr
 };

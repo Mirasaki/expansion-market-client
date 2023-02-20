@@ -1,11 +1,12 @@
 const { ComponentCommand } = require('../../classes/Commands');
-const { MARKET_SERVER_CONFIGURATION_OPTION } = require('../../constants');
+const { hasValidMarketServerAutoComplete } = require('../../lib/helpers/marketServers');
 const { getMarketTraderMaps } = require('../../lib/requests.js');
 
 module.exports = new ComponentCommand({
   run: async (client, interaction, query) => {
-    const serverId = interaction.options.getString(MARKET_SERVER_CONFIGURATION_OPTION);
-    const traderMaps = await getMarketTraderMaps(serverId); // Cached in back-end
+    const server = await hasValidMarketServerAutoComplete(interaction);
+    if (server === false) return;
+    const traderMaps = await getMarketTraderMaps(server); // Cached in back-end
 
     // Return nothing if there's no trader-zone configuration
     if (!('data' in traderMaps) || !traderMaps.data[0]) return [];

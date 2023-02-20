@@ -27,13 +27,13 @@ module.exports = new ChatInputCommand({
   data: {
     description: `Upload your server's ${MARKET_TRADER_MAPS_FILE_DESCRIPTION}`,
     options: [
-      marketServerOption,
       {
         type: ApplicationCommandOptionType.Attachment,
         name: MARKET_TRADER_MAPS_OPTION_NAME,
         description: `Your "${MARKET_TRADER_MAPS_REAL_FILE_NAME}" file.`,
         required: true
-      }
+      },
+      marketServerOption
     ]
   },
 

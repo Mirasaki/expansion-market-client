@@ -19,13 +19,13 @@ module.exports = new ChatInputCommand({
   data: {
     description: 'Upload your server\'s in-game item names list so you can use in-game names instead of class names. You wouldn\'t want your player-base having to learn class names, would you?',
     options: [
-      marketServerOption,
       {
         type: ApplicationCommandOptionType.Attachment,
         name: ATTACHMENT_OPTION_NAME,
         description: 'Your "items.export.json" file. If you\'re not sure how to get this, use /item-list',
         required: true
-      }
+      },
+      marketServerOption
     ]
   },
 
