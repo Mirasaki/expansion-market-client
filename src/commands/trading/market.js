@@ -1,6 +1,6 @@
 const { ApplicationCommandOptionType } = require('discord.js');
 const { ChatInputCommand } = require('../../classes/Commands');
-const { MARKET_BROWSE_AUTOCOMPLETE_OPTION, NO_MARKET_CONFIG_OPTION_VALUE, NO_MARKET_CONFIG_DISPLAY_STR } = require('../../constants');
+const { MARKET_BROWSE_AUTOCOMPLETE_OPTION, NO_MARKET_CONFIG_OPTION_VALUE, NO_MARKET_CONFIG_DISPLAY_STR, MARKET_ANNOTATION_3_STR } = require('../../constants');
 const { resolveInGameName } = require('../../lib/helpers/in-game-names');
 const { getMarketItemByName } = require('../../lib/requests');
 const { getItemDataEmbed } = require('../../lib/helpers/items');
@@ -72,9 +72,13 @@ module.exports = new ChatInputCommand({
       embeds.push(await getItemDataEmbed(className, category, trader));
     }
 
+    // Filter out bad/returned embeds - this is intentional behavior,
+    // otherwise we have to calculate annotations, etc twice
+    const usableEmbeds = embeds.filter((e) => e !== MARKET_ANNOTATION_3_STR);
+
     // Fail-safe!
     // We can't reply to an interaction without content and 0 embeds =)
-    if (!embeds[0]) {
+    if (!usableEmbeds[0]) {
       interaction.editReply({
         content: `${emojis.error} ${member}, server configuration for Expansion-Market is incomplete! Be sure you use all of the \`/set\` commands - use /support if you're encountering issues.`
       });
@@ -82,18 +86,18 @@ module.exports = new ChatInputCommand({
     }
 
     // Prepend guild branding to first embed
-    embeds[0].author = {
+    usableEmbeds[0].author = {
       name: `${guild.name} - Market`,
       iconURL: guild.iconURL({ dynamic: true })
     };
 
     // Append performance measure to final embed
-    embeds[embeds.length - 1].footer = {
+    usableEmbeds[usableEmbeds.length - 1].footer = {
       text: `Parsed and analyzed in: ${getRuntime(runtimeStart).ms} ms`,
       iconURL: client.user.displayAvatarURL()
     };
 
     // Reply to the interaction
-    interaction.editReply({ embeds });
+    interaction.editReply({ embeds: usableEmbeds });
   }
 });
