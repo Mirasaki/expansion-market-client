@@ -1,5 +1,5 @@
 const { ComponentCommand } = require('../../classes/Commands');
-const { MARKET_SERVER_CONFIGURATION_OPTION } = require('../../constants');
+const { MARKET_SERVER_CONFIGURATION_OPTION, NO_MARKET_CONFIG_OPTION_VALUE } = require('../../constants');
 const { prettifyClassName } = require('../../lib/helpers/in-game-names');
 const { resolveAllPossibleItems } = require('../../lib/helpers/items');
 const { getInGameNames, getAllMarketItems } = require('../../lib/requests.js');
@@ -12,9 +12,15 @@ module.exports = new ComponentCommand({
     // Find all possible combinations of in-game-names
     // and classnames, prettified, of course
     let everything;
-    if (inGameNames.status !== 200) everything = (await getAllMarketItems(serverId))
-      .data
-      .map((className) => ({ name: prettifyClassName(className, false), value: className }));
+    if (inGameNames.status !== 200) {
+      const allRawItems = await getAllMarketItems(serverId);
+      if (!allRawItems.data || !allRawItems.data[0]) {
+        everything = [{ name: 'No configuration, please use /set-market-config', value: NO_MARKET_CONFIG_OPTION_VALUE }];
+      }
+      else everything = allRawItems
+        .data
+        .map((className) => ({ name: prettifyClassName(className, false), value: className }));
+    }
     else everything = resolveAllPossibleItems(inGameNames.data);
 
     // Return nothing if there's no in-game-name configuration
