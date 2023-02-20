@@ -43,9 +43,6 @@ module.exports = new ChatInputCommand({
     const { member, guild } = interaction;
     const { emojis } = client.container;
 
-    // Deferring our reply
-    await interaction.deferReply();
-
     // Check has valid market config option
     const server = await hasValidMarketServer(interaction);
     if (server === false) return;
@@ -56,7 +53,7 @@ module.exports = new ChatInputCommand({
     // Return if content type is not allowed
     const contentIsAllowed = isAllowedContentType(ALLOWED_CONTENT_TYPE, attachment.contentType);
     if (!contentIsAllowed.strict) {
-      interaction.editReply({
+      interaction.followUp({
         content: `${emojis.error} ${member}, file rejected. Content type is not **\`${ALLOWED_CONTENT_TYPE}\`**, received **\`${attachment.contentType}\`** instead.`
       });
       return;
@@ -65,6 +62,7 @@ module.exports = new ChatInputCommand({
     // User Feedback, wait for parser
     let content = `${emojis.wait} ${member}, please be patient while your \`${MARKET_TRADERS_OPTION_NAME}\` attachment is being retrieved...`;
     await interaction.editReply(content);
+    const msg = await interaction.followUp(content);
 
     // Fetch the attachment from Discord's API
     const attachmentResponse = await fetchAttachment(attachment);
@@ -72,7 +70,7 @@ module.exports = new ChatInputCommand({
     // Return if any errors were encountered
     if ('error' in attachmentResponse) {
       content += `\n${emojis.error} Couldn't retrieve attachment, this command has been cancelled`;
-      interaction.editReply({
+      msg.edit({
         content,
         embeds: [BackendClient.getClientErrorEmbed(attachmentResponse)]
       });
@@ -84,11 +82,11 @@ module.exports = new ChatInputCommand({
     // Notify attachment has been fetched
     const { runtime, size, body } = attachmentResponse;
     content += `\n${emojis.success} Fetched your attachment in: **${runtime} ms** (${size} KB)`;
-    await interaction.editReply(content);
+    await msg.edit(content);
 
     // Notify start API parser
     content += `\n${emojis.wait} Parsing and saving your ${MARKET_TRADERS_FILE_DESCRIPTION}...`;
-    await interaction.editReply(content);
+    await msg.edit(content);
 
     // Response from API
     const requestTimerStart = process.hrtime.bigint();
@@ -98,7 +96,7 @@ module.exports = new ChatInputCommand({
     // Error embed if the request isn't successful
     if (res.status !== 200) {
       content += `\n${emojis.error} This file couldn't be parsed/processed`;
-      interaction.editReply({
+      msg.edit({
         content,
         embeds: [BackendClient.getClientErrorEmbed(res)]
       });
@@ -125,7 +123,7 @@ module.exports = new ChatInputCommand({
 
       // Replying to the interaction
       content += `\n${emojis.success} Finished parsing and saving your ${MARKET_TRADERS_FILE_DESCRIPTION} in: **${requestFetchMS} ms**`;
-      interaction.editReply({
+      msg.edit({
         content,
         embeds: [{
           color: colorResolver(),
