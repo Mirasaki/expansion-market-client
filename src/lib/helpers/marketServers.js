@@ -11,6 +11,14 @@ const marketServerOption = {
   autocomplete: true
 };
 
+const requiredMarketServerOption = {
+  name: MARKET_SERVER_CONFIGURATION_OPTION,
+  description: MARKET_SERVER_CONFIGURATION_DESCRIPTION,
+  type: ApplicationCommandOptionType.String,
+  required: true,
+  autocomplete: true
+};
+
 
 const hasValidMarketServer = async (interaction) => {
   const { guild, options, member } = interaction;
@@ -56,6 +64,7 @@ const getGuildMarketServerArr = async (id) => {
 
 module.exports = {
   marketServerOption,
+  requiredMarketServerOption,
   hasValidMarketServer,
   hasValidMarketServerAutoComplete,
   getGuildMarketServerArr
