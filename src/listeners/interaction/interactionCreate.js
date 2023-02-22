@@ -109,6 +109,9 @@ const runCommand = (client, interaction, activeId, cmdRunTimeStart) => {
   const { member, guild, channel } = interaction;
   const clientCmd = getCommand(client, activeId);
 
+  // Custom in-command actions, return
+  if (activeId.startsWith('@')) return;
+
   // Check for late API changes
   if (!clientCmd) {
     interaction.reply({
