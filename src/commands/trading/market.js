@@ -1,4 +1,4 @@
-const { ApplicationCommandOptionType } = require('discord.js');
+const { ApplicationCommandOptionType, ComponentType, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { ChatInputCommand } = require('../../classes/Commands');
 const { MARKET_BROWSE_AUTOCOMPLETE_OPTION, NO_MARKET_CONFIG_OPTION_VALUE, NO_MARKET_CONFIG_DISPLAY_STR, MARKET_ANNOTATION_3_STR } = require('../../constants');
 const { resolveInGameName } = require('../../lib/helpers/in-game-names');
@@ -6,6 +6,26 @@ const { getMarketItemByName } = require('../../lib/requests');
 const { getItemDataEmbed } = require('../../lib/helpers/items');
 const { getRuntime } = require('../../util');
 const { hasValidMarketServer, marketServerOption } = require('../../lib/helpers/marketServers');
+
+const getPaginationComponents = (pageNow, pageTotal, prevCustomId, nextCustomId, disableAll = false) => {
+  return [
+    new ActionRowBuilder()
+      .addComponents(
+        new ButtonBuilder()
+          .setCustomId(prevCustomId)
+          .setLabel('Previous')
+          .setDisabled(!!(disableAll || pageNow === 1))
+          .setEmoji('◀️')
+          .setStyle(ButtonStyle.Primary),
+        new ButtonBuilder()
+          .setCustomId(nextCustomId)
+          .setLabel('Next')
+          .setDisabled(!!(disableAll || pageNow === pageTotal))
+          .setEmoji('▶️')
+          .setStyle(ButtonStyle.Primary)
+      )
+  ];
+};
 
 module.exports = new ChatInputCommand({
   global: true,
@@ -74,7 +94,7 @@ module.exports = new ChatInputCommand({
 
     // Filter out bad/returned embeds - this is intentional behavior,
     // otherwise we have to calculate annotations, etc twice
-    const usableEmbeds = embeds.filter((e) => e !== MARKET_ANNOTATION_3_STR);
+    let usableEmbeds = embeds.filter((e) => e !== MARKET_ANNOTATION_3_STR);
 
     // Fail-safe!
     // We can't reply to an interaction without content and 0 embeds =)
@@ -85,19 +105,76 @@ module.exports = new ChatInputCommand({
       return;
     }
 
-    // Prepend guild branding to first embed
-    usableEmbeds[0].author = {
-      name: `${guild.name} - Market`,
-      iconURL: guild.iconURL({ dynamic: true })
-    };
-
-    // Append performance measure to final embed
-    usableEmbeds[usableEmbeds.length - 1].footer = {
-      text: `Parsed and analyzed in: ${getRuntime(runtimeStart).ms} ms`,
-      iconURL: client.user.displayAvatarURL()
-    };
+    // Prepend guild branding
+    // and append performance measuring to all embeds
+    usableEmbeds = usableEmbeds.map((emb) => ({
+      author: {
+        name: `${guild.name} - Market`,
+        iconURL: guild.iconURL({ dynamic: true })
+      },
+      footer: {
+        text: `Parsed and analyzed in: ${getRuntime(runtimeStart).ms} ms`,
+        iconURL: client.user.displayAvatarURL()
+      },
+      ...emb
+    }));
 
     // Reply to the interaction
-    interaction.editReply({ embeds: usableEmbeds });
+    if (usableEmbeds.length === 1) interaction.editReply({ embeds: usableEmbeds });
+    // Properly handle pagination for multiple embeds
+    else {
+      let pageNow = 1;
+      const prevCustomId = `@page-prev@${member.id}@${className}@${Date.now()}`;
+      const nextCustomId = `@page-next@${member.id}@${className}@${Date.now()}`;
+      const updateEmbedReply = (i) => i.update({
+        embeds: [usableEmbeds[pageNow - 1]],
+        components: getPaginationComponents(pageNow, usableEmbeds.length, prevCustomId, nextCustomId)
+      });
+
+      // Initial reply
+      interaction.editReply({
+        embeds: [usableEmbeds[pageNow - 1]],
+        components: getPaginationComponents(pageNow, usableEmbeds.length, prevCustomId, nextCustomId)
+      });
+
+      // Fetching the message attached to the received interaction
+      const interactionMessage = await interaction.fetchReply();
+      // Button reply/input collector
+      const marketPaginationCollector = interactionMessage.createMessageComponentCollector({
+        filter: (i) => (
+          // Filter out custom ids
+          i.customId === prevCustomId || i.customId === nextCustomId
+        ) && i.user.id === interaction.user.id, // Filter out people without access to the command
+        componentType: ComponentType.Button,
+        time: 180_000
+      });
+
+      // And finally, running code when it collects an interaction (defined as "i" in this callback)
+      marketPaginationCollector.on('collect', (i) => {
+        // Prev
+        if (i.customId === prevCustomId) {
+          if (pageNow === 1) {
+            i.reply({ content: `${emojis.error} ${member}, you're on the first page, this action was cancelled.`, ephemeral: true });
+            return;
+          }
+          else pageNow--;
+        }
+        // Next
+        else if (i.customId === nextCustomId) {
+          if (pageNow === embeds.length) {
+            i.reply({ content: `${emojis.error} ${member}, you're already viewing the last page, this action was cancelled.`, ephemeral: true });
+            return;
+          }
+          else pageNow++;
+        }
+
+        // Update reply with new page index
+        updateEmbedReply(i);
+      });
+
+      marketPaginationCollector.on('end', () => {
+        interaction.editReply({ components: getPaginationComponents(pageNow, usableEmbeds.length, prevCustomId, nextCustomId, true) });
+      });
+    }
   }
 });
