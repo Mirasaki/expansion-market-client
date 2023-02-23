@@ -7,7 +7,6 @@ const setZonesCommand = require('../market-zones/set-zones');
 const setMapsCommand = require('../market-maps/set-maps');
 
 const {
-  MARKET_CATEGORIES_FILE_DESCRIPTION,
   MARKET_CATEGORIES_OPTION_NAME,
   MARKET_CATEGORIES_REAL_FILE_NAME,
   MARKET_TRADERS_OPTION_NAME,
@@ -18,7 +17,6 @@ const {
   MARKET_TRADER_MAPS_REAL_FILE_NAME
 } = require('../../constants');
 
-
 module.exports = new ChatInputCommand({
   global: true,
   permLevel: 'Administrator',
@@ -28,7 +26,7 @@ module.exports = new ChatInputCommand({
     duration: 1800
   },
   data: {
-    description: `Upload your server's ${MARKET_CATEGORIES_FILE_DESCRIPTION}`,
+    description: 'Upload your server\'s full Expansion-Market configuration',
     options: [
       requiredMarketServerOption,
       // Categories

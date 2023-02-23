@@ -7,7 +7,6 @@ const clearZonesCommand = require('../market-zones/clear-zones');
 const clearMapsCommand = require('../market-maps/clear-maps');
 
 const {
-  MARKET_CATEGORIES_FILE_DESCRIPTION,
   CONFIRMATION_PROMPT_OPTION_NAME,
   CONFIRMATION_PROMPT_OPTION_DESCRIPTION
 } = require('../../constants');
@@ -22,7 +21,7 @@ module.exports = new ChatInputCommand({
     duration: 1800
   },
   data: {
-    description: `Upload your server's ${MARKET_CATEGORIES_FILE_DESCRIPTION}`,
+    description: 'Clear your full Expansion-Market configuration',
     options: [
       {
         name: CONFIRMATION_PROMPT_OPTION_NAME,
