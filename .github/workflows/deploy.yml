@@ -35,7 +35,7 @@ jobs:
           script: |
             export NVM_DIR=~/.nvm
             source ~/.nvm/nvm.sh
-            cd /var/www/green-mountain-trader-client
+            cd /var/www/expansion-market-client
             pm2 stop gmt-client
             git pull origin main
             npm install

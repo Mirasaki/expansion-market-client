@@ -1,6 +1,6 @@
-# green-mountain-trader
+# expansion-market
 
-[![CodeFactor](https://www.codefactor.io/repository/github/mirasaki/green-mountain-trader/badge)](https://www.codefactor.io/repository/github/mirasaki/green-mountain-trader)
+[![CodeFactor](https://www.codefactor.io/repository/github/mirasaki/expansion-market/badge)](https://www.codefactor.io/repository/github/mirasaki/expansion-market)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 This is a bot template using [discord.js](https://github.com/discordjs/discord.js "discord.js on Github") for quickly and easily creating powerful [Discord](https://discord.com/ "Official Discord Website") bots. You don't need much Javascript experience to get started on a project using this template. Not sure where to start? Come join my [Discord Server](https://discord.mirasaki.dev "Mirasaki Development on Discord"), where I'll try and answer all the questions you have.
@@ -142,8 +142,8 @@ acceptEvalCollector.on('collect', (i) => { /* The callback to run */ });
 
 The quickest, and easiest, way to host/use this bot is by deploying it inside of a [Docker](https://docs.docker.com/engine/install/ "Official Docker Website") container.
 
-1. Clone this repository: `git clone https://github.com/Mirasaki/green-mountain-trader.git`
-2. Navigate inside the new folder: `cd green-mountain-trader`
+1. Clone this repository: `git clone https://github.com/Mirasaki/expansion-market.git`
+2. Navigate inside the new folder: `cd expansion-market`
 3. Rename `.env.example` to `.env` and provide your environmental variables
 4. Rename `config.example.js` to `config.js` and provide your configuration
 5. Build the project: `docker build --tag discord-bot-template .`
@@ -153,8 +153,8 @@ The quickest, and easiest, way to host/use this bot is by deploying it inside of
 
 You can also clone this repository or download a release, and host the project directly. You will need [Node/NodeJS](https://nodejs.org/en/ "Node official website") (Be sure to check the box that says "Automatically install the necessary tools" when you're running the installation wizard)
 
-1. Head over to [the download page](https://github.com/Mirasaki/green-mountain-trader/releases/)
-    - Alternatively, clone this repository by using `git clone https://github.com/Mirasaki/green-mountain-trader.git` and skip to step 4 if you have [Git](https://git-scm.com/downloads "Git Download Section") installed.
+1. Head over to [the download page](https://github.com/Mirasaki/expansion-market/releases/)
+    - Alternatively, clone this repository by using `git clone https://github.com/Mirasaki/expansion-market.git` and skip to step 4 if you have [Git](https://git-scm.com/downloads "Git Download Section") installed.
 2. Download either the `zip` or `zip.gz` source code
 3. Extract it using [your favorite zip tool](https://www.rarlab.com/download.htm "It's WinRar, duh")
 4. Open a new console/terminal/shell window in the newly created project folder.
