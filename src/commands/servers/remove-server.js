@@ -2,7 +2,7 @@
 // are ignored by our command file handler
 const { deleteMarketServer } = require('../../lib/requests');
 const { ChatInputCommand } = require('../../classes/Commands');
-const { marketServerOption, hasValidMarketServer } = require('../../lib/helpers/marketServers');
+const { hasValidMarketServer, requiredMarketServerOption } = require('../../lib/helpers/marketServers');
 
 // Windows (ctrl+space) for auto-complete IntelliSense options
 module.exports = new ChatInputCommand({
@@ -10,7 +10,7 @@ module.exports = new ChatInputCommand({
   data: {
     description: 'Remove a server configuration',
     options: [
-      marketServerOption
+      requiredMarketServerOption
     ]
   },
   run: async (client, interaction) => {
