@@ -26,7 +26,11 @@ const hasValidMarketServer = async (interaction) => {
   // Assign server variables
   const servers = await getGuildMarketServerArr(guild.id);
   const server = options.getString(MARKET_SERVER_CONFIGURATION_OPTION);
-  const activeServer = server ? server : servers[0].value;
+  const activeServer = server
+    ? server
+    : servers[0]
+      ? servers[0].value
+      : null;
 
   // Check valid server was supplied
   if (!activeServer) {
@@ -46,7 +50,11 @@ const hasValidMarketServerAutoComplete = async (interaction) => {
   // Assign server variables
   const servers = await getGuildMarketServerArr(guild.id);
   const server = options.getString(MARKET_SERVER_CONFIGURATION_OPTION);
-  const activeServer = server ? server : servers[0].value;
+  const activeServer = server
+    ? server
+    : servers[0]
+      ? servers[0].value
+      : null;
 
   // Check valid server was supplied
   if (!activeServer) return false;
