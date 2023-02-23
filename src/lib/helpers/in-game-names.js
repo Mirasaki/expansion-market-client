@@ -1,4 +1,4 @@
-const { MISSING_IN_GAME_NAME_STATE_TAG } = require('../../constants');
+const { MISSING_IN_GAME_NAME_STATE_TAG, MS_IN_ONE_HOUR } = require('../../constants');
 const { titleCase } = require('../../util');
 const { getInGameNameByClass, getInGameNameByClassBulk } = require('../requests');
 
@@ -13,15 +13,47 @@ const prettifyClassName = (className, applyTag = true) => {
 
 const applyMissingInGameNameTag = (str) => `${str} ${MISSING_IN_GAME_NAME_STATE_TAG}`;
 
+const inGameNameCache = {};
+
+/**
+ * Should only be used when the TraderCategoryItem object is not
+ * directly available, otherwise, use #displayName
+ * @param {string} id market-server-id
+ * @param {string} className The item's class name
+ * @param {boolean} prettifyUnresolved Prettify class name when unresolved
+ * @param {boolean} applyTag Apply missing displayName tag
+ * @returns
+ */
 const resolveInGameName = async (id, className, prettifyUnresolved = true, applyTag = true) => {
+  let ign;
+
+  // Resolve market-server-config in-game-name cache
+  let serverIgnCache = ([id] in inGameNameCache) ? inGameNameCache[id] : null;
+  if (!serverIgnCache) {
+    inGameNameCache[id] = serverIgnCache = {};
+    setTimeout(() => delete inGameNameCache[id], MS_IN_ONE_HOUR);
+  }
+
+  // Check item is cached - early escape
+  else if (serverIgnCache[className]) return serverIgnCache[className];
+
+  // Resolve in-game name
   const clientRes = await getInGameNameByClass(id, className);
   if (
     clientRes.status === 200
     && 'data' in clientRes
-  ) return clientRes.data;
-  else return prettifyUnresolved
+  ) {
+    ign = clientRes.data;
+  }
+  else ign = prettifyUnresolved
     ? prettifyClassName(className, applyTag)
     : className;
+
+  // Set in cache
+  serverIgnCache[className] = ign;
+
+  // Return fetched ign
+  return ign;
 };
 
 const bulkResolveInGameNames = async (id, items, prettifyUnresolved = true, applyTag = true) => {
@@ -56,6 +88,7 @@ const matchResolvedInGameNameArray = (items, data, prettifyUnresolved = true, ap
 };
 
 module.exports = {
+  inGameNameCache,
   prettifyClassName,
   resolveInGameName,
   bulkResolveInGameNames,

@@ -4,6 +4,7 @@ const { isAllowedContentType, fetchAttachment, colorResolver } = require('../../
 const { stripIndents } = require('common-tags');
 const { putInGameNames } = require('../../lib/requests');
 const { marketServerOption, hasValidMarketServer } = require('../../lib/helpers/marketServers');
+const { inGameNameCache } = require('../../lib/helpers/in-game-names');
 
 const ATTACHMENT_OPTION_NAME = 'item-list-file';
 const ALLOWED_CONTENT_TYPE = 'application/json; charset=utf-8';
@@ -112,6 +113,9 @@ module.exports = new ChatInputCommand({
             .setName('items.export-parsed.json')
         ]
       });
+
+      // Clear in-game name cache
+      delete inGameNameCache[server];
     }
 
     // Unknown error

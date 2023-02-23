@@ -1,7 +1,7 @@
 const { ApplicationCommandOptionType, ComponentType, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { ChatInputCommand } = require('../../classes/Commands');
 const { MARKET_BROWSE_AUTOCOMPLETE_OPTION, NO_MARKET_CONFIG_OPTION_VALUE, NO_MARKET_CONFIG_DISPLAY_STR, MARKET_ANNOTATION_3_STR } = require('../../constants');
-const { resolveInGameName } = require('../../lib/helpers/in-game-names');
+const { prettifyClassName } = require('../../lib/helpers/in-game-names');
 const { getMarketItemByName } = require('../../lib/requests');
 const { getItemDataEmbed } = require('../../lib/helpers/items');
 const { getRuntime } = require('../../util');
@@ -68,6 +68,8 @@ module.exports = new ChatInputCommand({
       return;
     }
 
+    // Fetch the item configuration
+    // Item is attached as category.items[0]
     const res = await getMarketItemByName(server, className);
 
     // Return if not OK
@@ -80,9 +82,12 @@ module.exports = new ChatInputCommand({
 
     // Return early if item is not tradable
     const { category, traders } = res.data;
+    const item = category.items[0];
+    let ign = item.displayName;
+    if (!ign) ign = prettifyClassName(className, true);
     if (!traders || !traders[0]) {
       interaction.editReply({
-        content: `${emojis.error} ${member}, \`${await resolveInGameName(server, className)}\` currently isn't tradable`
+        content: `${emojis.error} ${member}, \`${ign}\` currently isn't tradable`
       });
       return;
     }
@@ -107,13 +112,14 @@ module.exports = new ChatInputCommand({
 
     // Prepend guild branding
     // and append performance measuring to all embeds
+    const runtime = getRuntime(runtimeStart).ms;
     usableEmbeds = usableEmbeds.map((emb) => ({
       author: {
         name: `${guild.name} - Market`,
         iconURL: guild.iconURL({ dynamic: true })
       },
       footer: {
-        text: `Parsed and analyzed in: ${getRuntime(runtimeStart).ms} ms`,
+        text: `Parsed and analyzed in: ${runtime} ms`,
         iconURL: client.user.displayAvatarURL()
       },
       ...emb

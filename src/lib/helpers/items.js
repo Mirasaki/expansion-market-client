@@ -113,7 +113,8 @@ const resolveSellPriceOutput = async (item, trader, zone) => {
 
 const getItemDataEmbed = async (className, category, trader) => {
   const item = category.items[0];
-  const ign = await resolveInGameName(category.MarketServerId, className);
+  let ign = item.displayName;
+  if (!ign) ign = prettifyClassName(className, true);
   const map = trader.MarketTraderMap;
   const zone = map.MarketTraderZoneConfig;
 

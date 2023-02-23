@@ -1,5 +1,6 @@
 const { ApplicationCommandOptionType } = require('discord.js');
 const { ChatInputCommand } = require('../../classes/Commands');
+const { inGameNameCache } = require('../../lib/helpers/in-game-names');
 const { marketServerOption, hasValidMarketServer } = require('../../lib/helpers/marketServers');
 const { deleteInGameNames } = require('../../lib/requests');
 const { colorResolver } = require('../../util');
@@ -53,6 +54,9 @@ module.exports = new ChatInputCommand({
     // 200 - OK
     if (res.status === 200) {
       interaction.editReply(`${emojis.success} ${member}, item list configuration has been deleted.`);
+
+      // Clear in-game name cache
+      delete inGameNameCache[server];
     }
 
     // Not Found
