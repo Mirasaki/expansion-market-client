@@ -6,6 +6,7 @@ const { colorResolver, getRuntime } = require('../../util');
 const { stripIndents } = require('common-tags/lib');
 const { getClientErrorEmbed } = require('../../lib/client');
 const { marketServerOption, hasValidMarketServer } = require('../../lib/helpers/marketServers');
+const { prettifyClassName } = require('../../lib/helpers/in-game-names');
 
 module.exports = new ChatInputCommand({
   global: true,
@@ -160,7 +161,11 @@ module.exports = new ChatInputCommand({
           files.push(
             new AttachmentBuilder(
               Buffer.from(
-                JSON.stringify(data.items, null, 2)
+                JSON.stringify(
+                  data.items.map((e) => e.displayName ?? prettifyClassName(e.className, false)),
+                  null,
+                  2
+                )
               )
             ).setName(`${data.categoryName}-items.json`)
           );
