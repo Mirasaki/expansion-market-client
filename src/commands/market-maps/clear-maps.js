@@ -51,7 +51,7 @@ module.exports = new ChatInputCommand({
     // 200 - OK - Deleted {{num}} traders
     if (res.status === 200) {
       interaction.followUp({
-        content: `${emojis.success} ${member} - ${res.message}`
+        content: `${emojis.success} ${member} - ${res.message} (usually deleted by relation/association to traders and trader-zones)`
       });
     }
 
