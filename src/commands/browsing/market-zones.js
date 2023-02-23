@@ -65,7 +65,7 @@ module.exports = new ChatInputCommand({
 
       // Traders variables
       const { data } = traderZoneResponse;
-      console.dir(data, { depth: 1 });
+
 
       const traderZoneWithMostStock = data.reduce((p, c) => Object.values(p.stock).length > Object.values(c.stock).length ? p : c);
       const mostStockOutputLen = `${Object.values(traderZoneWithMostStock.stock).length}`.length;

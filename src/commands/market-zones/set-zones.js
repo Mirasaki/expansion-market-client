@@ -104,7 +104,6 @@ module.exports = new ChatInputCommand({
     // 200 - OK - Success
     else {
       const { data } = res;
-      console.dir(data, { depth: 1 });
 
       // Calculating totals
       const totalItemsInStock = data.reduce((acc, curr) => acc += Object.values(curr.stock).length, 0);
