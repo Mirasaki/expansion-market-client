@@ -19,7 +19,7 @@ module.exports = new ChatInputCommand({
     options: [
       {
         name: MARKET_TRADER_MAPS_AUTOCOMPLETE_OPTION,
-        description: `The ${MARKET_TRADER_MAPS_AUTOCOMPLETE_OPTION} to query`,
+        description: `The ${ MARKET_TRADER_MAPS_AUTOCOMPLETE_OPTION } to query`,
         type: ApplicationCommandOptionType.String,
         autocomplete: true,
         required: true
@@ -67,7 +67,7 @@ module.exports = new ChatInputCommand({
           Buffer.from(
             JSON.stringify(data, null, 2)
           )
-        ).setName(`${data.identifier}.json`)
+        ).setName(`${ data.identifier }.json`)
       );
     }
 

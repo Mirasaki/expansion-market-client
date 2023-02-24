@@ -33,28 +33,28 @@ module.exports = new ChatInputCommand({
       {
         type: ApplicationCommandOptionType.Attachment,
         name: MARKET_CATEGORIES_OPTION_NAME,
-        description: `Your "${MARKET_CATEGORIES_REAL_FILE_NAME}" file.`,
+        description: `Your "${ MARKET_CATEGORIES_REAL_FILE_NAME }" file.`,
         required: true
       },
       // Traders
       {
         type: ApplicationCommandOptionType.Attachment,
         name: MARKET_TRADERS_OPTION_NAME,
-        description: `Your "${MARKET_TRADERS_REAL_FILE_NAME}" file.`,
+        description: `Your "${ MARKET_TRADERS_REAL_FILE_NAME }" file.`,
         required: true
       },
       // Zones
       {
         type: ApplicationCommandOptionType.Attachment,
         name: MARKET_TRADER_ZONES_OPTION_NAME,
-        description: `Your "${MARKET_TRADER_ZONES_REAL_FILE_NAME}" file.`,
+        description: `Your "${ MARKET_TRADER_ZONES_REAL_FILE_NAME }" file.`,
         required: true
       },
       // Maps
       {
         type: ApplicationCommandOptionType.Attachment,
         name: MARKET_TRADER_MAPS_OPTION_NAME,
-        description: `Your "${MARKET_TRADER_MAPS_REAL_FILE_NAME}" file.`,
+        description: `Your "${ MARKET_TRADER_MAPS_REAL_FILE_NAME }" file.`,
         required: true
       }
     ]
@@ -79,7 +79,7 @@ module.exports = new ChatInputCommand({
     await setMapsCommand.run(client, interaction);
 
     // And finally, user feedback, we done!
-    await interaction.editReply({ content: `${emojis.success} ${member}, finished uploading and parsing your Expansion-Market configuration.` });
-    await interaction.followUp({ content: `${emojis.success} ${member}, finished uploading and parsing your Expansion-Market configuration, you can now use the \`/market\` command.\n\nDid you know that the bot supports in-game names? You should totally check out [the website](https://mirasaki.dev/gmt/in-game-names) to learn how to configure in-game names for your server.` });
+    await interaction.editReply({ content: `${ emojis.success } ${ member }, finished uploading and parsing your Expansion-Market configuration.` });
+    await interaction.followUp({ content: `${ emojis.success } ${ member }, finished uploading and parsing your Expansion-Market configuration, you can now use the \`/market\` command.\n\nDid you know that the bot supports in-game names? You should totally check out [the website](https://mirasaki.dev/gmt/in-game-names) to learn how to configure in-game names for your server.` });
   }
 });

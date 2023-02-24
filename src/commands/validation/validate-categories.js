@@ -1,6 +1,8 @@
 const { ApplicationCommandOptionType } = require('discord.js');
 const { ChatInputCommand } = require('../../classes/Commands');
-const { isAllowedContentType, fetchAttachment, colorResolver, getRuntime } = require('../../util');
+const {
+  isAllowedContentType, fetchAttachment, colorResolver, getRuntime
+} = require('../../util');
 const BackendClient = require('../../lib/client');
 const { validateCategories } = require('../../lib/requests.js');
 
@@ -23,12 +25,12 @@ module.exports = new ChatInputCommand({
     duration: 60
   },
   data: {
-    description: `Upload your server's ${MARKET_CATEGORIES_FILE_DESCRIPTION}`,
+    description: `Upload your server's ${ MARKET_CATEGORIES_FILE_DESCRIPTION }`,
     options: [
       {
         type: ApplicationCommandOptionType.Attachment,
         name: MARKET_CATEGORIES_OPTION_NAME,
-        description: `Your "${MARKET_CATEGORIES_REAL_FILE_NAME}" file.`,
+        description: `Your "${ MARKET_CATEGORIES_REAL_FILE_NAME }" file.`,
         required: true
       }
     ]
@@ -48,14 +50,12 @@ module.exports = new ChatInputCommand({
     // Return if content type is not allowed
     const contentIsAllowed = isAllowedContentType(ALLOWED_CONTENT_TYPE, attachment.contentType);
     if (!contentIsAllowed.strict) {
-      interaction.editReply({
-        content: `${emojis.error} ${member}, file rejected. Content type is not **\`${ALLOWED_CONTENT_TYPE}\`**, received **\`${attachment.contentType}\`** instead.`
-      });
+      interaction.editReply({ content: `${ emojis.error } ${ member }, file rejected. Content type is not **\`${ ALLOWED_CONTENT_TYPE }\`**, received **\`${ attachment.contentType }\`** instead.` });
       return;
     }
 
     // User Feedback, wait for parser
-    let content = `${emojis.wait} ${member}, please be patient while your \`${MARKET_CATEGORIES_OPTION_NAME}\` attachment is being retrieved...`;
+    let content = `${ emojis.wait } ${ member }, please be patient while your \`${ MARKET_CATEGORIES_OPTION_NAME }\` attachment is being retrieved...`;
     await interaction.editReply(content);
 
     // Fetch the attachment from Discord's API
@@ -63,10 +63,10 @@ module.exports = new ChatInputCommand({
 
     // Return if any errors were encountered
     if ('error' in attachmentResponse) {
-      content += `\n${emojis.error} Couldn't retrieve attachment, this command has been cancelled`;
+      content += `\n${ emojis.error } Couldn't retrieve attachment, this command has been cancelled`;
       interaction.editReply({
         content,
-        embeds: [BackendClient.getClientErrorEmbed(attachmentResponse)]
+        embeds: [ BackendClient.getClientErrorEmbed(attachmentResponse) ]
       });
       return;
     }
@@ -74,12 +74,14 @@ module.exports = new ChatInputCommand({
     // Valid data was received
 
     // Notify attachment has been fetched
-    const { runtime, size, body } = attachmentResponse;
-    content += `\n${emojis.success} Fetched your attachment in: **${runtime} ms** (${size} KB)`;
+    const {
+      runtime, size, body
+    } = attachmentResponse;
+    content += `\n${ emojis.success } Fetched your attachment in: **${ runtime } ms** (${ size } KB)`;
     await interaction.editReply(content);
 
     // Notify start API parser
-    content += `\n${emojis.wait} Parsing and saving your ${MARKET_CATEGORIES_FILE_DESCRIPTION}...`;
+    content += `\n${ emojis.wait } Parsing and saving your ${ MARKET_CATEGORIES_FILE_DESCRIPTION }...`;
     await interaction.editReply(content);
 
     // Response from API
@@ -89,8 +91,8 @@ module.exports = new ChatInputCommand({
     // Bad response
     if (res.status !== 200) {
       interaction.editReply({
-        content: `${emojis.error} ${member}, something went wrong while validating your files:`,
-        embeds: [BackendClient.getClientErrorEmbed(res)]
+        content: `${ emojis.error } ${ member }, something went wrong while validating your files:`,
+        embeds: [ BackendClient.getClientErrorEmbed(res) ]
       });
       return;
     }
@@ -98,9 +100,7 @@ module.exports = new ChatInputCommand({
     // Check if anything is marked invalid
     const invalid = res.data.filter(({ valid }) => !valid);
     if (!invalid[0]) {
-      interaction.editReply({
-        content: `${emojis.success} ${member}, no problems have been found.`
-      });
+      interaction.editReply({ content: `${ emojis.success } ${ member }, no problems have been found.` });
       return;
     }
 
@@ -108,35 +108,40 @@ module.exports = new ChatInputCommand({
     const totalProblems = invalid.reduce((acc, { coreProblems, itemProblems }) => acc += (coreProblems.length
       + itemProblems.reduce((acc, { problems }) => acc += problems.length, 0)
     ), 0);
-    const output = invalid.map(({ category, coreProblems, itemProblems }) =>
-      `+ ${category}:\n- ${coreProblems.join('\n- ')}\n${itemProblems.map(({ className, problems }) => stripIndents`
-        +   ${className}:\n-     ${problems.join('\n-     ')}
-      `).join('\n')}`).join('\n\n');
-    const title = `Found ${totalProblems} problems across ${invalid.length} entries`;
-    const footerText = `Parsed and analyzed files in ${getRuntime(requestTimerStart).ms} ms`;
+    const output = invalid.map(({
+      category, coreProblems, itemProblems
+    }) => `+ ${ category }:\n- ${ coreProblems.join('\n- ') }\n${ itemProblems.map(({ className, problems }) => {
+      return stripIndents`+   ${ className }:\n-     ${ problems.join('\n-     ') }`;
+    }).join('\n') }`).join('\n\n');
+    const title = `Found ${ totalProblems } problems across ${ invalid.length } entries`;
+    const footerText = `Parsed and analyzed files in ${ getRuntime(requestTimerStart).ms } ms`;
 
     // Content too long, upload as file
     if ((output.length + 20) > EMBED_DESCRIPTION_MAX_LENGTH) {
       interaction.editReply({
-        embeds: [{
-          color: colorResolver(),
-          title,
-          footer: { text: footerText }
-        }],
-        files: [{
-          attachment: Buffer.from(output),
-          name: 'problems.txt'
-        }]
+        embeds: [
+          {
+            color: colorResolver(),
+            title,
+            footer: { text: footerText }
+          }
+        ],
+        files: [
+          {
+            attachment: Buffer.from(output),
+            name: 'problems.txt'
+          }
+        ]
       });
     }
     // Or upload as embed if allowed
-    else interaction.editReply({
-      embeds: [{
+    else interaction.editReply({ embeds: [
+      {
         color: colorResolver(),
         title,
-        description: `\`\`\`diff\n${output}\`\`\``,
+        description: `\`\`\`diff\n${ output }\`\`\``,
         footer: { text: footerText }
-      }]
-    });
+      }
+    ] });
   }
 });

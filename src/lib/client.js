@@ -7,16 +7,14 @@ const colors = require('../config/colors.json');
 const { colorResolver } = require('../util');
 
 // Destructure from env and assignments
-const {
-  BACKEND_URL
-} = process.env;
+const { BACKEND_URL } = process.env;
 let tmpDir;
 
 // Set config defaults when creating the instance
 const BackendClient = axios.create({
-  baseURL: `${BACKEND_URL}/api/`,
+  baseURL: `${ BACKEND_URL }/api/`,
   headers: {
-    'User-Agent': `${pkg.name}/${pkg.version} (${process.platform}; Node:${process.version})`,
+    'User-Agent': `${ pkg.name }/${ pkg.version } (${ process.platform }; Node:${ process.version })`,
     'Connection': 'keep-alive'
   }
 });
@@ -34,7 +32,9 @@ module.exports.getClientResponse = (res) => {
   if (Array.isArray(res.data)) clientResponse.data = res.data;
 
   // Or combine/spread both objects in a new object
-  else clientResponse = { ...clientResponse, ...res.data };
+  else clientResponse = {
+    ...clientResponse, ...res.data
+  };
 
   // Always return the client response
   return clientResponse;
@@ -49,7 +49,5 @@ module.exports.getClientErrorEmbed = ({
   color: colorResolver(colors.error),
   title: error,
   description: message,
-  footer: {
-    text: `${status} | ${statusText}`
-  }
+  footer: { text: `${ status } | ${ statusText }` }
 });

@@ -19,7 +19,7 @@ module.exports = new ChatInputCommand({
     options: [
       {
         name: MARKET_CATEGORIES_AUTOCOMPLETE_OPTION,
-        description: `The ${MARKET_CATEGORIES_AUTOCOMPLETE_OPTION} to query`,
+        description: `The ${ MARKET_CATEGORIES_AUTOCOMPLETE_OPTION } to query`,
         type: ApplicationCommandOptionType.String,
         autocomplete: true,
         required: true
@@ -66,7 +66,7 @@ module.exports = new ChatInputCommand({
           Buffer.from(
             JSON.stringify(data, null, 2)
           )
-        ).setName(`${data.categoryName}.json`)
+        ).setName(`${ data.categoryName }.json`)
       );
     }
 

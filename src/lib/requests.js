@@ -2,7 +2,9 @@
 const logger = require('@mirasaki/logger');
 const { AxiosError } = require('axios');
 const FormData = require('form-data');
-const { createWriteStream, createReadStream, existsSync, mkdirSync, rmSync } = require('node:fs');
+const {
+  createWriteStream, createReadStream, existsSync, mkdirSync, rmSync
+} = require('node:fs');
 const { Agent } = require('node:http');
 const { Agent: HTTPSAgent } = require('node:https');
 const { pipeline } = require('node:stream');
@@ -19,6 +21,7 @@ const {
   DEBUG_FILE_UPLOAD_REQUESTS,
   DEBUG_BASE_REQUESTS
 } = process.env;
+const APPLICATION_JSON = 'application/json';
 
 // Base request
 const clientRequest = async (method, url, axiosConfig) => {
@@ -35,7 +38,8 @@ const clientRequest = async (method, url, axiosConfig) => {
   try {
     const res = await BackendClient(axiosConfig);
     clientResponse = BackendClient.getClientResponse(res);
-  } catch (err) {
+  }
+  catch (err) {
     if (
       err instanceof AxiosError
       && err.response
@@ -59,7 +63,7 @@ const clientRequest = async (method, url, axiosConfig) => {
 
   // Conditional debug logging
   if (DEBUG_BASE_REQUESTS === 'true') {
-    const debugTag = `[${method.toUpperCase()}] ${url} Request`;
+    const debugTag = `[${ method.toUpperCase() }] ${ url } Request`;
     logger.startLog(debugTag);
     console.dir(clientResponse, { depth: Array.isArray(clientResponse.data) ? 2 : 1 });
     logger.endLog(debugTag);
@@ -79,9 +83,9 @@ const fileUploadRequest = async ({
   let clientResponse;
   // Get our current temporary working directory for file downloads
   const endpointTag = endpoint.replace(/\//g, '-');
-  const fileName = `${endpointTag}.${extension}`;
+  const fileName = `${ endpointTag }.${ extension }`;
   if (!existsSync('data')) mkdirSync('data');
-  const workDir = `data/${id ? 'validate' : id}/`;
+  const workDir = `data/${ id ? 'validate' : id }/`;
 
   // Check if the directory exists
   if (!existsSync(workDir)) mkdirSync(workDir);
@@ -96,12 +100,11 @@ const fileUploadRequest = async ({
   formData.append('file', createReadStream(filePath));
 
   // Create our axios request config
+  const appendIdStr = id ? `/${ id }` : '';
   const config = {
     method: 'POST',
-    url: `${endpoint}${ id ? `/${id}` : '' }`,
-    headers: {
-      ...formData.getHeaders()
-    },
+    url: `${ endpoint }${ appendIdStr }`,
+    headers: { ...formData.getHeaders() },
     data: formData,
     httpAgent: new Agent({ keepAlive: true }),
     httpsAgent: new HTTPSAgent({ keepAlive: true })
@@ -111,7 +114,8 @@ const fileUploadRequest = async ({
   try {
     const res = await BackendClient(config);
     clientResponse = BackendClient.getClientResponse(res);
-  } catch (err) {
+  }
+  catch (err) {
     if (
       err instanceof AxiosError
       && err.response
@@ -134,7 +138,7 @@ const fileUploadRequest = async ({
 
       // Building the client response depending on environment
       clientResponse = {
-        error: `Error encountered while uploading file "${fileName}"`,
+        error: `Error encountered while uploading file "${ fileName }"`,
         message: NODE_ENV === 'production'
           ? 'This problem has been logged to the developers, please try again later.'
           : err.stack
@@ -148,7 +152,7 @@ const fileUploadRequest = async ({
   // Conditional debug logging
   if (DEBUG_FILE_UPLOAD_REQUESTS === 'true') {
     const endpointDebugTag = titleCase(endpointTag.replace(/-/g, ' '));
-    const debugTag = `[POST] ${endpointDebugTag} File Upload Request`;
+    const debugTag = `[POST] ${ endpointDebugTag } File Upload Request`;
     logger.startLog(debugTag);
     console.dir(clientResponse, { depth: 1 });
     logger.endLog(debugTag);
@@ -165,156 +169,118 @@ const fileUploadRequest = async ({
  * In-Game Names
  * Item-List
  */
-const getInGameNames = async (id) =>
-  await clientRequest('GET', `in-game-names/${id}`);
-const getInGameNameByClass = async (id, name) =>
-  await clientRequest('GET', `in-game-names/${id}/${name}`);
-const deleteInGameNames = async (id) =>
-  await clientRequest('DELETE', `in-game-names/${id}`);
-const putInGameNames = async (id, itemList) =>
-  await clientRequest('POST', `in-game-names/${id}`, {
-    headers: { 'Content-Type': 'application/json' },
-    data: { item_list: itemList }
-  });
-const getInGameNameByClassBulk = async (id, items) =>
-  await clientRequest('GET', `in-game-names/${id}/bulk`, {
-    headers: { 'Content-Type': 'application/json' },
-    data: { items }
-  });
-
+const getInGameNames = async (id) => await clientRequest('GET', `in-game-names/${ id }`);
+const getInGameNameByClass = async (id, name) => await clientRequest('GET', `in-game-names/${ id }/${ name }`);
+const deleteInGameNames = async (id) => await clientRequest('DELETE', `in-game-names/${ id }`);
+const putInGameNames = async (id, itemList) => await clientRequest('POST', `in-game-names/${ id }`, {
+  headers: { 'Content-Type': APPLICATION_JSON },
+  data: { item_list: itemList }
+});
+const getInGameNameByClassBulk = async (id, items) => await clientRequest('GET', `in-game-names/${ id }/bulk`, {
+  headers: { 'Content-Type': APPLICATION_JSON },
+  data: { items }
+});
 
 
 /*
  * Market
  * Categories
  */
-const getMarketCategories = async (id) =>
-  await clientRequest('GET', `market/categories/${id}`);
-const getMarketCategoryByName = async (id, name) =>
-  await clientRequest('GET', `market/categories/${id}/${name}`);
-const deleteMarketCategories = async (id) =>
-  await clientRequest('DELETE', `market/categories/${id}`);
-const putMarketCategories = async (id, readStream) =>
-  await fileUploadRequest({
-    id,
-    readStream,
-    endpoint: 'market/categories',
-    extension: 'zip'
-  });
-
+const getMarketCategories = async (id) => await clientRequest('GET', `market/categories/${ id }`);
+const getMarketCategoryByName = async (id, name) => await clientRequest('GET', `market/categories/${ id }/${ name }`);
+const deleteMarketCategories = async (id) => await clientRequest('DELETE', `market/categories/${ id }`);
+const putMarketCategories = async (id, readStream) => await fileUploadRequest({
+  id,
+  readStream,
+  endpoint: 'market/categories',
+  extension: 'zip'
+});
 
 
 /*
  * Market
  * Traders
  */
-const getMarketTraders = async (id) =>
-  await clientRequest('GET', `market/traders/${id}`);
-const getMarketTraderByName = async (id, name) =>
-  await clientRequest('GET', `market/traders/${id}/${name}`);
-const deleteMarketTraders = async (id) =>
-  await clientRequest('DELETE', `market/traders/${id}`);
-const putMarketTraders = async (id, readStream) =>
-  await fileUploadRequest({
-    id,
-    readStream,
-    endpoint: 'market/traders',
-    extension: 'zip'
-  });
-
+const getMarketTraders = async (id) => await clientRequest('GET', `market/traders/${ id }`);
+const getMarketTraderByName = async (id, name) => await clientRequest('GET', `market/traders/${ id }/${ name }`);
+const deleteMarketTraders = async (id) => await clientRequest('DELETE', `market/traders/${ id }`);
+const putMarketTraders = async (id, readStream) => await fileUploadRequest({
+  id,
+  readStream,
+  endpoint: 'market/traders',
+  extension: 'zip'
+});
 
 
 /*
  * Market
  * Trader Zones
  */
-const getMarketTraderZones = async (id) =>
-  await clientRequest('GET', `market/trader-zones/${id}`);
-const getMarketTraderZoneByName = async (id, name) =>
-  await clientRequest('GET', `market/trader-zones/${id}/${name}`);
-const deleteMarketTraderZones = async (id) =>
-  await clientRequest('DELETE', `market/trader-zones/${id}`);
-const putMarketTraderZones = async (id, readStream) =>
-  await fileUploadRequest({
-    id,
-    readStream,
-    endpoint: 'market/trader-zones',
-    extension: 'zip'
-  });
-
+const getMarketTraderZones = async (id) => await clientRequest('GET', `market/trader-zones/${ id }`);
+const getMarketTraderZoneByName = async (id, name) => await clientRequest('GET', `market/trader-zones/${ id }/${ name }`);
+const deleteMarketTraderZones = async (id) => await clientRequest('DELETE', `market/trader-zones/${ id }`);
+const putMarketTraderZones = async (id, readStream) => await fileUploadRequest({
+  id,
+  readStream,
+  endpoint: 'market/trader-zones',
+  extension: 'zip'
+});
 
 
 /*
  * Market
  * Trader Zones
  */
-const getMarketTraderMaps = async (id) =>
-  await clientRequest('GET', `market/trader-maps/${id}`);
-const getMarketTraderMapByName = async (id, name) =>
-  await clientRequest('GET', `market/trader-maps/${id}/${name}`);
-const deleteMarketTraderMaps = async (id) =>
-  await clientRequest('DELETE', `market/trader-maps/${id}`);
-const putMarketTraderMaps = async (id, readStream) =>
-  await fileUploadRequest({
-    id,
-    readStream,
-    endpoint: 'market/trader-maps',
-    extension: 'zip'
-  });
+const getMarketTraderMaps = async (id) => await clientRequest('GET', `market/trader-maps/${ id }`);
+const getMarketTraderMapByName = async (id, name) => await clientRequest('GET', `market/trader-maps/${ id }/${ name }`);
+const deleteMarketTraderMaps = async (id) => await clientRequest('DELETE', `market/trader-maps/${ id }`);
+const putMarketTraderMaps = async (id, readStream) => await fileUploadRequest({
+  id,
+  readStream,
+  endpoint: 'market/trader-maps',
+  extension: 'zip'
+});
 
 /*
  * Market Items
  */
-const getAllMarketItems = async (id) =>
-  await clientRequest('GET', `market/items/${id}`);
-const getMarketItemByName = async (id, className) =>
-  await clientRequest('GET', `market/items/${id}/${className}`);
+const getAllMarketItems = async (id) => await clientRequest('GET', `market/items/${ id }`);
+const getMarketItemByName = async (id, className) => await clientRequest('GET', `market/items/${ id }/${ className }`);
 
 /*
  * Market Server
  */
-const getAllMarketServers = async (id) =>
-  await clientRequest('GET', `market/servers/${id}`);
-const createMarketServer = async (id, data) =>
-  await clientRequest('POST', `market/servers/${id}`, {
-    data,
-    headers: new Headers({ 'content-type': 'application/json' })
-  });
-const deleteMarketServer = async (id, marketServerId) =>
-  await clientRequest('DELETE', `market/servers/${id}/${marketServerId}`);
-
+const getAllMarketServers = async (id) => await clientRequest('GET', `market/servers/${ id }`);
+const createMarketServer = async (id, data) => await clientRequest('POST', `market/servers/${ id }`, {
+  data,
+  headers: new Headers({ 'content-type': APPLICATION_JSON })
+});
+const deleteMarketServer = async (id, marketServerId) => await clientRequest('DELETE', `market/servers/${ id }/${ marketServerId }`);
 
 
 /*
  * Validation
  */
-const validateTraders = async (readStream) =>
-  await fileUploadRequest({
-    readStream,
-    endpoint: 'validate/traders',
-    extension: 'zip'
-  });
-const validateCategories = async (readStream) =>
-  await fileUploadRequest({
-    readStream,
-    endpoint: 'validate/categories',
-    extension: 'zip'
-  });
-const validateTraderZones = async (readStream) =>
-  await fileUploadRequest({
-    readStream,
-    endpoint: 'validate/trader/zones',
-    extension: 'zip'
-  });
-const validateMaps = async (readStream) =>
-  await fileUploadRequest({
-    readStream,
-    endpoint: 'validate/trader/maps',
-    extension: 'zip'
-  });
-
-
-
+const validateTraders = async (readStream) => await fileUploadRequest({
+  readStream,
+  endpoint: 'validate/traders',
+  extension: 'zip'
+});
+const validateCategories = async (readStream) => await fileUploadRequest({
+  readStream,
+  endpoint: 'validate/categories',
+  extension: 'zip'
+});
+const validateTraderZones = async (readStream) => await fileUploadRequest({
+  readStream,
+  endpoint: 'validate/trader/zones',
+  extension: 'zip'
+});
+const validateMaps = async (readStream) => await fileUploadRequest({
+  readStream,
+  endpoint: 'validate/trader/maps',
+  extension: 'zip'
+});
 
 
 module.exports = {

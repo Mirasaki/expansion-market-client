@@ -11,7 +11,7 @@ const prettifyClassName = (className, applyTag = true) => {
     : prettyClassName;
 };
 
-const applyMissingInGameNameTag = (str) => `${str} ${MISSING_IN_GAME_NAME_STATE_TAG}`;
+const applyMissingInGameNameTag = (str) => `${ str } ${ MISSING_IN_GAME_NAME_STATE_TAG }`;
 
 const inGameNameCache = {};
 
@@ -28,7 +28,7 @@ const resolveInGameName = async (id, className, prettifyUnresolved = true, apply
   let ign;
 
   // Resolve market-server-config in-game-name cache
-  let serverIgnCache = ([id] in inGameNameCache) ? inGameNameCache[id] : null;
+  let serverIgnCache = ([ id ] in inGameNameCache) ? inGameNameCache[id] : null;
   if (!serverIgnCache) {
     inGameNameCache[id] = serverIgnCache = {};
     setTimeout(() => delete inGameNameCache[id], MS_IN_ONE_HOUR);
@@ -64,14 +64,23 @@ const bulkResolveInGameNames = async (id, items, prettifyUnresolved = true, appl
     && 'resolved' in clientRes.data
   ) {
     // Prettify unresolved names if request
-    if (prettifyUnresolved) clientRes.data.unresolved = clientRes.data.unresolved.map((item) => prettifyClassName(item, applyTag));
+    if (prettifyUnresolved) {
+      clientRes.data.unresolved = clientRes
+        .data
+        .unresolved
+        .map((item) => prettifyClassName(item, applyTag));
+    }
     return clientRes.data; // Or return the default response
   }
 
   // No Item list configured - build replica response with all unresolved
   else return prettifyUnresolved
-    ? { resolved: [], unresolved: items.map((item) => prettifyClassName(item, applyTag)) }
-    : { resolved: [], unresolved: items };
+    ? {
+      resolved: [], unresolved: items.map((item) => prettifyClassName(item, applyTag))
+    }
+    : {
+      resolved: [], unresolved: items
+    };
 };
 
 // This function takes the items queried to the bulk resolve endpoint
@@ -81,7 +90,8 @@ const bulkResolveInGameNames = async (id, items, prettifyUnresolved = true, appl
 const matchResolvedInGameNameArray = (items, data, prettifyUnresolved = true, appendClassInParenthesis = false) => {
   const newArr = [];
   for (const className of items) {
-    if (className in data.resolved) newArr.push(`${data.resolved[className]}${appendClassInParenthesis ? ` (${className})` : ''}`);
+    const appendParensStr = appendClassInParenthesis ? ` (${ className })` : '';
+    if (className in data.resolved) newArr.push(`${ data.resolved[className] }${ appendParensStr }`);
     else newArr.push(prettifyUnresolved ? prettifyClassName(className) : className);
   }
   return newArr;

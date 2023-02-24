@@ -1,7 +1,9 @@
 const { stripIndents } = require('common-tags');
 const { MARKET_ANNOTATION_3_STR } = require('../../constants');
 const { colorResolver } = require('../../util');
-const { prettifyClassName, resolveInGameName, bulkResolveInGameNames, matchResolvedInGameNameArray } = require('./in-game-names');
+const {
+  prettifyClassName, resolveInGameName, bulkResolveInGameNames, matchResolvedInGameNameArray
+} = require('./in-game-names');
 
 const resolveAllPossibleItems = (data) => {
   const { valid, notInItemList } = data;
@@ -9,28 +11,37 @@ const resolveAllPossibleItems = (data) => {
   // Concatenate [ className, inGameName ] from "valid"
   // into our notInItemList array
   return notInItemList
-    .map((e) => ({ name: prettifyClassName(e, false), value: e }))
-    .concat( Object.entries(valid).map(([k, v]) => ({ name: v, value: k })) )
+    .map((e) => ({
+      name: prettifyClassName(e, false), value: e
+    }))
+    .concat(Object.entries(valid).map(([ k, v ]) => ({
+      name: v, value: k
+    })))
     .map(({ name, value }, i, arr) => {
-      if (arr.filter((e) => e.name === name).length > 1) return { name: `${name} (${value})`, value };
-      else return { name, value };
+      if (arr.filter((e) => e.name === name).length > 1) return {
+        name: `${ name } (${ value })`, value
+      };
+      else return {
+        name, value
+      };
     });
 };
 
 const resolveItemStock = (item, category, zone) => {
   // Find this item entry in zone stock configuration
   const itemZoneStockEntry = Object.entries(zone.stock)
-    .find(([zoneItemClass, zoneItemStock]) => zoneItemClass === item.className);
+    .find(([ zoneItemClass, zoneItemStock ]) => zoneItemClass === item.className);
 
   // Check if this item exists in the zone configuration
   const itemStockLevel = itemZoneStockEntry
     ? itemZoneStockEntry[1]
-    : 0 /*'[DEV] Implement fallback'*/;
+    : 0;
 
   // https://github.com/salutesh/DayZ-Expansion-Scripts/wiki/%5BServer-Hosting%5D-Market-TraderZones-Settings#stock
   // If zone stock entry level is 0,
   // this means the item is only tradable after players sell it here
-  const zoneStockStr = itemStockLevel === 0
+  // Always return our output string
+  return itemStockLevel === 0
     ? (
       item.maxStockThreshold !== item.minStockThreshold
       && item.maxStockThreshold >= 1
@@ -39,9 +50,6 @@ const resolveItemStock = (item, category, zone) => {
       ? Math.round((item.maxStockThreshold / 100) * zone.InitStockPercent)
       : 'The amount of items players sold here'
     : itemStockLevel;
-
-  // Always return our output string
-  return zoneStockStr;
 };
 
 const resolveBuyPriceOutput = async (item, trader, zone) => {
@@ -63,17 +71,15 @@ const resolveBuyPriceOutput = async (item, trader, zone) => {
   const currencyDisplayName = await resolveInGameName(trader.MarketServerId, trader.lowestCurrency);
 
   // Construct our final string
-  const buyPrice = item.hasStaticPrice
-    ? `- ${buyDynamicHigh} ${currencyDisplayName}`
-    : stripIndents`
-      - Low:  ${buyDynamicLow}
-      - High: ${buyDynamicHigh}
-      ---
-      ${currencyDisplayName}
-    `;
-
   // Always return our buy price str
-  return buyPrice;
+  return item.hasStaticPrice
+    ? `- ${ buyDynamicHigh } ${ currencyDisplayName }`
+    : stripIndents`
+      - Low:  ${ buyDynamicLow }
+      - High: ${ buyDynamicHigh }
+      ---
+      ${ currencyDisplayName }
+    `;
 };
 
 const resolveSellPriceOutput = async (item, trader, zone) => {
@@ -99,18 +105,19 @@ const resolveSellPriceOutput = async (item, trader, zone) => {
   const currencyDisplayName = await resolveInGameName(trader.MarketServerId, trader.lowestCurrency);
 
   // Construct our final string
-  const sellPrice = item.hasStaticPrice
-    ? `+ ${sellDynamicHigh} ${currencyDisplayName}`
+  return item.hasStaticPrice
+    ? `+ ${ sellDynamicHigh } ${ currencyDisplayName }`
     : stripIndents`
-    + Low:  ${sellDynamicLow}
-    + High: ${sellDynamicHigh}
+    + Low:  ${ sellDynamicLow }
+    + High: ${ sellDynamicHigh }
     ---
-    ${currencyDisplayName}
+    ${ currencyDisplayName }
   `;
-
-  return sellPrice;
 };
 
+// Fuck it, take the cognitive complexity through the roof,
+// It's all really simple - no need to split it up and legit complicate it
+// eslint-disable-next-line sonarjs/cognitive-complexity
 const getItemDataEmbed = async (className, category, trader) => {
   const item = category.items[0];
   let ign = item.displayName;
@@ -121,7 +128,7 @@ const getItemDataEmbed = async (className, category, trader) => {
   // Prepare to check for special item annotation
   let activeAnnotation;
   let hasAnnotation = false;
-  const traderAnnotation = Object.entries(trader.items).find(([key, value]) => key === className);
+  const traderAnnotation = Object.entries(trader.items).find(([ key, value ]) => key === className);
   const categoryAnnotation = trader.categories.find((str) => {
     str = str.toLowerCase();
     if (str.indexOf(':') >= 1) return str.slice(0, str.indexOf(':')) === category.categoryName.toLowerCase();
@@ -207,7 +214,7 @@ const getItemDataEmbed = async (className, category, trader) => {
     );
     embed.fields.push({
       name: 'Attachments',
-      value: `\`\`\`diff\n• ${resolvedCurrencyArray.join('\n• ')}\`\`\``,
+      value: `\`\`\`diff\n• ${ resolvedCurrencyArray.join('\n• ') }\`\`\``,
       inline: hasSpacing
     });
     hasSpacing = true;
@@ -223,7 +230,7 @@ const getItemDataEmbed = async (className, category, trader) => {
     );
     embed.fields.push({
       name: 'Variants',
-      value: `\`\`\`diff\n• ${resolvedCurrencyArray.join('\n• ')}\`\`\``,
+      value: `\`\`\`diff\n• ${ resolvedCurrencyArray.join('\n• ') }\`\`\``,
       inline: hasSpacing
     });
   }

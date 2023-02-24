@@ -1,6 +1,8 @@
 const { ApplicationCommandOptionType, AttachmentBuilder } = require('discord.js');
 const { ChatInputCommand } = require('../../classes/Commands');
-const { isAllowedContentType, fetchAttachment, colorResolver, getRelativeTime, getRuntime } = require('../../util');
+const {
+  isAllowedContentType, fetchAttachment, colorResolver, getRelativeTime, getRuntime
+} = require('../../util');
 const { stripIndents } = require('common-tags');
 const BackendClient = require('../../lib/client');
 const { putMarketCategories } = require('../../lib/requests.js');
@@ -16,7 +18,7 @@ const ALLOWED_CONTENT_TYPE = 'application/zip';
 
 module.exports = new ChatInputCommand({
   global: true,
-  enabled:  false,
+  enabled: false,
   permLevel: 'Administrator',
   cooldown: {
     type: 'guild',
@@ -24,12 +26,12 @@ module.exports = new ChatInputCommand({
     duration: 1800
   },
   data: {
-    description: `Upload your server's ${MARKET_CATEGORIES_FILE_DESCRIPTION}`,
+    description: `Upload your server's ${ MARKET_CATEGORIES_FILE_DESCRIPTION }`,
     options: [
       {
         type: ApplicationCommandOptionType.Attachment,
         name: MARKET_CATEGORIES_OPTION_NAME,
-        description: `Your "${MARKET_CATEGORIES_REAL_FILE_NAME}" file.`,
+        description: `Your "${ MARKET_CATEGORIES_REAL_FILE_NAME }" file.`,
         required: true
       },
       marketServerOption
@@ -51,14 +53,12 @@ module.exports = new ChatInputCommand({
     // Return if content type is not allowed
     const contentIsAllowed = isAllowedContentType(ALLOWED_CONTENT_TYPE, attachment.contentType);
     if (!contentIsAllowed.strict) {
-      interaction.followUp({
-        content: `${emojis.error} ${member}, file rejected. Content type is not **\`${ALLOWED_CONTENT_TYPE}\`**, received **\`${attachment.contentType}\`** instead.`
-      });
+      interaction.followUp({ content: `${ emojis.error } ${ member }, file rejected. Content type is not **\`${ ALLOWED_CONTENT_TYPE }\`**, received **\`${ attachment.contentType }\`** instead.` });
       return;
     }
 
     // User Feedback, wait for parser
-    let content = `${emojis.wait} ${member}, please be patient while your \`${MARKET_CATEGORIES_OPTION_NAME}\` attachment is being retrieved...`;
+    let content = `${ emojis.wait } ${ member }, please be patient while your \`${ MARKET_CATEGORIES_OPTION_NAME }\` attachment is being retrieved...`;
     await interaction.editReply(content);
     const msg = await interaction.followUp(content);
 
@@ -67,10 +67,10 @@ module.exports = new ChatInputCommand({
 
     // Return if any errors were encountered
     if ('error' in attachmentResponse) {
-      content += `\n${emojis.error} Couldn't retrieve attachment, this command has been cancelled`;
+      content += `\n${ emojis.error } Couldn't retrieve attachment, this command has been cancelled`;
       msg.edit({
         content,
-        embeds: [BackendClient.getClientErrorEmbed(attachmentResponse)]
+        embeds: [ BackendClient.getClientErrorEmbed(attachmentResponse) ]
       });
       return;
     }
@@ -78,12 +78,14 @@ module.exports = new ChatInputCommand({
     // Valid data was received
 
     // Notify attachment has been fetched
-    const { runtime, size, body } = attachmentResponse;
-    content += `\n${emojis.success} Fetched your attachment in: **${runtime} ms** (${size} KB)`;
+    const {
+      runtime, size, body
+    } = attachmentResponse;
+    content += `\n${ emojis.success } Fetched your attachment in: **${ runtime } ms** (${ size } KB)`;
     await msg.edit(content);
 
     // Notify start API parser
-    content += `\n${emojis.wait} Parsing and saving your ${MARKET_CATEGORIES_FILE_DESCRIPTION}...`;
+    content += `\n${ emojis.wait } Parsing and saving your ${ MARKET_CATEGORIES_FILE_DESCRIPTION }...`;
     await msg.edit(content);
 
     // Response from API
@@ -93,10 +95,10 @@ module.exports = new ChatInputCommand({
 
     // Error embed if the request isn't successful
     if (res.status !== 200) {
-      content += `\n${emojis.error} This file couldn't be parsed/processed`;
+      content += `\n${ emojis.error } This file couldn't be parsed/processed`;
       msg.edit({
         content,
-        embeds: [BackendClient.getClientErrorEmbed(res)]
+        embeds: [ BackendClient.getClientErrorEmbed(res) ]
       });
     }
 
@@ -109,26 +111,26 @@ module.exports = new ChatInputCommand({
         0 // Initial accumulator
       );
 
-      content += `\n${emojis.success} Finished parsing and saving your ${MARKET_CATEGORIES_FILE_DESCRIPTION} in: **${requestFetchMS} ms**`;
+      content += `\n${ emojis.success } Finished parsing and saving your ${ MARKET_CATEGORIES_FILE_DESCRIPTION } in: **${ requestFetchMS } ms**`;
       msg.edit({
         content,
-        embeds: [{
-          color: colorResolver(),
-          title: `${MARKET_CATEGORIES_FILE_DESCRIPTION} for: ${guild.name}`,
-          description: stripIndents`
-            **Parsed Categories:** ${data.length}
-            **Total Items:** ${totalItems}
+        embeds: [
+          {
+            color: colorResolver(),
+            title: `${ MARKET_CATEGORIES_FILE_DESCRIPTION } for: ${ guild.name }`,
+            description: stripIndents`
+            **Parsed Categories:** ${ data.length }
+            **Total Items:** ${ totalItems }
           `,
-          footer: {
-            text: stripIndents`
-              Updated: ${getRelativeTime(data[0].updatedAt)}
-              Created: ${getRelativeTime(data[0].createdAt)}
-            `
+            footer: { text: stripIndents`
+              Updated: ${ getRelativeTime(data[0].updatedAt) }
+              Created: ${ getRelativeTime(data[0].createdAt) }
+            ` }
           }
-        }],
+        ],
         files: [
           new AttachmentBuilder(Buffer.from(JSON.stringify(data, null, 2)))
-            .setName(`${MARKET_CATEGORIES_REAL_FILE_NAME}-parsed.json`)
+            .setName(`${ MARKET_CATEGORIES_REAL_FILE_NAME }-parsed.json`)
         ]
       });
     }

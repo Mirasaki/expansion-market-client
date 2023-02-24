@@ -6,11 +6,7 @@ const clearTradersCommand = require('../market-traders/clear-traders');
 const clearZonesCommand = require('../market-zones/clear-zones');
 const clearMapsCommand = require('../market-maps/clear-maps');
 
-const {
-  CONFIRMATION_PROMPT_OPTION_NAME,
-  CONFIRMATION_PROMPT_OPTION_DESCRIPTION
-} = require('../../constants');
-
+const { CONFIRMATION_PROMPT_OPTION_NAME, CONFIRMATION_PROMPT_OPTION_DESCRIPTION } = require('../../constants');
 
 module.exports = new ChatInputCommand({
   global: true,
@@ -48,14 +44,12 @@ module.exports = new ChatInputCommand({
     // Didn't check the confirmation prompt
     const confirmationPrompt = options.getBoolean(CONFIRMATION_PROMPT_OPTION_NAME);
     if (confirmationPrompt !== true) {
-      interaction.editReply({
-        content: `${emojis.error} ${member}, you didn't select **\`true\`** on the confirmation prompt, this command has been cancelled.`
-      });
+      interaction.editReply({ content: `${ emojis.error } ${ member }, you didn't select **\`true\`** on the confirmation prompt, this command has been cancelled.` });
       return; // Escape out of the command early
     }
 
     // First, await a reply so we can properly followUp()
-    await interaction.editReply({ content: `${emojis.wait} ${member}, please wait while your configuration is being cleared.` });
+    await interaction.editReply({ content: `${ emojis.wait } ${ member }, please wait while your configuration is being cleared.` });
 
     // Yeah, that's right
     await clearCategoriesCommand.run(client, interaction);
@@ -64,6 +58,6 @@ module.exports = new ChatInputCommand({
     await clearMapsCommand.run(client, interaction);
 
     // And finally, user feedback, we done!
-    await interaction.editReply({ content: `${emojis.success} ${member}, finished clearing your Expansion-Market configuration.` });
+    await interaction.editReply({ content: `${ emojis.success } ${ member }, finished clearing your Expansion-Market configuration.` });
   }
 });

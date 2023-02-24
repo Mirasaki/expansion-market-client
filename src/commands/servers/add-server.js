@@ -26,7 +26,9 @@ module.exports = new ChatInputCommand({
     ]
   },
   run: async (client, interaction) => {
-    const { guild, member, options } = interaction;
+    const {
+      guild, member, options
+    } = interaction;
     const { emojis } = client.container;
 
     await interaction.deferReply();
@@ -34,17 +36,15 @@ module.exports = new ChatInputCommand({
     const name = options.getString('name');
     const channel = options.getChannel('channel');
 
-    const res = await createMarketServer(guild.id, { name, channel: channel.id });
+    const res = await createMarketServer(guild.id, {
+      name, channel: channel.id
+    });
 
     if (res.status !== 200) {
-      interaction.editReply({
-        content: `${emojis.error} ${member} - ${res.message}`
-      });
+      interaction.editReply({ content: `${ emojis.error } ${ member } - ${ res.message }` });
       return;
     }
 
-    interaction.editReply({
-      content: `${emojis.success} ${member}, created new Market server configuration with name "${name}".`
-    });
+    interaction.editReply({ content: `${ emojis.success } ${ member }, created new Market server configuration with name "${ name }".` });
   }
 });

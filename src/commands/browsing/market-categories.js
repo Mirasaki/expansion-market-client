@@ -7,6 +7,46 @@ const { stripIndents } = require('common-tags/lib');
 const { getClientErrorEmbed } = require('../../lib/client');
 const { marketServerOption, hasValidMarketServer } = require('../../lib/helpers/marketServers');
 const { prettifyClassName } = require('../../lib/helpers/in-game-names');
+const emojis = require('../../config/emojis.json');
+
+const getCategoriesDetails = (data) => {
+  const categoryWithMostItems = data.reduce((p, c) => p.items.length > c.items.length ? p : c);
+  const longestCategoryNameLen = Math.max(...data.map((cat) => cat.displayName.length));
+  const longestItemOutputLen = `${ categoryWithMostItems.items.length }`.length;
+  const emptyCategories = data.filter((cat) => cat.items.length === 0);
+  const totalItems = data.reduce(
+    (accumulator, currValue) => accumulator += currValue.items.length,
+    0 // Initial accumulator
+  );
+
+  // Create an overview string from our data array
+  const overviewString = data
+    .sort((a, b) => a.displayName.localeCompare(b.displayName)) // Sort by displayName
+    .map((cat) => `${ emojis.separator } \`${ cat.displayName }${
+      ' '.repeat(longestCategoryNameLen - cat.displayName.length)
+    }\` - **${ cat.items.length }**${
+      ' '.repeat(longestItemOutputLen - `${ cat.items.length }`.length)
+    } items`) // Mapping our desired output
+    .join('\n'); // Joining everything together
+
+  // Create an empty-category string overview
+  const emptyCategoryString = emptyCategories.length > 0
+    ? '\n' + emptyCategories
+      .map((cat) => ` ${ emojis.separator } ${ cat.displayName }`)
+      .slice(0, 10) // Only display the first 10
+      .join('\n')
+    : 'None';
+
+  return {
+    categoryWithMostItems,
+    longestCategoryNameLen,
+    longestItemOutputLen,
+    emptyCategories,
+    totalItems,
+    overviewString,
+    emptyCategoryString
+  };
+};
 
 module.exports = new ChatInputCommand({
   global: true,
@@ -21,7 +61,7 @@ module.exports = new ChatInputCommand({
     options: [
       {
         name: MARKET_CATEGORIES_AUTOCOMPLETE_OPTION,
-        description: `The ${MARKET_CATEGORIES_AUTOCOMPLETE_OPTION} to query`,
+        description: `The ${ MARKET_CATEGORIES_AUTOCOMPLETE_OPTION } to query`,
         type: ApplicationCommandOptionType.String,
         autocomplete: true,
         required: false
@@ -32,7 +72,9 @@ module.exports = new ChatInputCommand({
 
   run: async (client, interaction) => {
     // Destructuring
-    const { member, guild, options } = interaction;
+    const {
+      member, guild, options
+    } = interaction;
     const { emojis } = client.container;
 
     // Deferring our reply
@@ -57,40 +99,18 @@ module.exports = new ChatInputCommand({
 
       // Check data availability
       if (!('data' in categoriesResponse) || !categoriesResponse.data[0]) {
-        interaction.editReply({
-          content: `${emojis.error} ${member}, you currently don't have any categories configured, use **/set-categories** before you can use this.`
-        });
+        interaction.editReply({ content: `${ emojis.error } ${ member }, you currently don't have any categories configured, use **/set-categories** before you can use this.` });
         return; // Escape the command early
       }
 
       // Categories variables
       const { data } = categoriesResponse;
-      const categoryWithMostItems = data.reduce((p, c) => p.items.length > c.items.length ? p : c);
-      const longestCategoryNameLen = Math.max(...data.map(cat => cat.displayName.length));
-      const longestItemOutputLen = `${categoryWithMostItems.items.length}`.length;
-      const emptyCategories = data.filter((cat) => cat.items.length === 0);
-      const totalItems = data.reduce(
-        (accumulator, currValue) => accumulator += currValue.items.length,
-        0 // Initial accumulator
-      );
-
-      // Create an overview string from our data array
-      const overviewString = data
-        .sort((a, b) => a.displayName.localeCompare(b.displayName)) // Sort by displayName
-        .map((cat) => `${emojis.separator} \`${cat.displayName}${
-          ' '.repeat(longestCategoryNameLen - cat.displayName.length)
-        }\` - **${cat.items.length}**${
-          ' '.repeat(longestItemOutputLen - `${cat.items.length}`.length)
-        } items`) // Mapping our desired output
-        .join('\n'); // Joining everything together
-
-      // Create an empty-category string overview
-      const emptyCategoryString = emptyCategories.length > 0
-        ? '\n' + emptyCategories
-          .map((cat) => ` ${emojis.separator} ${cat.displayName}`)
-          .slice(0, 10) // Only display the first 10
-          .join('\n')
-        : 'None';
+      const {
+        overviewString,
+        totalItems,
+        categoryWithMostItems,
+        emptyCategoryString
+      } = getCategoriesDetails(data);
 
       // Create a new file with a quick overview
       files.push(
@@ -102,21 +122,19 @@ module.exports = new ChatInputCommand({
       // Statistics and overviewString if not uploaded as file instead
       embeds.push({
         color: colorResolver(),
-        title: `Categories for ${guild.name}`,
+        title: `Categories for ${ guild.name }`,
         description: stripIndents`
           __**Statistics:**__
-          **Categories:** ${data.length}
-          **Items:** ${totalItems}
+          **Categories:** ${ data.length }
+          **Items:** ${ totalItems }
 
-          **Category with most items:** ${categoryWithMostItems.displayName} (${categoryWithMostItems.items.length} items)
-          **Empty Categories:** ${emptyCategoryString}
+          **Category with most items:** ${ categoryWithMostItems.displayName } (${ categoryWithMostItems.items.length } items)
+          **Empty Categories:** ${ emptyCategoryString }
 
-          **Created:** <t:${Math.round(new Date(data[0].createdAt).getTime() / 1000)}>
-          **Updated:** <t:${Math.round(new Date(data[0].updatedAt).getTime() / 1000)}:R>
+          **Created:** <t:${ Math.round(new Date(data[0].createdAt).getTime() / 1000) }>
+          **Updated:** <t:${ Math.round(new Date(data[0].updatedAt).getTime() / 1000) }:R>
         `,
-        footer: {
-          text: `Analyzed ${data.length} categories in ${getRuntime(runtimeStart).ms} ms`
-        }
+        footer: { text: `Analyzed ${ data.length } categories in ${ getRuntime(runtimeStart).ms } ms` }
       });
     }
 
@@ -137,23 +155,21 @@ module.exports = new ChatInputCommand({
 
         // Category details
         embeds.push({
-          color: colorResolver(`#${data.color.slice(0, 6)}`),
+          color: colorResolver(`#${ data.color.slice(0, 6) }`),
           title: data.displayName,
           description: stripIndents`
               __**Statistics:**__
-              **Items:** ${data.items.length}
-              **Initial Stock:** ${data.initStockPercent}%
+              **Items:** ${ data.items.length }
+              **Initial Stock:** ${ data.initStockPercent }%
               
   
-              **Created:** <t:${Math.round(new Date(data.createdAt).getTime() / 1000)}>
-              **Updated:** <t:${Math.round(new Date(data.updatedAt).getTime() / 1000)}:R>
+              **Created:** <t:${ Math.round(new Date(data.createdAt).getTime() / 1000) }>
+              **Updated:** <t:${ Math.round(new Date(data.updatedAt).getTime() / 1000) }:R>
             `,
-          footer: {
-            text: stripIndents`
-              File: ${data.categoryName}.json
-              Completed in ${getRuntime(runtimeStart).ms} ms
-            `
-          }
+          footer: { text: stripIndents`
+              File: ${ data.categoryName }.json
+              Completed in ${ getRuntime(runtimeStart).ms } ms
+            ` }
         });
 
         // Create a new file attachment if the category has items configured
@@ -167,7 +183,7 @@ module.exports = new ChatInputCommand({
                   2
                 )
               )
-            ).setName(`${data.categoryName}-items.json`)
+            ).setName(`${ data.categoryName }-items.json`)
           );
         }
       }

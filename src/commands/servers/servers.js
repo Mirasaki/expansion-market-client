@@ -7,11 +7,11 @@ const { colorResolver } = require('../../util');
 // Windows (ctrl+space) for auto-complete IntelliSense options
 module.exports = new ChatInputCommand({
   global: true,
-  data: {
-    description: 'View all your active server configurations'
-  },
+  data: { description: 'View all your active server configurations' },
   run: async (client, interaction) => {
-    const { guild, member, channel } = interaction;
+    const {
+      guild, member, channel
+    } = interaction;
     const { emojis } = client.container;
 
     await interaction.deferReply();
@@ -19,16 +19,12 @@ module.exports = new ChatInputCommand({
     const res = await getAllMarketServers(guild.id);
 
     if (res.status !== 200) {
-      interaction.editReply({
-        content: `${emojis.error} ${member} - ${res.message}`
-      });
+      interaction.editReply({ content: `${ emojis.error } ${ member } - ${ res.message }` });
       return;
     }
 
     if (!res.data[0]) {
-      interaction.editReply({
-        content: `${emojis.error} ${member}, you don't have any active server configurations - create one instead with \`/add-server\``
-      });
+      interaction.editReply({ content: `${ emojis.error } ${ member }, you don't have any active server configurations - create one instead with \`/add-server\`` });
       return;
     }
 
@@ -36,21 +32,23 @@ module.exports = new ChatInputCommand({
     for (const server of res.data) {
       embeds.push({
         color: colorResolver(),
-        title: `Name: ${server.name}`,
+        title: `Name: ${ server.name }`,
         fields: [
-          { name: 'Channel', value: `This configuration is active in: <#${server.channel}>`, inline: false },
+          {
+            name: 'Channel', value: `This configuration is active in: <#${ server.channel }>`, inline: false
+          },
           {
             name: 'Created',
-            value: `<t:${Math.round(
+            value: `<t:${ Math.round(
               new Date(server.createdAt) / 1000
-            )}:R>`,
+            ) }:R>`,
             inline: true
           },
           {
             name: 'Updated',
-            value: `<t:${Math.round(
+            value: `<t:${ Math.round(
               new Date(server.updatedAt) / 1000
-            )}:R>`,
+            ) }:R>`,
             inline: true
           }
         ],
@@ -61,9 +59,7 @@ module.exports = new ChatInputCommand({
     const chunkSize = 10;
     for (let i = 0; i < embeds.length; i += chunkSize) {
       const chunk = embeds.slice(i, i + chunkSize);
-      channel.send({
-        embeds: chunk
-      });
+      channel.send({ embeds: chunk });
     }
 
     interaction.deleteReply();

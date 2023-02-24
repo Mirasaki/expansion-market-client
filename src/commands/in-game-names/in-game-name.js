@@ -50,7 +50,7 @@ module.exports = new ChatInputCommand({
       // Destructuring and user feedback
       const { data } = res;
       const classNameEndsWithS = data.charAt(data.length - 1) === 's';
-      interaction.editReply(`${emojis.success} ${member}, **\`${query}\`**'${classNameEndsWithS ? '' : 's'} in-game name is: **${data}**`);
+      interaction.editReply(`${ emojis.success } ${ member }, **\`${ query }\`**'${ classNameEndsWithS ? '' : 's' } in-game name is: **${ data }**`);
     }
 
     // Not Found
@@ -60,39 +60,47 @@ module.exports = new ChatInputCommand({
       // No in-game name for class/item
       if (error === ERROR_ITEM_UNRESOLVED) {
         interaction.editReply({
-          content: `${emojis.error} ${member}, couldn't resolve the in-game name`,
-          embeds: [{
-            color: colorResolver(colors.warning),
-            title: message,
-            description: `\`${query}\` missing from /set-item-list configuration`
-          }]
+          content: `${ emojis.error } ${ member }, couldn't resolve the in-game name`,
+          embeds: [
+            {
+              color: colorResolver(colors.warning),
+              title: message,
+              description: `\`${ query }\` missing from /set-item-list configuration`
+            }
+          ]
         });
       }
 
       // No item list configured for guild
       else if (error === ERROR_NO_ITEM_LIST) {
         interaction.editReply({
-          content: `${emojis.error} ${member}, couldn't resolve the in-game name`,
-          embeds: [{
-            color: colorResolver(colors.error),
-            title: message,
-            description: 'Use **`/set-item-list`** before you can use this command to resolve in-game item names'
-          }]
+          content: `${ emojis.error } ${ member }, couldn't resolve the in-game name`,
+          embeds: [
+            {
+              color: colorResolver(colors.error),
+              title: message,
+              description: 'Use **`/set-item-list`** before you can use this command to resolve in-game item names'
+            }
+          ]
         });
       }
     }
 
     // Unknown error
     else {
-      const { status, statusText, error, message } = res;
+      const {
+        status, statusText, error, message
+      } = res;
       interaction.editReply({
-        content: `${emojis.error} ${member}, couldn't resolve the in-game name`,
-        embeds: [{
-          color: colorResolver(colors.error),
-          title: error || 'Unexpected error',
-          description: message,
-          footer: { text: `${status} | ${statusText}` }
-        }]
+        content: `${ emojis.error } ${ member }, couldn't resolve the in-game name`,
+        embeds: [
+          {
+            color: colorResolver(colors.error),
+            title: error || 'Unexpected error',
+            description: message,
+            footer: { text: `${ status } | ${ statusText }` }
+          }
+        ]
       });
     }
   }

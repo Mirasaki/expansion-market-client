@@ -21,7 +21,9 @@ const requiredMarketServerOption = {
 
 
 const hasValidMarketServer = async (interaction) => {
-  const { guild, options, member } = interaction;
+  const {
+    guild, options, member
+  } = interaction;
 
   // Assign server variables
   const servers = await getGuildMarketServerArr(guild.id);
@@ -34,9 +36,7 @@ const hasValidMarketServer = async (interaction) => {
 
   // Check valid server was supplied
   if (!activeServer) {
-    interaction.editReply({
-      content: `${emojis.error} ${member}, invalid server configuration provided.`
-    });
+    interaction.editReply({ content: `${ emojis.error } ${ member }, invalid server configuration provided.` });
     return false;
   }
 
@@ -66,7 +66,9 @@ const getGuildMarketServerArr = async (id) => {
   if (
     clientRes.status === 200
     && 'data' in clientRes
-  ) return clientRes.data.map(({ name, id }) => ({ name, value: id }));
+  ) return clientRes.data.map(({ name, id }) => ({
+    name, value: id
+  }));
   else return [];
 };
 

@@ -29,5 +29,13 @@ module.exports.commandAutoCompleteOption = {
   name: 'command',
   description: 'Command name or category',
   autocomplete: true,
-  required: true
+  required: false
+};
+
+module.exports.requiredCommandAutoCompleteOption = {
+  type: ApplicationCommandOptionType.String,
+  name: 'command',
+  description: 'Command name or category',
+  autocomplete: true,
+  required: false
 };

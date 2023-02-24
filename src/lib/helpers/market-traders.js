@@ -1,14 +1,18 @@
 const digitCaptureGroupRegex = /(\d)+/g;
 
-const getAllLowestCurrencies = (traders) => [ ...new Set(
-  traders.map((trader) => trader.lowestCurrency)
-) ]; // spread from Set to easily filter out uniques
+const getAllLowestCurrencies = (traders) => [
+  ...new Set(
+    traders.map((trader) => trader.lowestCurrency)
+  )
+]; // spread from Set to easily filter out uniques
 
-const getAllCurrencies = (traders) => [ ...new Set(
-  traders
-    .map((trader) => trader.currencies)
-    .flat() // Creates a new array with all sub-array elements concatenated into it recursively up to the specified depth.
-)];
+const getAllCurrencies = (traders) => [
+  ...new Set(
+    traders
+      .map((trader) => trader.currencies)
+      .flat() // Creates a new array with all sub-array elements concatenated into it recursively up to the specified depth.
+  )
+];
 
 const formatAmountInCurrency = (currencies, escapeWith = '**') => {
   const resolved = [];
@@ -20,7 +24,7 @@ const formatAmountInCurrency = (currencies, escapeWith = '**') => {
     // Replace the capture groups with the escape character
     if (results) {
       for (const result of results) {
-        formattedCurr = currency.replaceAll(result, `${escapeWith}${result}${escapeWith}`);
+        formattedCurr = currency.replaceAll(result, `${ escapeWith }${ result }${ escapeWith }`);
       }
     }
 

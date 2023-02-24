@@ -35,9 +35,7 @@ module.exports = new ChatInputCommand({
 
     // Check if they hit true on the confirmation prompt
     if (confirmDelete !== true) {
-      interaction.reply({
-        content: `${emojis.error} ${member}, you didn't select **\`true\`** on the verification prompt, this command has been cancelled.`
-      });
+      interaction.reply({ content: `${ emojis.error } ${ member }, you didn't select **\`true\`** on the verification prompt, this command has been cancelled.` });
       return;
     }
 
@@ -53,7 +51,7 @@ module.exports = new ChatInputCommand({
 
     // 200 - OK
     if (res.status === 200) {
-      interaction.editReply(`${emojis.success} ${member}, item list configuration has been deleted.`);
+      interaction.editReply(`${ emojis.success } ${ member }, item list configuration has been deleted.`);
 
       // Clear in-game name cache
       delete inGameNameCache[server];
@@ -61,20 +59,24 @@ module.exports = new ChatInputCommand({
 
     // Not Found
     else if (res.status === 404) {
-      interaction.editReply(`${emojis.error} ${member}, no item list configuration active for this server. Use **/set-item-list** instead.`);
+      interaction.editReply(`${ emojis.error } ${ member }, no item list configuration active for this server. Use **/set-item-list** instead.`);
     }
 
     // Unknown error
     else {
-      const { status, statusText, error, message } = res;
+      const {
+        status, statusText, error, message
+      } = res;
       interaction.editReply({
-        content: `${emojis.error} ${member}, item list configuration couldn't be deleted.`,
-        embeds: [{
-          color: colorResolver(colors.error),
-          title: error || 'Unexpected error',
-          description: message,
-          footer: { text: `${status} | ${statusText}` }
-        }]
+        content: `${ emojis.error } ${ member }, item list configuration couldn't be deleted.`,
+        embeds: [
+          {
+            color: colorResolver(colors.error),
+            title: error || 'Unexpected error',
+            description: message,
+            footer: { text: `${ status } | ${ statusText }` }
+          }
+        ]
       });
     }
   }
