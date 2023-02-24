@@ -62,6 +62,9 @@ const runCommand = (client, interaction, activeId, cmdRunTimeStart) => {
   } = interaction;
   const clientCmd = getCommand(client, activeId);
 
+  // Early escape hatch for in-command components
+  if (activeId.startsWith('@')) return;
+
   // Check for late API changes
   if (!clientCmd) {
     interaction.reply({
