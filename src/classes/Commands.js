@@ -10,9 +10,7 @@ const {
 const { commands } = require('../client');
 
 // Destructure from environmental
-const {
-  DEBUG_ENABLED
-} = process.env;
+const { DEBUG_ENABLED } = process.env;
 
 // Import from packages
 const path = require('path');
@@ -81,17 +79,17 @@ class CommandBase {
     /**
      * @property {PermLevel} permLevel The permission level required to use the command
      */
-    this.permLevel = config.permLevel || permConfig[permConfig.length - 1].name;
+    this.permLevel = 'permLevel' in config ? config.permLevel : permConfig[permConfig.length - 1].name;
 
     /**
      * @property {Array<external:DiscordPermissionResolvable>} clientPerms Permissions required by the client to execute the command
      */
-    this.clientPerms = config.clientPerms || [];
+    this.clientPerms = 'clientPerms' in config ? config.clientPerms : [];
 
     /**
      * @property {Array<external:DiscordPermissionResolvable>} userPerms Permissions required by the user to execute the commands
      */
-    this.userPerms = config.userPerms || [];
+    this.userPerms = 'userPerms' in config ? config.userPerms : [];
 
     /**
      * @property {boolean} enabled Is the command currently enabled
@@ -106,25 +104,25 @@ class CommandBase {
     /**
      * @property {CommandBaseCooldown} cooldown Cooldown configuration for the command
      */
-    this.cooldown = config.cooldown || {};
-    this.cooldown.type = config.cooldown?.type || 'member';
-    this.cooldown.usages = config.cooldown?.usages || 1;
-    this.cooldown.duration = config.cooldown?.duration || 2;
+    this.cooldown = 'cooldown' in config ? config.cooldown : {};
+    this.cooldown.type = config.cooldown && 'type' in config.cooldown ? config.cooldown.type : 'member';
+    this.cooldown.usages = config.cooldown && 'usages' in config.cooldown ? config.cooldown.usages : 1;
+    this.cooldown.duration = config.cooldown && 'duration' in config ? config.cooldown.duration : 2;
 
     /**
      * @property {string} category This command's category
      */
-    this.category = config.category || undefined;
+    this.category = 'category' in config ? config.category : undefined;
 
     /**
      * @property {Object} data Discord API Application Command Object {@link https://discord.com/developers/docs/interactions/application-commands#application-command-object}
      */
-    this.data = config.data || {};
+    this.data = 'data' in config ? config.data : {};
 
     /**
      * @property {string} filePath Path to file, only present if `this.setFilePathDetails` is invoked
      */
-    this.filePath = config.filePath || undefined;
+    this.filePath = 'filePath' in config ? config.filePath : undefined;
 
     // Overwriting the default callback function with the
     // user provided function
@@ -144,7 +142,7 @@ class CommandBase {
   setPermLevel = () => {
     this.permLevel = Number(
       Object.entries(permLevelMap)
-        .find(([lvl, name]) => name === this.permLevel)[0]
+        .find(([ lvl, name ]) => name === this.permLevel)[0]
     );
   };
 
@@ -154,48 +152,53 @@ class CommandBase {
    * @throws {Error} If an issue is encountered while validating the configuration
    * @returns {void} Nothing, if an Error isn't encountered, the command configuration is considered valid
    */
+  // eslint-disable-next-line sonarjs/cognitive-complexity
   validateConfig = () => {
     // Destructure
     const { data, run } = this;
 
     // Check if valid permission level is supplied
     if (!permConfig.find((e) => e.name === this.permLevel)) {
-      throw new Error(`The permission level "${this.permLevel}" is not currently configured.\nCommand: ${data.name}`);
+      throw new Error(`The permission level "${ this.permLevel }" is not currently configured.\nCommand: ${ data.name }`);
     }
 
     // Check that optional client permissions are valid
     if (
       this.clientPerms
       && !Array.isArray(this.clientPerms)
-    ) throw new Error (`Invalid permissions provided in ${data.name} command client permissions\nCommand: ${data.name}`);
+    ) throw new Error(`Invalid permissions provided in ${ data.name } command client permissions\nCommand: ${ data.name }`);
 
     // Check that optional user permissions are valid
     if (
       this.userPerms
       && !Array.isArray(this.userPerms)
-    ) throw new Error (`Invalid permissions provided in ${data.name} command user permissions\nCommand: ${data.name}`);
+    ) throw new Error(`Invalid permissions provided in ${ data.name } command user permissions\nCommand: ${ data.name }`);
 
     // Check boolean nsfw
-    if (typeof this.nsfw !== 'boolean') throw new Error(`Expected nsfw property to be boolean\nCommand: ${data.name}`);
+    if (typeof this.nsfw !== 'boolean') throw new Error(`Expected nsfw property to be boolean\nCommand: ${ data.name }`);
 
     // Check our run function
     if (typeof run !== 'function') {
-      throw new Error(`Expected run to be a function, but received ${typeof run}\nCommand: ${data.name}`);
+      throw new Error(`Expected run to be a function, but received ${ typeof run }\nCommand: ${ data.name }`);
     }
 
     // Check optional required client permissions
     if (this.clientPerms.length >= 1) {
-      const invalidPerms = getInvalidPerms(this.clientPerms).map(e => chalk.red(e));
+      const invalidPerms = getInvalidPerms(this.clientPerms)
+        .map((e) => chalk.red(e));
+
       if (invalidPerms.length >= 1) {
-        throw new Error(`Invalid permissions provided in clientPerms: ${invalidPerms.join(', ')}\nCommand: ${data.name}`);
+        throw new Error(`Invalid permissions provided in clientPerms: ${ invalidPerms.join(', ') }\nCommand: ${ data.name }`);
       }
     }
 
     // Check optional required user permissions
     if (this.userPerms.length >= 1) {
-      const invalidPerms = getInvalidPerms(this.userPerms).map(e => chalk.red(e));
+      const invalidPerms = getInvalidPerms(this.userPerms)
+        .map((e) => chalk.red(e));
+
       if (invalidPerms.length >= 1) {
-        throw new Error(`Invalid permissions provided in userPerms: ${invalidPerms.join(', ')}\nCommand: ${data.name}`);
+        throw new Error(`Invalid permissions provided in userPerms: ${ invalidPerms.join(', ') }\nCommand: ${ data.name }`);
       }
     }
   };
@@ -203,7 +206,6 @@ class CommandBase {
   /**
    * The callback executed when the command is ran
    * @member {CommandCallback}
-   * @return {Promise<void>}
    */
   run = () => {};
 
@@ -214,6 +216,7 @@ class CommandBase {
    */
   setFilePathDetails = () => {
     const origin = this.filePath;
+
     // Check if the data name has been set
     // Set filename without extension as fallback
     if (!this.data.name) {
@@ -221,6 +224,7 @@ class CommandBase {
         origin.lastIndexOf(path.sep) + 1,
         origin.lastIndexOf('.')
       );
+
       this.data.name = fileNameWithoutExtension;
     }
     // Check if the category has been set
@@ -230,6 +234,7 @@ class CommandBase {
         origin.lastIndexOf(path.sep, origin.lastIndexOf(path.sep) - 1) + 1,
         origin.lastIndexOf(path.sep) || undefined
       );
+
       this.category = parentFolder;
     }
   };
@@ -239,22 +244,22 @@ class CommandBase {
    * @method
    * @param {string} origin The absolute file path to exported module/config,
    * can be used this way as we export each Command within it's own, dedicated file
-   * @param {external:DiscordCollection} collection The collection this command should be set to
+   * @param {external:DiscordCollection} [collection] The collection this command should be set to
    * @returns {void} Nothing
    *
    * @example
-   * for (const filePath of getFiles('client/commands')) {
+   * for (const filePath of getFiles('src/commands')) {
    *  const command = require(filePath);
    *  command.load(filePath, client.container.commands);
    * }
    */
-  load = (filePath, logging = true, collection = new Collection()) => {
+  load = (filePath, collection = new Collection()) => {
     this.filePath = filePath;
     this.setFilePathDetails();
 
     // Debug Logging - After we set our file path defaults/fallbacks
-    if (DEBUG_ENABLED === 'true' && logging) {
-      logger.debug(`Loading <${chalk.cyanBright(this.data.name)}>`);
+    if (DEBUG_ENABLED === 'true') {
+      logger.debug(`Loading <${ chalk.cyanBright(this.data.name) }>`);
     }
 
     // Set the command in our command collection
@@ -278,6 +283,7 @@ class CommandBase {
     // Getting and deleting our current cmd module cache
     const filePath = this.filePath;
     const module = require.cache[require.resolve(filePath)];
+
     delete require.cache[require.resolve(filePath)];
     for (let i = 0; i < module.children?.length; i++) {
       if (!module.children) break;
@@ -302,21 +308,30 @@ class CommandBase {
 }
 
 
-
-
+/**
+ * @typedef {Object} ComponentCommandConfig
+ * @property {boolean} [isUserComponent = true] If true, the component is only available to the user who initiated it. If false, everyone can interact with the component
+ */
 
 /**
  * @extends {CommandBase}
  */
 class ComponentCommand extends CommandBase {
+  constructor (config) {
+    /**
+     * @param {BaseConfig | ComponentCommandConfig} config The full command configuration
+     */
+    super(config);
+    /**
+     * @property {boolean} isUserComponent If true, the component is only available to the user who initiated it. If false, everyone can interact with the component
+     */
+    this.isUserComponent = 'isUserComponent' in config ? config.isUserComponent : true;
+  }
 }
 
 
-
-
-
 /**
- * @typedef {BaseConfig} APICommandConfig
+ * @typedef {Object} APICommandConfig
  * @property {boolean} [global=true] Is the command enabled globally or only in our test-server
  * @property {Array<string>} [aliases=[]] Array of command aliases
  * @property {boolean} [isAlias=false] Indicates if the command is an active alias, you should never have to use this in the constructor, used internally
@@ -340,19 +355,19 @@ class APICommand extends CommandBase {
     /**
      * @property {boolean} global Is the command enabled globally or only in our test-server
      */
-    this.global = config.global || false;
+    this.global = 'global' in config ? config.global : false;
     /**
      * @property {Array<string>} aliases Array of command aliases
      */
-    this.aliases = config.aliases || [];
+    this.aliases = 'aliases' in config ? config.aliases : [];
     /**
      * @property {boolean} isAlias Indicates if the command is an active alias
      */
-    this.isAlias = config.isAlias || false;
+    this.isAlias = 'isAlias' in config ? config.isAlias : false;
     /**
      * @property {string | undefined} aliasFor The command name this alias is for
      */
-    this.aliasFor = config.aliasFor || undefined;
+    this.aliasFor = 'aliasFor' in config ? config.aliasFor : undefined;
   }
 
   /**
@@ -363,18 +378,19 @@ class APICommand extends CommandBase {
   loadAliases = () => {
     // Check if we should manage command aliases
     if (!this.isAlias && this.aliases.length >= 1) {
-
       // Looping over all over aliases
       this.aliases.forEach((alias) => {
         // Creating the config object for the new command
         const newCmdConfig = {
-          ...this, // spread all properties
+          // spread all properties
+          ...this,
           data: {
             ...this.data,
             name: alias
             // Overwrite API name after spreading api data
           },
-          permLevel: getPermLevelName(this.permLevel), // Transforming the permission level back
+          // Transforming the permission level back
+          permLevel: getPermLevelName(this.permLevel),
           // Setting alias values
           isAlias: true,
           aliases: [],
@@ -392,9 +408,6 @@ class APICommand extends CommandBase {
 }
 
 
-
-
-
 /**
  * @extends {APICommand}
  */
@@ -407,12 +420,10 @@ class MessageContextCommand extends APICommand {
     /**
      * @property {number} [data.type=3] The type of APICommand
      */
-    this.data.type = 3; // MESSAGE Context Menu
+    // MESSAGE Context Menu
+    this.data.type = 3;
   }
 }
-
-
-
 
 
 /**
@@ -427,12 +438,10 @@ class UserContextCommand extends APICommand {
     /**
      * @property {number} [data.type=3] The type of APICommand
      */
-    this.data.type = 2; // USER Context Menu
+    // USER Context Menu
+    this.data.type = 2;
   }
 }
-
-
-
 
 
 /**
@@ -460,12 +469,12 @@ class ChatInputCommand extends APICommand {
    */
   constructor (config) {
     super(config);
-    // Set API data defaults
-    this.data.type = 1; // CHAT_INPUT
+    // Set API data defaults - CHAT_INPUT
+    this.data.type = 1;
 
     // Check if a description is provided
     if (!this.data.description) {
-      throw new Error(`An InteractionCommand description is required by Discord's API\nCommand: ${this.data.name}`);
+      throw new Error(`An InteractionCommand description is required by Discord's API\nCommand: ${ this.data.name }`);
     }
   }
 }

@@ -1,5 +1,5 @@
 /**
- * A collection of client-extensions, containerized under `client.container`. Exported from the `/client/client.js` file
+ * A collection of client-extensions, containerized under `client.container`. Exported from the `/src/client.js` file
  * @module Client
  */
 

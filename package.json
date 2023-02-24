@@ -1,39 +1,77 @@
 {
-  "name": "expansion-market-client",
-  "version": "1.0.0",
-  "description": "Client for Expansion Market",
+  "name": "discord.js-bot-template",
+  "description": "A discord bot template using discord.js",
+  "version": "2.0.5",
   "main": "src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node .",
-    "dev": "nodemon run node --trace-warnings .",
-    "docker:build": "docker build --tag expansion-market-client .",
-    "docker:start": "docker run -v $(pwd):/app -v /app/node_modules -p 3000:3000 --env-file ./.env -d --name expansion-market-client expansion-market-client",
-    "docker:restart": "docker restart expansion-market-client",
-    "docker:stop": "docker stop expansion-market-client",
-    "docker:kill": "docker rm -fv expansion-market-client",
-    "docker:logs": "docker logs expansion-market-client -f",
-    "docker:bash": "docker exec -it expansion-market-client bash",
-    "pm2:start": "pm2 start --name=expansion-market-client npm -- run start",
-    "pm2:stop": "pm2 stop expansion-market-client",
-    "pm2:purge": "pm2 stop expansion-market-client && pm2 delete expansion-market-client && pm2 reset expansion-market-client",
-    "pm2:logs": "pm2 logs --lines 300 expansion-market-client",
-    "pm2:logsError": "pm2 logs --err --lines 300 expansion-market-client",
-    "types": "npx -p typescript tsc ./**/*.js --declaration --allowJs --emitDeclarationOnly --outDir types"
+    "start:dev": "nodemon run node --trace-warnings .",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "docker:build": "docker build --tag discord-bot-template .",
+    "docker:start": "docker run -v $(pwd):/app -v /app/node_modules -p 3000:3000 --env-file ./.env -d --name discord-bot-template discord-bot-template",
+    "docker:restart": "docker restart discord-bot-template",
+    "docker:stop": "docker stop discord-bot-template",
+    "docker:kill": "docker rm -fv discord-bot-template",
+    "docker:logs": "docker logs discord-bot-template -f",
+    "docker:bash": "docker exec -it discord-bot-template bash",
+    "pm2:start": "pm2 start --name=discord.js-bot-template npm -- run start",
+    "pm2:stop": "pm2 stop discord.js-bot-template",
+    "pm2:purge": "pm2 stop discord.js-bot-template && pm2 delete discord.js-bot-template && pm2 reset discord.js-bot-template",
+    "pm2:logs": "pm2 logs --lines 300 discord.js-bot-template",
+    "pm2:logsError": "pm2 logs --err --lines 300 discord.js-bot-template",
+    "lint": "eslint src backend",
+    "linter": "eslint src backend --fix",
+    "writeLinter": "eslint src backend --output-file linter-output.txt",
+    "docs": "jsdoc -u ./tutorials --readme README.md -c jsdoc.json",
+    "types": "npx -p typescript tsc src/**/*.js --declaration --allowJs --emitDeclarationOnly --outDir types"
   },
-  "author": "",
-  "license": "ISC",
   "dependencies": {
-    "@discordjs/rest": "^1.1.0",
+    "@discordjs/rest": "^1.5.0",
     "@mirasaki/logger": "^1.0.5",
-    "axios": "^0.27.2",
     "common-tags": "^1.8.2",
-    "discord.js": "^14.3.0",
-    "dotenv": "^16.0.2",
-    "form-data": "^4.0.0"
+    "discord.js": "^14.7.1",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2"
   },
   "devDependencies": {
-    "eslint": "^8.23.0",
-    "nodemon": "^2.0.19"
-  }
+    "docdash": "^2.0.1",
+    "eslint": "^8.34.0",
+    "eslint-plugin-sonarjs": "^0.18.0",
+    "jsdoc": "^4.0.2",
+    "jsdoc-to-markdown": "^8.0.0",
+    "nodemon": "^2.0.20"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mirasaki/discord.js-bot-template.git"
+  },
+  "keywords": [
+    "nodejs",
+    "bot-template",
+    "template",
+    "boilerplate",
+    "discord-api",
+    "typings",
+    "discord",
+    "discordjs",
+    "v14",
+    "discord-bot",
+    "discord-bot-template",
+    "slash-commands",
+    "buttons",
+    "modals",
+    "autocomplete",
+    "context-menus",
+    "select-menus",
+    "documented"
+  ],
+  "author": "Richard Hillebrand (Mirasaki)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Mirasaki/discord.js-bot-template/issues"
+  },
+  "homepage": "https://github.com/Mirasaki/discord.js-bot-template#readme"
 }

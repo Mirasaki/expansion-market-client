@@ -1,34 +1,32 @@
-const { ApplicationCommandOptionType } = require('discord.js');
 const { ChatInputCommand } = require('../../classes/Commands');
 const {
   getCommandSelectMenu,
   generateCommandOverviewEmbed,
   generateCommandInfoEmbed
 } = require('../../handlers/commands');
+const { commandAutoCompleteOption } = require('../../interactions/autocomplete/command');
 
 module.exports = new ChatInputCommand({
   global: true,
+  aliases: [ 'commands' ],
   cooldown: {
-    type: 'user', // Use user cooldown type instead of default member
+    // Use user cooldown type instead of default member
+    type: 'user',
     usages: 2,
     duration: 10
   },
-  clientPerms: ['EmbedLinks'],
+  clientPerms: [ 'EmbedLinks' ],
   data: {
     description: 'Receive detailed command information',
-    options: [{
-      type: ApplicationCommandOptionType.String,
-      name: 'command',
-      description: 'Command name or category',
-      autocomplete: true,
-      required: false
-    }]
+    options: [ commandAutoCompleteOption ]
   },
 
   run: (client, interaction) => {
     // Destructuring
     const { member } = interaction;
-    const { commands, contextMenus, emojis } = client.container;
+    const {
+      commands, contextMenus, emojis
+    } = client.container;
 
     // Check for optional autocomplete focus
     const commandName = interaction.options.getString('command');
@@ -41,7 +39,7 @@ module.exports = new ChatInputCommand({
 
       // Reply to the interaction with our embed
       interaction.reply({
-        embeds: [generateCommandOverviewEmbed(commands, interaction) ],
+        embeds: [ generateCommandOverviewEmbed(commands, interaction) ],
         components: [ cmdSelectMenu ]
       });
       return;
@@ -55,15 +53,18 @@ module.exports = new ChatInputCommand({
     // Checking if the commandName is a valid client command
     if (!clientCmd) {
       interaction.reply({
-        content: `${emojis.error} ${member}, I couldn't find the command **\`/${commandName}\`**`,
+        content: `${ emojis.error } ${ member }, I couldn't find the command **\`/${ commandName }\`**`,
         ephemeral: true
       });
       return;
     }
 
     // Replying with our command information embed
-    interaction.reply({
-      embeds: [ generateCommandInfoEmbed(clientCmd, interaction) ]
-    });
+    interaction.reply({ embeds: [
+      generateCommandInfoEmbed(
+        clientCmd,
+        interaction
+      )
+    ] });
   }
 });

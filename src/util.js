@@ -1,5 +1,5 @@
 /**
- * Our collection of utility functions, exported from the `/client/util.js` file
+ * Our collection of utility functions, exported from the `/src/util.js` file
  * @module Utils
  */
 
@@ -15,25 +15,13 @@ const { readdirSync, statSync } = require('fs');
 const moment = require('moment');
 const path = require('path');
 const colors = require('./config/colors.json');
-const { stripIndents } = require('common-tags');
-const chalk = require('chalk');
-const logger = require('@mirasaki/logger');
 
 // Import our constants
 const {
   NS_IN_ONE_MS,
   NS_IN_ONE_SECOND,
-  DEFAULT_DECIMAL_PRECISION,
-  BYTES_IN_KIB
+  DEFAULT_DECIMAL_PRECISION
 } = require('./constants');
-
-// Destructure from env
-const {
-  DEBUG_ENABLED,
-  NODE_ENV
-} = process.env;
-
-
 
 /**
  * Transforms hex and rgb color input into integer color code
@@ -59,13 +47,19 @@ const colorResolver = (input) => {
  * @param {Array<string>} [allowedExtensions=['.js', '.mjs', '.cjs']] Array of file extensions
  * @returns {Array<string>} Array of (resolved) absolute file paths
  */
-const getFiles = (requestedPath, allowedExtensions = ['.js', '.mjs', '.cjs']) => {
-  if (typeof allowedExtensions === 'string') allowedExtensions = [allowedExtensions];
+const getFiles = (requestedPath, allowedExtensions = [
+  '.js',
+  '.mjs',
+  '.cjs'
+]) => {
+  if (typeof allowedExtensions === 'string') allowedExtensions = [ allowedExtensions ];
   requestedPath ??= path.resolve(requestedPath);
   let res = [];
+
   for (let itemInDir of readdirSync(requestedPath)) {
     itemInDir = path.resolve(requestedPath, itemInDir);
     const stat = statSync(itemInDir);
+
     if (stat.isDirectory()) res = res.concat(getFiles(itemInDir, allowedExtensions));
     if (
       stat.isFile()
@@ -105,6 +99,7 @@ const titleCase = (str) => {
  */
 const splitCamelCaseStr = (str, joinCharacter = ' ') => {
   const arr = str.split(/ |\B(?=[A-Z])/);
+
   if (typeof joinCharacter === 'string') {
     return arr.join(joinCharacter);
   }
@@ -116,7 +111,7 @@ const splitCamelCaseStr = (str, joinCharacter = ' ') => {
  * @param {*} str The string to capitalize
  * @returns {string} Capitalized string
  */
-const capitalizeString = (str) => `${str.charAt(0).toUpperCase()}${str.slice(1)}`;
+const capitalizeString = (str) => `${ str.charAt(0).toUpperCase() }${ str.slice(1) }`;
 
 /**
  * String converter: Parses a SNAKE_CASE_ARRAY to title-cased strings in an array
@@ -138,7 +133,8 @@ const parseSnakeCaseArray = (arr) => {
  */
 const getBotInviteLink = (client) => {
   const { commands } = client.container;
-  const uniqueCombinedPermissions = [ ...new Set([].concat(...commands.map((cmd => cmd.clientPerms)))) ];
+  const uniqueCombinedPermissions = [ ...new Set([].concat(...commands.map(((cmd) => cmd.clientPerms)))) ];
+
   return client.generateInvite({
     scopes: [ OAuth2Scopes.ApplicationsCommands, OAuth2Scopes.Bot ],
     permissions: uniqueCombinedPermissions.map((rawPerm) => PermissionFlagsBits[rawPerm])
@@ -150,6 +146,8 @@ const getBotInviteLink = (client) => {
  * @param {number} ms The amount of time in milliseconds to wait/sleep
  * @returns {Promise<void>} The promise to await
  */
+// We don't need to access the return value here, EVER, so -
+// eslint-disable-next-line no-promise-executor-return
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 /**
@@ -173,144 +171,6 @@ const getRuntime = (hrtime, decimalPrecision = DEFAULT_DECIMAL_PRECISION) => {
   };
 };
 
-/**
- * Convert a human date string into ms, credits where credits are due: https://stackoverflow.com/questions/49248262/how-to-convert-date-to-milliseconds-by-javascript
- * @param {string} dateString Human date string, for example: "25-12-2017"
- * @returns {integer} Date MS
- */
-const dateStringToMS = (dateString) => {
-  const prepareDate = (d) => {
-    const [day, month, year] = d.split('-'); //Split the string
-    return [year, month - 1, day]; //Return as an array with y,m,d sequence
-    // Note: Month is 0-11, that is why m-1
-  };
-  return new Date(...prepareDate(dateString));
-};
-
-
-/**
- * [DEV]
- * Add Documentation
- */
-
-
-
-
-
-const fetchAttachment = async (attachment, convertResToJSON = false, allowedSizeInKB = 1000) => {
-  // Destructure from attachment object
-  const {
-    url,
-    proxyURL,
-    size,
-    name,
-    contentType
-  } = attachment;
-
-  // Performance timing
-  const startFetching = process.hrtime.bigint();
-
-  // Calculating size in KiB
-  const attachmentSizeInKB = Math.round(size / BYTES_IN_KIB);
-
-  // Return an error if attachment is too large
-  if (attachmentSizeInKB > allowedSizeInKB) {
-    return {
-      status: 413,
-      statusText: 'Request Entity Too Large',
-      error: 'File Rejected',
-      message: stripIndents`
-        Your file exceeds the maximum size of ${allowedSizeInKB} KB.
-        Your file file is ${attachmentSizeInKB} KB.
-        Reduce file size by ${attachmentSizeInKB - allowedSizeInKB} KB to continue. 
-      `
-    };
-  }
-
-  // Fetching our attachment
-  let res;
-  try {
-    // Try to fetch the attachment from the CDN url
-    // use fetch instead to allow piping of res.body - no idea how this works with axios
-    res = await fetch(url);
-    // res = await axios({ method: 'GET', url: url });
-  } catch (err) {
-    // Try to fetch from proxy URL as a fallback if any errors are encounters
-    try {
-      res = await fetch(proxyURL);
-    } catch (proxyErr) {
-      // Define how to show the errors - more detailed in-dev
-      const origFetchErrStr = NODE_ENV === 'production'
-        ? err.message
-        : `\`\`\`\n${err.stack || err}\`\`\``;
-      const proxyFetchErrStr = NODE_ENV === 'production'
-        ? proxyErr.message
-        : `\`\`\`\n${proxyErr.stack || err}\`\`\``;
-
-      // Returning an error if everything failed
-      return {
-        status: 503,
-        statusText: 'Service Unavailable',
-        error: 'Unexpected Error',
-        message: stripIndents`
-          Fetch from CDN: ${origFetchErrStr}
-          Fetch from ProxyURL: ${proxyFetchErrStr}
-
-          Attachment Name: ${name}
-          Content Type: ${contentType}
-          Size: ${attachmentSizeInKB}
-          URL: ${url}
-          proxyURL: ${proxyURL}
-        `
-      };
-    }
-  }
-
-  // One final check for data availability
-  if (!('body' in res) || typeof res.body === 'undefined') {
-    // Debug logging
-    logger.syserr('Unexpected error encounter while fetching attachment');
-    logger.startLog('Fetch Attachment Response');
-    console.error(res);
-    logger.endLog('Fetch Attachment Response');
-
-    return {
-      status: 500,
-      statusText: 'Internal Server Error',
-      error: 'Unexpected Error',
-      message: 'Encountered an unexpected error. Your request could not be processed, this error has been logged to the developers.\nPlease try again later.'
-    };
-  }
-
-  // Performance logging
-  const runtime = getRuntime(startFetching);
-  if (DEBUG_ENABLED === 'true') {
-    logger.debug(`${chalk.blue('Fetched attachment')} of ${chalk.yellow(attachmentSizeInKB)} KiB in ${chalk.yellow(runtime.ms)} ms (${chalk.yellow(runtime.seconds)} seconds)`);
-  }
-
-  // Returning the actual data if the attachment
-  // was successfully fetched
-  return {
-    status: res.status,
-    statusText: res.statusText,
-    runtime: runtime.ms,
-    size: attachmentSizeInKB,
-    body: convertResToJSON
-      ? await res.json()
-      : res.body
-  };
-};
-
-const isAllowedContentType = (valid, received) => {
-  const [ allowedContentType, targetCharset ] = valid.split(' ');
-  const [ contentType, charSet ] = received.split(' ');
-  return {
-    strict: contentType === allowedContentType && targetCharset === charSet,
-    fuzzy: contentType === allowedContentType
-  };
-};
-
-
 module.exports = {
   splitCamelCaseStr,
   colorResolver,
@@ -322,10 +182,5 @@ module.exports = {
   getBotInviteLink,
   wait: sleep,
   sleep,
-  getRuntime,
-  dateStringToMS,
-
-
-  fetchAttachment,
-  isAllowedContentType
+  getRuntime
 };
