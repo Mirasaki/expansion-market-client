@@ -6,7 +6,9 @@ const {
   MARKET_BROWSE_AUTOCOMPLETE_OPTION,
   NO_MARKET_CONFIG_OPTION_VALUE,
   NO_MARKET_CONFIG_DISPLAY_STR,
-  MARKET_ANNOTATION_3_STR
+  MARKET_ANNOTATION_3_STR,
+  MARKET_ITEM_NO_MAP,
+  MARKET_ITEM_NO_ZONE
 } = require('../../constants');
 const { prettifyClassName } = require('../../lib/helpers/in-game-names');
 const { getMarketItemByName } = require('../../lib/requests');
@@ -169,7 +171,9 @@ module.exports = new ChatInputCommand({
 
     // Filter out bad/returned embeds - this is intentional behavior,
     // otherwise we have to calculate annotations, etc twice
-    let usableEmbeds = embeds.filter((e) => e !== MARKET_ANNOTATION_3_STR);
+    let usableEmbeds = embeds.filter(
+      (e) => e !== MARKET_ANNOTATION_3_STR && e !== MARKET_ITEM_NO_MAP && e !== MARKET_ITEM_NO_ZONE
+    );
 
     // Fail-safe!
     // We can't reply to an interaction without content and 0 embeds =)

@@ -1,5 +1,9 @@
 const { stripIndents } = require('common-tags');
-const { MARKET_ANNOTATION_3_STR } = require('../../constants');
+const {
+  MARKET_ANNOTATION_3_STR,
+  MARKET_ITEM_NO_MAP,
+  MARKET_ITEM_NO_ZONE
+} = require('../../constants');
 const { colorResolver } = require('../../util');
 const {
   prettifyClassName, resolveInGameName, bulkResolveInGameNames, matchResolvedInGameNameArray
@@ -123,7 +127,9 @@ const getItemDataEmbed = async (className, category, trader) => {
   let ign = item.displayName;
   if (!ign) ign = prettifyClassName(className, true);
   const map = trader.MarketTraderMap;
+  if (!map) return MARKET_ITEM_NO_MAP;
   const zone = map.MarketTraderZoneConfig;
+  if (!zone) return MARKET_ITEM_NO_ZONE;
 
   // Prepare to check for special item annotation
   let activeAnnotation;
