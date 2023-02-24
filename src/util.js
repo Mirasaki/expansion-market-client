@@ -10,17 +10,23 @@
  */
 
 // Importing from libraries
+const logger = require('@mirasaki/logger');
+const { stripIndents } = require('common-tags');
 const { OAuth2Scopes, PermissionFlagsBits } = require('discord.js');
 const { readdirSync, statSync } = require('fs');
 const moment = require('moment');
+const chalk = require('chalk');
 const path = require('path');
 const colors = require('./config/colors.json');
+
+const { NODE_ENV, DEBUG_ENABLED } = process.env;
 
 // Import our constants
 const {
   NS_IN_ONE_MS,
   NS_IN_ONE_SECOND,
-  DEFAULT_DECIMAL_PRECISION
+  DEFAULT_DECIMAL_PRECISION,
+  BYTES_IN_KIB
 } = require('./constants');
 
 /**
@@ -171,6 +177,122 @@ const getRuntime = (hrtime, decimalPrecision = DEFAULT_DECIMAL_PRECISION) => {
   };
 };
 
+
+// eslint-disable-next-line sonarjs/cognitive-complexity
+const fetchAttachment = async (attachment, convertResToJSON = false, allowedSizeInKB = 1000) => {
+  // Destructure from attachment object
+  const {
+    url,
+    proxyURL,
+    size,
+    name,
+    contentType
+  } = attachment;
+
+  // Performance timing
+  const startFetching = process.hrtime.bigint();
+
+  // Calculating size in KiB
+  const attachmentSizeInKB = Math.round(size / BYTES_IN_KIB);
+
+  // Return an error if attachment is too large
+  if (attachmentSizeInKB > allowedSizeInKB) {
+    return {
+      status: 413,
+      statusText: 'Request Entity Too Large',
+      error: 'File Rejected',
+      message: stripIndents`
+        Your file exceeds the maximum size of ${ allowedSizeInKB } KB.
+        Your file file is ${ attachmentSizeInKB } KB.
+        Reduce file size by ${ attachmentSizeInKB - allowedSizeInKB } KB to continue. 
+      `
+    };
+  }
+
+  // Fetching our attachment
+  let res;
+  try {
+    // Try to fetch the attachment from the CDN url
+    // use fetch instead to allow piping of res.body - no idea how this works with axios
+    res = await fetch(url);
+    // res = await axios({ method: 'GET', url: url });
+  }
+  catch (err) {
+    // Try to fetch from proxy URL as a fallback if any errors are encounters
+    try {
+      res = await fetch(proxyURL);
+    }
+    catch (proxyErr) {
+      // Define how to show the errors - more detailed in-dev
+      const origFetchErrStr = NODE_ENV === 'production'
+        ? err.message
+        : `\`\`\`\n${ err.stack || err }\`\`\``;
+      const proxyFetchErrStr = NODE_ENV === 'production'
+        ? proxyErr.message
+        : `\`\`\`\n${ proxyErr.stack || err }\`\`\``;
+
+      // Returning an error if everything failed
+      return {
+        status: 503,
+        statusText: 'Service Unavailable',
+        error: 'Unexpected Error',
+        message: stripIndents`
+          Fetch from CDN: ${ origFetchErrStr }
+          Fetch from ProxyURL: ${ proxyFetchErrStr }
+          Attachment Name: ${ name }
+          Content Type: ${ contentType }
+          Size: ${ attachmentSizeInKB }
+          URL: ${ url }
+          proxyURL: ${ proxyURL }
+        `
+      };
+    }
+  }
+
+  // One final check for data availability
+  if (!('body' in res) || typeof res.body === 'undefined') {
+    // Debug logging
+    logger.syserr('Unexpected error encounter while fetching attachment');
+    logger.startLog('Fetch Attachment Response');
+    console.error(res);
+    logger.endLog('Fetch Attachment Response');
+
+    return {
+      status: 500,
+      statusText: 'Internal Server Error',
+      error: 'Unexpected Error',
+      message: 'Encountered an unexpected error. Your request could not be processed, this error has been logged to the developers.\nPlease try again later.'
+    };
+  }
+
+  // Performance logging
+  const runtime = getRuntime(startFetching);
+  if (DEBUG_ENABLED === 'true') {
+    logger.debug(`${ chalk.blue('Fetched attachment') } of ${ chalk.yellow(attachmentSizeInKB) } KiB in ${ chalk.yellow(runtime.ms) } ms (${ chalk.yellow(runtime.seconds) } seconds)`);
+  }
+
+  // Returning the actual data if the attachment
+  // was successfully fetched
+  return {
+    status: res.status,
+    statusText: res.statusText,
+    runtime: runtime.ms,
+    size: attachmentSizeInKB,
+    body: convertResToJSON
+      ? await res.json()
+      : res.body
+  };
+};
+
+const isAllowedContentType = (valid, received) => {
+  const [ allowedContentType, targetCharset ] = valid.split(' ');
+  const [ contentType, charSet ] = received.split(' ');
+  return {
+    strict: contentType === allowedContentType && targetCharset === charSet,
+    fuzzy: contentType === allowedContentType
+  };
+};
+
 module.exports = {
   splitCamelCaseStr,
   colorResolver,
@@ -182,5 +304,8 @@ module.exports = {
   getBotInviteLink,
   wait: sleep,
   sleep,
-  getRuntime
+  getRuntime,
+
+  fetchAttachment,
+  isAllowedContentType
 };
