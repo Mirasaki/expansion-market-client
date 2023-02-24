@@ -442,7 +442,7 @@ const throttleCommand = (clientCmd, interaction) => {
  */
 const isUserComponentCommand = (clientCmd, interaction) => (
   interaction.isButton()
-  || interaction.isSelectMenu()
+  || interaction.isStringSelectMenu()
   || interaction.isMessageComponent()
 ) && clientCmd.isUserComponent === true;
 
