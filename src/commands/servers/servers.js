@@ -3,10 +3,19 @@
 const { getAllMarketServers } = require('../../lib/requests');
 const { ChatInputCommand } = require('../../classes/Commands');
 const { colorResolver } = require('../../util');
+const { PermissionsBitField } = require('discord.js');
 
 // Windows (ctrl+space) for auto-complete IntelliSense options
 module.exports = new ChatInputCommand({
   global: true,
+  clientPerms: [
+    PermissionsBitField.Flags.ViewChannel,
+    PermissionsBitField.Flags.SendMessages,
+    PermissionsBitField.Flags.ReadMessageHistory,
+    PermissionsBitField.Flags.EmbedLinks,
+    PermissionsBitField.Flags.AttachFiles,
+    PermissionsBitField.Flags.ManageMessages
+  ],
   data: { description: 'View all your active server configurations' },
   run: async (client, interaction) => {
     const {
