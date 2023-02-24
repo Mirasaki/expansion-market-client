@@ -104,6 +104,7 @@ const getPaginationComponents = (pageNow, pageTotal, prevCustomId, nextCustomId,
 
 module.exports = new ChatInputCommand({
   global: true,
+  aliases: [ 'trader' ],
   data: {
     description: 'Search the available Expansion Market items',
     options: [
