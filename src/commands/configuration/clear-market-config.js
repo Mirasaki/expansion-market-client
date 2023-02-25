@@ -1,4 +1,4 @@
-const { ApplicationCommandOptionType } = require('discord.js');
+const { ApplicationCommandOptionType, PermissionsBitField } = require('discord.js');
 const { ChatInputCommand } = require('../../classes/Commands');
 const { marketServerOption, hasValidMarketServer } = require('../../lib/helpers/marketServers');
 const clearCategoriesCommand = require('../market-categories/clear-categories');
@@ -16,6 +16,14 @@ module.exports = new ChatInputCommand({
     usages: 2,
     duration: 1800
   },
+  clientPerms: [
+    PermissionsBitField.Flags.ViewChannel,
+    PermissionsBitField.Flags.SendMessages,
+    PermissionsBitField.Flags.ReadMessageHistory,
+    PermissionsBitField.Flags.EmbedLinks,
+    PermissionsBitField.Flags.AttachFiles,
+    PermissionsBitField.Flags.ManageMessages
+  ],
   data: {
     description: 'Clear your full Expansion-Market configuration',
     options: [

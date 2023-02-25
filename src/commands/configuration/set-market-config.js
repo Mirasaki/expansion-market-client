@@ -1,4 +1,4 @@
-const { ApplicationCommandOptionType } = require('discord.js');
+const { ApplicationCommandOptionType, PermissionsBitField } = require('discord.js');
 const { ChatInputCommand } = require('../../classes/Commands');
 const { hasValidMarketServer, requiredMarketServerOption } = require('../../lib/helpers/marketServers');
 const setCategoriesCommand = require('../market-categories/set-categories');
@@ -25,6 +25,14 @@ module.exports = new ChatInputCommand({
     usages: 2,
     duration: 1800
   },
+  clientPerms: [
+    PermissionsBitField.Flags.ViewChannel,
+    PermissionsBitField.Flags.SendMessages,
+    PermissionsBitField.Flags.ReadMessageHistory,
+    PermissionsBitField.Flags.EmbedLinks,
+    PermissionsBitField.Flags.AttachFiles,
+    PermissionsBitField.Flags.ManageMessages
+  ],
   data: {
     description: 'Upload your server\'s full Expansion-Market configuration',
     options: [
