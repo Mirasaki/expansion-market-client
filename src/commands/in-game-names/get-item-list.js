@@ -33,7 +33,7 @@ module.exports = new ChatInputCommand({
       guild, member, options
     } = interaction;
     const { emojis, colors } = client.container;
-    const attachFile = options.getBoolean(ATTACH_FILE_OPTION_NAME);
+    const attachFile = options.getBoolean(ATTACH_FILE_OPTION_NAME) ?? true;
 
     // Deferring our reply
     await interaction.deferReply();
@@ -67,7 +67,7 @@ module.exports = new ChatInputCommand({
         ],
         files: attachFile
           ? [
-            new AttachmentBuilder(Buffer.from(JSON.stringify(data, null, 2)))
+            new AttachmentBuilder(Buffer.from(JSON.stringify(data.valid, null, 2)))
               .setName('items.export-parsed.json')
           ]
           : null
