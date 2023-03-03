@@ -53,7 +53,7 @@ const { Collection } = require('discord.js');
  * @typedef {Function} CommandCallback
  * @param {external:DiscordChatInputInteraction} interaction The interaction received
  * @param {Client} client Our discord.js-extended client
- * @returns {void | Promise<void>}
+ * @returns {Promise<void>}
  */
 
 /**
@@ -205,7 +205,8 @@ class CommandBase {
 
   /**
    * The callback executed when the command is ran
-   * @member {CommandCallback}
+   * @method
+   * @returns {Promise<void> | void}
    */
   run = () => {};
 
