@@ -108,6 +108,11 @@ module.exports = new ChatInputCommand({
     else {
       const { data } = res;
 
+      if (!data[0]) {
+        msg.edit({ content: `${ emojis.error } ${ member }, no valid map configurations. Please use the \`/validate-maps\` command.` });
+        return;
+      }
+
       // Replying to the interaction
       content += `\n${ emojis.success } Finished parsing and saving your ${ MARKET_TRADER_MAPS_FILE_DESCRIPTION } in: **${ requestFetchMS } ms**`;
       msg.edit({
