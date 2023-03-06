@@ -48,6 +48,6 @@ module.exports.getClientErrorEmbed = ({
 }) => ({
   color: colorResolver(colors.error),
   title: error,
-  description: message,
+  description: message.replace(' validate ', ' `/validate` '),
   footer: { text: `${ status } | ${ statusText }` }
 });
