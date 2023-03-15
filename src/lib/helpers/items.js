@@ -165,7 +165,7 @@ const getItemDataEmbed = async (className, category, trader) => {
     fields: [
       {
         name: 'Category',
-        value: category.categoryName,
+        value: category.displayName,
         inline: true
       },
       {
