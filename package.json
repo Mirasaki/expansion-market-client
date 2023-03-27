@@ -40,7 +40,7 @@
     "eslint-plugin-sonarjs": "^0.19.0",
     "jsdoc": "^4.0.2",
     "jsdoc-to-markdown": "^8.0.0",
-    "nodemon": "^2.0.21"
+    "nodemon": "^2.0.22"
   },
   "engines": {
     "node": ">=18"
