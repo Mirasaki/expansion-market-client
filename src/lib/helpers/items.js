@@ -105,7 +105,8 @@ const resolveSellPriceOutput = async (item, trader, zone) => {
   // Check which sellPricePercent to use
   const activeSellPercent = itemUsesZoneSellPercent
     ? zone.sellPricePercent === -1 || zone.sellPricePercent === '-1' // By default this value is -1.0, meaning the global value from market settings will be used, but can be overridden by setting this to the desired percentage.
-      ? 50 // [DEV] - Implement global fallback - defined somewhere in a config file
+      // GLOBAL FALLBACK, ref: https://github.com/salutesh/DayZ-Expansion-Scripts/wiki/%5BServer-Hosting%5D-General-Market-Settings#sellpricepercent
+      ? 75 // [DEV] - Implement global fallback file upload or command config
       : (Math.round(zone.sellPricePercent * 100) / 100).toFixed(2) // Use zone SellPricePercent
     : (Math.round(item.sellPricePercent * 100) / 100).toFixed(2); // Use item SellPricePercent
 
