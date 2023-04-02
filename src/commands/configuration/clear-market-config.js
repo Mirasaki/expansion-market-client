@@ -52,12 +52,12 @@ module.exports = new ChatInputCommand({
     // Didn't check the confirmation prompt
     const confirmationPrompt = options.getBoolean(CONFIRMATION_PROMPT_OPTION_NAME);
     if (confirmationPrompt !== true) {
-      interaction.editReply({ content: `${ emojis.error } ${ member }, you didn't select **\`true\`** on the confirmation prompt, this command has been cancelled.` });
+      interaction.editReply({ content: `${ emojis.error } ${ member }, you didn't select **\`true\`** on the confirmation prompt, this command has been cancelled.` }).catch(() => { /* Void */ });
       return; // Escape out of the command early
     }
 
     // First, await a reply so we can properly followUp()
-    await interaction.editReply({ content: `${ emojis.wait } ${ member }, please wait while your configuration is being cleared.` });
+    await interaction.editReply({ content: `${ emojis.wait } ${ member }, please wait while your configuration is being cleared.` }).catch(() => { /* Void */ });
 
     // Yeah, that's right
     await clearCategoriesCommand.run(client, interaction);
@@ -66,6 +66,6 @@ module.exports = new ChatInputCommand({
     await clearMapsCommand.run(client, interaction);
 
     // And finally, user feedback, we done!
-    await interaction.editReply({ content: `${ emojis.success } ${ member }, finished clearing your Expansion-Market configuration.` });
+    await interaction.editReply({ content: `${ emojis.success } ${ member }, finished clearing your Expansion-Market configuration.` }).catch(() => { /* Void */ });
   }
 });

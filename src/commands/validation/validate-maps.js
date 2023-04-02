@@ -49,13 +49,13 @@ module.exports = new ChatInputCommand({
     // Return if content type is not allowed
     const contentIsAllowed = isAllowedContentType(ALLOWED_CONTENT_TYPE, attachment.contentType);
     if (!contentIsAllowed.strict) {
-      interaction.editReply({ content: `${ emojis.error } ${ member }, file rejected. Content type is not **\`${ ALLOWED_CONTENT_TYPE }\`**, received **\`${ attachment.contentType }\`** instead.` });
+      interaction.editReply({ content: `${ emojis.error } ${ member }, file rejected. Content type is not **\`${ ALLOWED_CONTENT_TYPE }\`**, received **\`${ attachment.contentType }\`** instead.` }).catch(() => { /* Void */ });
       return;
     }
 
     // User Feedback, wait for parser
     let content = `${ emojis.wait } ${ member }, please be patient while your \`${ MARKET_TRADER_MAPS_OPTION_NAME }\` attachment is being retrieved...`;
-    await interaction.editReply(content);
+    await interaction.editReply(content).catch(() => { /* Void */ });
 
     // Fetch the attachment from Discord's API
     const attachmentResponse = await fetchAttachment(attachment);
@@ -66,7 +66,7 @@ module.exports = new ChatInputCommand({
       interaction.editReply({
         content,
         embeds: [ BackendClient.getClientErrorEmbed(attachmentResponse) ]
-      });
+      }).catch(() => { /* Void */ });
       return;
     }
 
@@ -77,11 +77,11 @@ module.exports = new ChatInputCommand({
       runtime, size, body
     } = attachmentResponse;
     content += `\n${ emojis.success } Fetched your attachment in: **${ runtime } ms** (${ size } KB)`;
-    await interaction.editReply(content);
+    await interaction.editReply(content).catch(() => { /* Void */ });
 
     // Notify start API parser
     content += `\n${ emojis.wait } Parsing and saving your ${ MARKET_TRADER_MAPS_FILE_DESCRIPTION }...`;
-    await interaction.editReply(content);
+    await interaction.editReply(content).catch(() => { /* Void */ });
 
     // Response from API
     const requestTimerStart = process.hrtime.bigint();
@@ -92,14 +92,14 @@ module.exports = new ChatInputCommand({
       interaction.editReply({
         content: `${ emojis.error } ${ member }, something went wrong while validating your files:`,
         embeds: [ BackendClient.getClientErrorEmbed(res) ]
-      });
+      }).catch(() => { /* Void */ });
       return;
     }
 
     // Check if anything is marked invalid
     const invalid = res.data.filter(({ valid }) => !valid);
     if (!invalid[0]) {
-      interaction.editReply({ content: `${ emojis.success } ${ member }, no problems have been found.` });
+      interaction.editReply({ content: `${ emojis.success } ${ member }, no problems have been found.` }).catch(() => { /* Void */ });
       return;
     }
 
@@ -125,7 +125,7 @@ module.exports = new ChatInputCommand({
             name: 'problems.txt'
           }
         ]
-      });
+      }).catch(() => { /* Void */ });
     }
     // Or upload as embed if allowed
     else interaction.editReply({ embeds: [
@@ -135,6 +135,6 @@ module.exports = new ChatInputCommand({
         description: `\`\`\`diff\n${ output }\`\`\``,
         footer: { text: footerText }
       }
-    ] });
+    ] }).catch(() => { /* Void */ });
   }
 });

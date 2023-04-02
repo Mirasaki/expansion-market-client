@@ -117,6 +117,6 @@ module.exports = new ChatInputCommand({
           footer: { text: `Made with ❤️ by Mirasaki#0001 ${ emojis.separator } Open to collaborate ${ emojis.separator } me@mirasaki.dev` }
         }
       ]
-    });
+    }).catch(() => { /* Void */ });
   }
 });

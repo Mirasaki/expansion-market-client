@@ -75,6 +75,6 @@ module.exports = new ChatInputCommand({
     interaction.editReply({
       embeds,
       files
-    });
+    }).catch(() => { /* Void */ });
   }
 });

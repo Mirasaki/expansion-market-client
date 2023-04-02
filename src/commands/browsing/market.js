@@ -30,7 +30,7 @@ const handlePagination = async (interaction, member, usableEmbeds, className) =>
   interaction.editReply({
     embeds: [ usableEmbeds[pageNow - 1] ],
     components: getPaginationComponents(pageNow, usableEmbeds.length, prevCustomId, nextCustomId)
-  });
+  }).catch(() => { /* Void */ });
 
   // Fetching the message attached to the received interaction
   const interactionMessage = await interaction.fetchReply();
@@ -78,7 +78,7 @@ const handlePagination = async (interaction, member, usableEmbeds, className) =>
       prevCustomId,
       nextCustomId,
       true
-    ) });
+    ) }).catch(() => { /* Void */ });
   });
 };
 
@@ -151,7 +151,7 @@ module.exports = new ChatInputCommand({
 
     // Return if not OK
     if (res.status !== 200) {
-      interaction.editReply({ content: `${ emojis.error } ${ member } - ${ res.message }` });
+      interaction.editReply({ content: `${ emojis.error } ${ member } - ${ res.message }` }).catch(() => { /* Void */ });
       return;
     }
 
@@ -161,7 +161,7 @@ module.exports = new ChatInputCommand({
     let ign = item.displayName;
     if (!ign) ign = prettifyClassName(className, true);
     if (!traders || !traders[0]) {
-      interaction.editReply({ content: `${ emojis.error } ${ member }, \`${ ign }\` currently isn't tradable` });
+      interaction.editReply({ content: `${ emojis.error } ${ member }, \`${ ign }\` currently isn't tradable` }).catch(() => { /* Void */ });
       return;
     }
 
@@ -179,7 +179,7 @@ module.exports = new ChatInputCommand({
     // Fail-safe!
     // We can't reply to an interaction without content and 0 embeds =)
     if (!usableEmbeds[0]) {
-      interaction.editReply({ content: `${ emojis.error } ${ member }, server configuration for Expansion-Market is incomplete! Be sure you use all of the \`/set\` commands - use /support if you're encountering issues.` });
+      interaction.editReply({ content: `${ emojis.error } ${ member }, server configuration for Expansion-Market is incomplete! Be sure you use all of the \`/set\` commands - use /support if you're encountering issues.` }).catch(() => { /* Void */ });
       return;
     }
 
@@ -199,7 +199,7 @@ module.exports = new ChatInputCommand({
     }));
 
     // Reply to the interaction with the SINGLE embed
-    if (usableEmbeds.length === 1) interaction.editReply({ embeds: usableEmbeds });
+    if (usableEmbeds.length === 1) interaction.editReply({ embeds: usableEmbeds }).catch(() => { /* Void */ });
     // Properly handle pagination for multiple embeds
     else handlePagination(interaction, member, usableEmbeds, className);
   }

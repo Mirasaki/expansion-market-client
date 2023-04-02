@@ -50,7 +50,7 @@ module.exports = new ChatInputCommand({
       // Destructuring and user feedback
       const { data } = res;
       const classNameEndsWithS = data.charAt(data.length - 1) === 's';
-      interaction.editReply(`${ emojis.success } ${ member }, **\`${ query }\`**'${ classNameEndsWithS ? '' : 's' } in-game name is: **${ data }**`);
+      interaction.editReply(`${ emojis.success } ${ member }, **\`${ query }\`**'${ classNameEndsWithS ? '' : 's' } in-game name is: **${ data }**`).catch(() => { /* Void */ });
     }
 
     // Not Found
@@ -68,7 +68,7 @@ module.exports = new ChatInputCommand({
               description: `\`${ query }\` missing from /set-item-list configuration`
             }
           ]
-        });
+        }).catch(() => { /* Void */ });
       }
 
       // No item list configured for guild
@@ -82,7 +82,7 @@ module.exports = new ChatInputCommand({
               description: 'Use **`/set-item-list`** before you can use this command to resolve in-game item names'
             }
           ]
-        });
+        }).catch(() => { /* Void */ });
       }
     }
 

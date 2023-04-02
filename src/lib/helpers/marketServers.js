@@ -36,7 +36,7 @@ const hasValidMarketServer = async (interaction) => {
 
   // Check valid server was supplied
   if (!activeServer) {
-    interaction.editReply({ content: `${ emojis.error } ${ member }, invalid server configuration provided.` });
+    interaction.editReply({ content: `${ emojis.error } ${ member }, invalid server configuration provided.` }).catch(() => { /* Void */ });
     return false;
   }
 

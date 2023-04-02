@@ -28,12 +28,12 @@ module.exports = new ChatInputCommand({
     const res = await getAllMarketServers(guild.id);
 
     if (res.status !== 200) {
-      interaction.editReply({ content: `${ emojis.error } ${ member } - ${ res.message }` });
+      interaction.editReply({ content: `${ emojis.error } ${ member } - ${ res.message }` }).catch(() => { /* Void */ });
       return;
     }
 
     if (!res.data[0]) {
-      interaction.editReply({ content: `${ emojis.error } ${ member }, you don't have any active server configurations - create one instead with \`/add-server\`` });
+      interaction.editReply({ content: `${ emojis.error } ${ member }, you don't have any active server configurations - create one instead with \`/add-server\`` }).catch(() => { /* Void */ });
       return;
     }
 

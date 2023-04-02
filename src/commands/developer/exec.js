@@ -111,7 +111,7 @@ module.exports = new ChatInputCommand({
         content: outputStr,
         embeds: [ execEmbed ],
         files
-      });
+      }).catch(() => { /* Void */ });
     });
   }
 });

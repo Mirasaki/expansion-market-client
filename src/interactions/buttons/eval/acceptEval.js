@@ -138,7 +138,7 @@ module.exports = new ComponentCommand({
       }
 
       // Reply to button interaction
-      interaction.editReply({ content: `${ emojis.success } ${ member }, finished code execution.` });
+      interaction.editReply({ content: `${ emojis.success } ${ member }, finished code execution.` }).catch(() => { /* Void */ });
     }
     catch (err) {
       const timeSinceHr = getRuntime(startEvalTime);
@@ -148,7 +148,7 @@ module.exports = new ComponentCommand({
       console.error(err);
 
       // Update button interaction
-      interaction.editReply({ content: `${ emojis.error } ${ member }, code execution error, check original embed for output.` });
+      interaction.editReply({ content: `${ emojis.error } ${ member }, code execution error, check original embed for output.` }).catch(() => { /* Void */ });
 
       // Format time stamps
       const timeSinceStr = `${ timeSinceHr.seconds } seconds (${ timeSinceHr.ms } ms)`;
@@ -171,7 +171,7 @@ module.exports = new ComponentCommand({
             }
           ]
         }
-      ] });
+      ] }).catch(() => { /* Void */ });
     }
   }
 });
