@@ -24,10 +24,10 @@ module.exports = new ChatInputCommand({
     const res = await deleteMarketServer(guild.id, server);
 
     if (res.status !== 200) {
-      interaction.editReply({ content: `${ emojis.error } ${ member } - ${ res.message }` });
+      interaction.editReply({ content: `${ emojis.error } ${ member } - ${ res.message }` }).catch(() => { /* Void */ });
       return;
     }
 
-    interaction.editReply({ content: `${ emojis.success } ${ member }, removed Market server configuration \`${ server }\`` });
+    interaction.editReply({ content: `${ emojis.success } ${ member }, removed Market server configuration \`${ server }\`` }).catch(() => { /* Void */ });
   }
 });

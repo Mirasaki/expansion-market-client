@@ -32,7 +32,7 @@ module.exports = new MessageContextCommand({
       targetMessage = await channel.messages.fetch(targetId);
     }
     catch (err) {
-      interaction.editReply({ content: `${ emojis.error } ${ member }, can't fetch message **\`${ targetId }\`**, please try again later.` });
+      interaction.editReply({ content: `${ emojis.error } ${ member }, can't fetch message **\`${ targetId }\`**, please try again later.` }).catch(() => { /* Void */ });
       logger.syserr(`<Message Context Menu - Info> Unable to fetch message ${ targetId }`);
       console.error(err.stack || err);
       return;
@@ -43,7 +43,7 @@ module.exports = new MessageContextCommand({
     const contentHidden = targetMessage.content === '' && !('embeds' in targetMessage);
 
     if (contentHidden) {
-      interaction.editReply({ content: `${ emojis.error } ${ member }, I don't have permission to read that message.` });
+      interaction.editReply({ content: `${ emojis.error } ${ member }, I don't have permission to read that message.` }).catch(() => { /* Void */ });
       return;
     }
 
@@ -51,7 +51,7 @@ module.exports = new MessageContextCommand({
     const msgHasEmbed = ('embeds' in targetMessage) && Array.isArray(targetMessage.embeds) && targetMessage.embeds[0];
 
     if (!msgHasEmbed) {
-      interaction.editReply({ content: `${ emojis.error } ${ member }, I can't find any embeds attached to this message. I might not have permission to read the message contents.` });
+      interaction.editReply({ content: `${ emojis.error } ${ member }, I can't find any embeds attached to this message. I might not have permission to read the message contents.` }).catch(() => { /* Void */ });
       return;
     }
 
@@ -67,6 +67,6 @@ module.exports = new MessageContextCommand({
           : jsonStr,
         color: colorResolver(colors.main)
       };
-    }) });
+    }) }).catch(() => { /* Void */ });
   }
 });

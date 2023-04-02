@@ -87,7 +87,7 @@ module.exports = new ChatInputCommand({
     await setMapsCommand.run(client, interaction);
 
     // And finally, user feedback, we done!
-    await interaction.editReply({ content: `${ emojis.success } ${ member }, finished uploading and parsing your Expansion-Market configuration.` });
+    await interaction.editReply({ content: `${ emojis.success } ${ member }, finished uploading and parsing your Expansion-Market configuration.` }).catch(() => { /* Void */ });
     await interaction.followUp({ content: `${ emojis.success } ${ member }, finished uploading and parsing your Expansion-Market configuration, you can now use the \`/market\` command.\n\nDid you know that the bot supports in-game names? You should totally check out [the website](https://mirasaki.dev/gmt/in-game-names) to learn how to configure in-game names for your server.` });
   }
 });

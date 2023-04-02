@@ -125,7 +125,7 @@ module.exports = new ChatInputCommand({
 
       // Check data availability
       if (!('data' in tradersResponse) || !tradersResponse.data[0]) {
-        interaction.editReply({ content: `${ emojis.error } ${ member }, you currently don't have any traders configured, use **/set-traders** before you can use this.` });
+        interaction.editReply({ content: `${ emojis.error } ${ member }, you currently don't have any traders configured, use **/set-traders** before you can use this.` }).catch(() => { /* Void */ });
         return; // Escape the command early
       }
 
@@ -223,6 +223,6 @@ module.exports = new ChatInputCommand({
     interaction.editReply({
       embeds,
       files
-    });
+    }).catch(() => { /* Void */ });
   }
 });

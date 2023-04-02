@@ -51,7 +51,7 @@ module.exports = new ChatInputCommand({
 
     // 200 - OK
     if (res.status === 200) {
-      interaction.editReply(`${ emojis.success } ${ member }, item list configuration has been deleted.`);
+      interaction.editReply(`${ emojis.success } ${ member }, item list configuration has been deleted.`).catch(() => { /* Void */ });
 
       // Clear in-game name cache
       delete inGameNameCache[server];
@@ -59,7 +59,7 @@ module.exports = new ChatInputCommand({
 
     // Not Found
     else if (res.status === 404) {
-      interaction.editReply(`${ emojis.error } ${ member }, no item list configuration active for this server. Use **/set-item-list** instead.`);
+      interaction.editReply(`${ emojis.error } ${ member }, no item list configuration active for this server. Use **/set-item-list** instead.`).catch(() => { /* Void */ });
     }
 
     // Unknown error
@@ -77,7 +77,7 @@ module.exports = new ChatInputCommand({
             footer: { text: `${ status } | ${ statusText }` }
           }
         ]
-      });
+      }).catch(() => { /* Void */ });
     }
   }
 });

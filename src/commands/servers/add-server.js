@@ -41,10 +41,10 @@ module.exports = new ChatInputCommand({
     });
 
     if (res.status !== 200) {
-      interaction.editReply({ content: `${ emojis.error } ${ member } - ${ res.message }` });
+      interaction.editReply({ content: `${ emojis.error } ${ member } - ${ res.message }` }).catch(() => { /* Void */ });
       return;
     }
 
-    interaction.editReply({ content: `${ emojis.success } ${ member }, created new Market server configuration with name "${ name }".` });
+    interaction.editReply({ content: `${ emojis.success } ${ member }, created new Market server configuration with name "${ name }".` }).catch(() => { /* Void */ });
   }
 });

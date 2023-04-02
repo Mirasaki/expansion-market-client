@@ -71,12 +71,12 @@ module.exports = new ChatInputCommand({
               .setName('items.export-parsed.json')
           ]
           : null
-      });
+      }).catch(() => { /* Void */ });
     }
 
     // Not Found
     else if (res.status === 404) {
-      interaction.editReply(`${ emojis.error } ${ member }, couldn't find an in-game names configuration for this server. Use **/set-item-list** first.`);
+      interaction.editReply(`${ emojis.error } ${ member }, couldn't find an in-game names configuration for this server. Use **/set-item-list** first.`).catch(() => { /* Void */ });
     }
 
     // Unknown error
@@ -94,7 +94,7 @@ module.exports = new ChatInputCommand({
             footer: { text: `${ status } | ${ statusText }` }
           }
         ]
-      });
+      }).catch(() => { /* Void */ });
     }
   }
 });

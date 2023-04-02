@@ -34,7 +34,7 @@ module.exports = new UserContextCommand({
       targetMember = await guild.members.fetch(targetId);
     }
     catch (err) {
-      interaction.editReply({ content: `${ emojis.error } ${ member }, can't fetch user information for **\`${ targetId }\`**, please try again later.` });
+      interaction.editReply({ content: `${ emojis.error } ${ member }, can't fetch user information for **\`${ targetId }\`**, please try again later.` }).catch(() => { /* Void */ });
       logger.syserr(`<User Context Menu - Info> Unable to fetch user information for ${ targetId }`);
       console.error(err.stack || err);
       return;
@@ -90,6 +90,6 @@ module.exports = new UserContextCommand({
     });
 
     // Updating our reply, displaying the requested user information
-    interaction.editReply({ embeds: [ userInfoEmbed ] });
+    interaction.editReply({ embeds: [ userInfoEmbed ] }).catch(() => { /* Void */ });
   }
 });

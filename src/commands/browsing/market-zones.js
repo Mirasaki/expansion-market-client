@@ -103,7 +103,7 @@ module.exports = new ChatInputCommand({
 
       // Check data availability
       if (!('data' in traderZoneResponse) || !traderZoneResponse.data[0]) {
-        interaction.editReply({ content: `${ emojis.error } ${ member }, you currently don't have any trader-zones configured, use **/set-zones** before you can use this.` });
+        interaction.editReply({ content: `${ emojis.error } ${ member }, you currently don't have any trader-zones configured, use **/set-zones** before you can use this.` }).catch(() => { /* Void */ });
         return; // Escape the command early
       }
 
@@ -199,6 +199,6 @@ module.exports = new ChatInputCommand({
     interaction.editReply({
       embeds,
       files
-    });
+    }).catch(() => { /* Void */ });
   }
 });

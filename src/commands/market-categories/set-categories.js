@@ -59,7 +59,7 @@ module.exports = new ChatInputCommand({
 
     // User Feedback, wait for parser
     let content = `${ emojis.wait } ${ member }, please be patient while your \`${ MARKET_CATEGORIES_OPTION_NAME }\` attachment is being retrieved...`;
-    await interaction.editReply(content);
+    await interaction.editReply(content).catch(() => { /* Void */ });
     const msg = await interaction.followUp(content);
 
     // Fetch the attachment from Discord's API

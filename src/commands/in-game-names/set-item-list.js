@@ -50,13 +50,13 @@ module.exports = new ChatInputCommand({
     // Return if content type is not allowed
     const contentIsAllowed = isAllowedContentType(ALLOWED_CONTENT_TYPE, attachment.contentType);
     if (!contentIsAllowed.fuzzy) {
-      interaction.editReply({ content: `${ emojis.error } ${ member }, file rejected. Content type is not **\`${ ALLOWED_CONTENT_TYPE }\`**, received **\`${ attachment.contentType }\`** instead.` });
+      interaction.editReply({ content: `${ emojis.error } ${ member }, file rejected. Content type is not **\`${ ALLOWED_CONTENT_TYPE }\`**, received **\`${ attachment.contentType }\`** instead.` }).catch(() => { /* Void */ });
       return;
     }
 
     // User Feedback, wait for parser
     let content = `${ emojis.wait } ${ member }, please be patient while your \`${ ATTACHMENT_OPTION_NAME }\` attachment is being parsed/processed...`;
-    await interaction.editReply(content);
+    await interaction.editReply(content).catch(() => { /* Void */ });
 
     // Fetch the attachment from Discord's API
     const attachmentResponse = await fetchAttachment(attachment, true); // true = convertResToJSON
@@ -72,7 +72,7 @@ module.exports = new ChatInputCommand({
           title: `${ error } - ${ status } ${ statusText }`,
           description: message
         }
-      ] });
+      ] }).catch(() => { /* Void */ });
       return;
     }
 
@@ -83,11 +83,11 @@ module.exports = new ChatInputCommand({
       status, statusText, body, runtime, size
     } = attachmentResponse;
     content += `\n${ emojis.success } Fetched your attachment in: **${ runtime } ms** (${ size } KB) - ${ status } ${ statusText }`;
-    await interaction.editReply(content);
+    await interaction.editReply(content).catch(() => { /* Void */ });
 
     // Notify start API parser
     content += `\n${ emojis.wait } Parsing and saving your item list...`;
-    await interaction.editReply(content);
+    await interaction.editReply(content).catch(() => { /* Void */ });
 
     // Response from API
     const res = await putInGameNames(server, body);
@@ -118,7 +118,7 @@ module.exports = new ChatInputCommand({
           new AttachmentBuilder(Buffer.from(JSON.stringify(data, null, 2)))
             .setName('items.export-parsed.json')
         ]
-      });
+      }).catch(() => { /* Void */ });
 
       // Clear in-game name cache
       delete inGameNameCache[server];
@@ -140,7 +140,7 @@ module.exports = new ChatInputCommand({
             footer: { text: `${ status } | ${ statusText }` }
           }
         ]
-      });
+      }).catch(() => { /* Void */ });
     }
   }
 });

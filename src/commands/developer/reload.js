@@ -63,7 +63,7 @@ module.exports = new ChatInputCommand({
     }
     catch (err) {
       // Properly handling errors
-      interaction.editReply({ content: `${ emojis.error } ${ member }, error encountered while reloading the command \`${ commandName }\`, click spoiler-block below to reveal.\n\n||${ err.stack || err }||` });
+      interaction.editReply({ content: `${ emojis.error } ${ member }, error encountered while reloading the command \`${ commandName }\`, click spoiler-block below to reveal.\n\n||${ err.stack || err }||` }).catch(() => { /* Void */ });
       return;
     }
 
@@ -76,6 +76,6 @@ module.exports = new ChatInputCommand({
           footer: { text: 'Don\'t forget to use the /deploy command if you made any changes to the command data object' }
         }
       ]
-    });
+    }).catch(() => { /* Void */ });
   }
 });

@@ -44,6 +44,6 @@ module.exports = new ComponentCommand({
             .setStyle('Danger')
         )
       ]
-    });
+    }).catch(() => { /* Void */ });
   }
 });
