@@ -92,7 +92,15 @@ const resolveSellPriceOutput = async (item, trader, zone) => {
   // By default this value is -1.0, meaning the global value from
   // market settings will be used, but can be overridden by
   // setting this to the desired percentage.
-  const itemUsesZoneSellPercent = item.sellPricePercent === -1 || item.sellPricePercent === '-1' || typeof SellPricePercent === 'undefined';
+  const itemUsesZoneSellPercent = item.sellPricePercent === -1 || item.sellPricePercent === '-1' || typeof item.sellPricePercent === 'undefined';
+
+  // Development debugging
+  // console.dir({
+  //   item,
+  //   maxPrice: item.maxPriceThreshold,
+  //   onePercent: item.maxPriceThreshold / 100,
+  //   calc: (item.maxPriceThreshold / 100) * item.sellPricePercent
+  // });
 
   // Check which sellPricePercent to use
   const activeSellPercent = itemUsesZoneSellPercent
