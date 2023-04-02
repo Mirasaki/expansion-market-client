@@ -72,7 +72,7 @@ module.exports = new ChatInputCommand({
       msg.edit({
         content,
         embeds: [ BackendClient.getClientErrorEmbed(attachmentResponse) ]
-      });
+      }).catch(() => { /* Void */ });
       return;
     }
 
@@ -83,11 +83,11 @@ module.exports = new ChatInputCommand({
       runtime, size, body
     } = attachmentResponse;
     content += `\n${ emojis.success } Fetched your attachment in: **${ runtime } ms** (${ size } KB)`;
-    await msg.edit(content);
+    await msg.edit(content).catch(() => { /* Void */ });
 
     // Notify start API parser
     content += `\n${ emojis.wait } Parsing and saving your ${ MARKET_TRADER_MAPS_FILE_DESCRIPTION }...`;
-    await msg.edit(content);
+    await msg.edit(content).catch(() => { /* Void */ });
 
     // Response from API
     const requestTimerStart = process.hrtime.bigint();
@@ -100,7 +100,7 @@ module.exports = new ChatInputCommand({
       msg.edit({
         content,
         embeds: [ BackendClient.getClientErrorEmbed(res) ]
-      });
+      }).catch(() => { /* Void */ });
     }
 
 
@@ -109,7 +109,7 @@ module.exports = new ChatInputCommand({
       const { data } = res;
 
       if (!data[0]) {
-        msg.edit({ content: `${ emojis.error } ${ member }, no valid map configurations. Please use the \`/validate-maps\` command.` });
+        msg.edit({ content: `${ emojis.error } ${ member }, no valid map configurations. Please use the \`/validate-maps\` command.` }).catch(() => { /* Void */ });
         return;
       }
 
@@ -134,7 +134,7 @@ module.exports = new ChatInputCommand({
           new AttachmentBuilder(Buffer.from(JSON.stringify(data, null, 2)))
             .setName(`${ MARKET_TRADER_MAPS_REAL_FILE_NAME }-parsed.json`)
         ]
-      });
+      }).catch(() => { /* Void */ });
     }
   }
 });

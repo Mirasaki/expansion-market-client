@@ -74,7 +74,7 @@ module.exports = new ChatInputCommand({
       msg.edit({
         content,
         embeds: [ BackendClient.getClientErrorEmbed(attachmentResponse) ]
-      });
+      }).catch(() => { /* Void */ });
       return;
     }
 
@@ -85,11 +85,11 @@ module.exports = new ChatInputCommand({
       runtime, size, body
     } = attachmentResponse;
     content += `\n${ emojis.success } Fetched your attachment in: **${ runtime } ms** (${ size } KB)`;
-    await msg.edit(content);
+    await msg.edit(content).catch(() => { /* Void */ });
 
     // Notify start API parser
     content += `\n${ emojis.wait } Parsing and saving your ${ MARKET_TRADERS_FILE_DESCRIPTION }...`;
-    await msg.edit(content);
+    await msg.edit(content).catch(() => { /* Void */ });
 
     // Response from API
     const requestTimerStart = process.hrtime.bigint();
@@ -102,7 +102,7 @@ module.exports = new ChatInputCommand({
       msg.edit({
         content,
         embeds: [ BackendClient.getClientErrorEmbed(res) ]
-      });
+      }).catch(() => { /* Void */ });
     }
 
 
@@ -150,7 +150,7 @@ module.exports = new ChatInputCommand({
           new AttachmentBuilder(Buffer.from(JSON.stringify(data, null, 2)))
             .setName(`${ MARKET_TRADERS_REAL_FILE_NAME }-parsed.json`)
         ]
-      });
+      }).catch(() => { /* Void */ });
     }
   }
 });
