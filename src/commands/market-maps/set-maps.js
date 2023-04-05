@@ -108,10 +108,19 @@ module.exports = new ChatInputCommand({
 
     // 200 - OK - Success
     else {
-      const { data } = res;
+      const { data, errors } = res;
 
       if (!data[0]) {
-        msg.edit({ content: `${ emojis.error } ${ member }, no valid map configurations. Please use the \`/validate-maps\` command.` }).catch(() => { /* Void */ });
+        const files = [];
+        if (errors[0]) {
+          files.push(new AttachmentBuilder(
+            Buffer.from(errors.join('\n'))
+          ).setName('maps-errors.txt'));
+        }
+        msg.edit({
+          content: `${ emojis.error } ${ member }, no valid map configurations. Please use the \`/validate-maps\` command.`,
+          files
+        }).catch(() => { /* Void */ });
         return;
       }
 
