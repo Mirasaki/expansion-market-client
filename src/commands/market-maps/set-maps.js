@@ -18,8 +18,7 @@ const { hasValidMarketServer, marketServerOption } = require('../../lib/helpers/
 const ALLOWED_CONTENT_TYPE = 'application/zip';
 
 module.exports = new ChatInputCommand({
-  enabled: false,
-  global: true,
+  global: false,
   permLevel: 'Administrator',
   cooldown: {
     type: 'guild',
@@ -43,6 +42,9 @@ module.exports = new ChatInputCommand({
     // Destructuring
     const { member, guild } = interaction;
     const { emojis } = client.container;
+
+    // Defer for test server
+    if (!interaction.replied && !interaction.deferred) await interaction.deferReply();
 
     // Check has valid market config option
     const server = await hasValidMarketServer(interaction);
