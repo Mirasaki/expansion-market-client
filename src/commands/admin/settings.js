@@ -25,6 +25,7 @@ const formatSettingToUnderscoreNotation = (str) => {
 };
 
 module.exports = new ChatInputCommand({
+  global: true,
   data: {
     description: 'Manage settings for this server',
     options: [
