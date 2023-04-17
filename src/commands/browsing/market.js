@@ -11,7 +11,7 @@ const {
   MARKET_ITEM_NO_ZONE
 } = require('../../constants');
 const { prettifyClassName } = require('../../lib/helpers/in-game-names');
-const { getMarketItemByName } = require('../../lib/requests');
+const { getMarketItemByName, getSettingsCache } = require('../../lib/requests');
 const { getItemDataEmbed } = require('../../lib/helpers/items');
 const { getRuntime } = require('../../util');
 const { hasValidMarketServer, marketServerOption } = require('../../lib/helpers/marketServers');
@@ -155,6 +155,8 @@ module.exports = new ChatInputCommand({
       return;
     }
 
+    const settings = await getSettingsCache(guild.id);
+
     // Return early if item is not tradable
     const { category, traders } = res.data;
     const item = category.items[0];
@@ -167,7 +169,7 @@ module.exports = new ChatInputCommand({
 
     // Construct our embed response
     for await (const trader of traders) {
-      embeds.push(await getItemDataEmbed(className, category, trader));
+      embeds.push(await getItemDataEmbed(settings, className, category, trader));
     }
 
     // Filter out bad/returned embeds - this is intentional behavior,

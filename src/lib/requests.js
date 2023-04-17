@@ -14,6 +14,7 @@ const { join } = require('path');
 // Import from local files
 const { titleCase } = require('../util');
 const BackendClient = require('./client');
+const { MS_IN_ONE_HOUR } = require('../constants');
 
 // Destructure from env
 const {
@@ -166,6 +167,30 @@ const fileUploadRequest = async ({
 };
 
 /*
+ * Guilds
+ */
+const settingsCache = new Map();
+const getGuildSettings = async (id) => await clientRequest('GET', `guilds/${ id }/settings`);
+const getSettingsCache = async (guildId) => {
+  let data = settingsCache.get(guildId);
+  if (!settingsCache.has(guildId)) {
+    const res = await getGuildSettings(guildId);
+    if (res.data) {
+      data = res.data;
+      settingsCache.set(guildId, res.data);
+    }
+  }
+  setTimeout(() => {
+    settingsCache.delete(guildId);
+  }, MS_IN_ONE_HOUR);
+  return data;
+};
+const putSettings = async (id, data) => await clientRequest('PUT', `guilds/${ id }/settings`, {
+  headers: { 'Content-Type': APPLICATION_JSON },
+  data
+});
+
+/*
  * In-Game Names
  * Item-List
  */
@@ -286,6 +311,11 @@ const validateMaps = async (readStream) => await fileUploadRequest({
 module.exports = {
   clientRequest,
   fileUploadRequest,
+
+  settingsCache,
+  getGuildSettings,
+  getSettingsCache,
+  putSettings,
 
   getInGameNames,
   getInGameNameByClass,

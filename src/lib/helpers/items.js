@@ -9,6 +9,18 @@ const {
   prettifyClassName, resolveInGameName, bulkResolveInGameNames, matchResolvedInGameNameArray
 } = require('./in-game-names');
 
+const formatDefaultTrader = (str) => {
+  // Remove the leading "#" and split the string by underscores
+  const parts = str.slice(1).split('_')
+    .slice(3, 100);
+
+  // Move "TRADER" to end of string
+  parts.push(parts.shift());
+
+  // Capitalize the first letter of each part and join them with spaces
+  return parts.map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()).join(' ');
+};
+
 const resolveAllPossibleItems = (data) => {
   const { valid, notInItemList } = data;
 
@@ -56,7 +68,7 @@ const resolveItemStock = (item, category, zone) => {
     : itemStockLevel;
 };
 
-const resolveBuyPriceOutput = async (item, trader, zone) => {
+const resolveBuyPriceOutput = async (settings, item, category, trader, zone) => {
   // Use zone buyPricePercent if a valid value is provided
   const activeBuyPercent = (
     !isNaN(zone.buyPricePercent)
@@ -74,19 +86,40 @@ const resolveBuyPriceOutput = async (item, trader, zone) => {
   // Resolve the currency name to display
   const currencyDisplayName = await resolveInGameName(trader.MarketServerId, trader.lowestCurrency);
 
+  // Calculate price now
+  let buyDynamicStockNow = 'n/a';
+  if (!item.hasStaticStock) {
+    const stockNow = resolveItemStock(item, category, zone);
+    // const stockNowPercentage = (stockNow / item.maxStockThreshold) * 100;
+    const currentStockPercent = (stockNow / item.maxStockThreshold) * 100; // Calculate the current stock percentage
+    const priceRange = buyDynamicHigh - buyDynamicLow; // Calculate the price range
+    const priceOffset = (priceRange / 100) * currentStockPercent; // Calculate the price offset based on the current stock percentage
+    const currentPrice = Math.round(buyDynamicLow + priceOffset); // Calculate the current price based on the price offset and minimum price threshold
+    buyDynamicStockNow = currentPrice;
+  }
+
+  // Short display settings / Only current price
+  if (
+    settings.onlyShowDynamicNowPrice === true
+    && !item.hasStaticStock
+  ) return `- Now: ${ buyDynamicStockNow }`;
+
   // Construct our final string
   // Always return our buy price str
   return item.hasStaticPrice
     ? `- ${ buyDynamicHigh } ${ currencyDisplayName }`
     : stripIndents`
-      - Low:  ${ buyDynamicLow }
+      - Low:  ${ buyDynamicLow }${
+  !item.hasStaticStock
+    ? `\n- Now: ${ buyDynamicStockNow }`
+    : '' }
       - High: ${ buyDynamicHigh }
       ---
       ${ currencyDisplayName }
     `;
 };
 
-const resolveSellPriceOutput = async (item, trader, zone) => {
+const resolveSellPriceOutput = async (settings, item, category, trader, zone) => {
   // Check if this item is configured to use the
   // zone sell price percent
   // By default this value is -1.0, meaning the global value from
@@ -117,11 +150,32 @@ const resolveSellPriceOutput = async (item, trader, zone) => {
   // Resolve the currency name to display
   const currencyDisplayName = await resolveInGameName(trader.MarketServerId, trader.lowestCurrency);
 
+  // Calculate price now
+  let sellDynamicStockNow = 'n/a';
+  if (!item.hasStaticStock) {
+    const stockNow = resolveItemStock(item, category, zone);
+    // const stockNowPercentage = (stockNow / item.maxStockThreshold) * 100;
+    const currentStockPercent = (stockNow / item.maxStockThreshold) * 100; // Calculate the current stock percentage
+    const priceRange = sellDynamicHigh - sellDynamicLow; // Calculate the price range
+    const priceOffset = (priceRange / 100) * (100 - currentStockPercent); // Calculate the price offset based on the current stock percentage
+    const currentPrice = Math.round(sellDynamicLow + priceOffset); // Calculate the current price based on the price offset and minimum price threshold
+    sellDynamicStockNow = currentPrice;
+  }
+
+  // Short display settings / Only current price
+  if (
+    settings.onlyShowDynamicNowPrice === true
+      && !item.hasStaticStock
+  ) return `+ Now: ${ sellDynamicStockNow }`;
+
   // Construct our final string
   return item.hasStaticPrice
     ? `+ ${ sellDynamicHigh } ${ currencyDisplayName }`
     : stripIndents`
-    + Low:  ${ sellDynamicLow }
+    + Low:  ${ sellDynamicLow }${
+  !item.hasStaticStock
+    ? `\n+ Now: ${ sellDynamicStockNow }`
+    : '' }
     + High: ${ sellDynamicHigh }
     ---
     ${ currencyDisplayName }
@@ -131,7 +185,7 @@ const resolveSellPriceOutput = async (item, trader, zone) => {
 // Fuck it, take the cognitive complexity through the roof,
 // It's all really simple - no need to split it up and legit complicate it
 // eslint-disable-next-line sonarjs/cognitive-complexity
-const getItemDataEmbed = async (className, category, trader) => {
+const getItemDataEmbed = async (settings, className, category, trader) => {
   const item = category.items[0];
   let ign = item.displayName;
   if (!ign) ign = prettifyClassName(className, true);
@@ -179,7 +233,9 @@ const getItemDataEmbed = async (className, category, trader) => {
       },
       {
         name: 'Trader',
-        value: trader.displayName,
+        value: trader.displayName.startsWith('#STR_EXPANSION_MARKET')
+          ? formatDefaultTrader(trader.displayName)
+          : trader.displayName,
         inline: true
       },
       {
@@ -192,7 +248,7 @@ const getItemDataEmbed = async (className, category, trader) => {
         value: `\`\`\`diff\n${
           hasAnnotation && (activeAnnotation === 2 || activeAnnotation === 3)
             ? '- n/a'
-            : await resolveBuyPriceOutput(item, trader, zone)
+            : await resolveBuyPriceOutput(settings, item, category, trader, zone)
         }\n\`\`\``,
         inline: true
       },
@@ -201,7 +257,7 @@ const getItemDataEmbed = async (className, category, trader) => {
         value: `\`\`\`diff\n${
           hasAnnotation && (activeAnnotation === 0 || activeAnnotation === 3)
             ? '+ n/a'
-            : await resolveSellPriceOutput(item, trader, zone)
+            : await resolveSellPriceOutput(settings, item, category, trader, zone)
         }\n\`\`\``,
         inline: true
       }

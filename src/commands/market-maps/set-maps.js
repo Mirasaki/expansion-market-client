@@ -54,9 +54,9 @@ module.exports = new ChatInputCommand({
     const attachment = interaction.options.getAttachment(MARKET_TRADER_MAPS_OPTION_NAME);
 
     // Return if content type is not allowed
-    const contentIsAllowed = isAllowedContentType(ALLOWED_CONTENT_TYPE, attachment.contentType);
+    const contentIsAllowed = isAllowedContentType(ALLOWED_CONTENT_TYPE, attachment.contentType ?? 'unknown');
     if (!contentIsAllowed.strict) {
-      interaction.followUp({ content: `${ emojis.error } ${ member }, file rejected. Content type is not **\`${ ALLOWED_CONTENT_TYPE }\`**, received **\`${ attachment.contentType }\`** instead.` });
+      interaction.followUp({ content: `${ emojis.error } ${ member }, file rejected. Content type is not **\`${ ALLOWED_CONTENT_TYPE }\`**, received **\`${ attachment.contentType ?? 'unknown' }\`** instead.` });
       return;
     }
 
