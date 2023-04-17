@@ -9,6 +9,18 @@ const {
   prettifyClassName, resolveInGameName, bulkResolveInGameNames, matchResolvedInGameNameArray
 } = require('./in-game-names');
 
+const formatDefaultTrader = (str) => {
+  // Remove the leading "#" and split the string by underscores
+  const parts = str.slice(1).split('_')
+    .slice(3, 100);
+
+  // Move "TRADER" to end of string
+  parts.push(parts.shift());
+
+  // Capitalize the first letter of each part and join them with spaces
+  return parts.map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()).join(' ');
+};
+
 const resolveAllPossibleItems = (data) => {
   const { valid, notInItemList } = data;
 
