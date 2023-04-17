@@ -68,7 +68,7 @@ const resolveItemStock = (item, category, zone) => {
     : itemStockLevel;
 };
 
-const resolveBuyPriceOutput = async (item, category, trader, zone) => {
+const resolveBuyPriceOutput = async (settings, item, category, trader, zone) => {
   // Use zone buyPricePercent if a valid value is provided
   const activeBuyPercent = (
     !isNaN(zone.buyPricePercent)
@@ -98,6 +98,12 @@ const resolveBuyPriceOutput = async (item, category, trader, zone) => {
     buyDynamicStockNow = currentPrice;
   }
 
+  // Short display settings / Only current price
+  if (
+    settings.onlyShowDynamicNowPrice === true
+    && !item.hasStaticStock
+  ) return `- Now: ${ buyDynamicStockNow }`;
+
   // Construct our final string
   // Always return our buy price str
   return item.hasStaticPrice
@@ -113,7 +119,7 @@ const resolveBuyPriceOutput = async (item, category, trader, zone) => {
     `;
 };
 
-const resolveSellPriceOutput = async (item, category, trader, zone) => {
+const resolveSellPriceOutput = async (settings, item, category, trader, zone) => {
   // Check if this item is configured to use the
   // zone sell price percent
   // By default this value is -1.0, meaning the global value from
@@ -156,6 +162,12 @@ const resolveSellPriceOutput = async (item, category, trader, zone) => {
     sellDynamicStockNow = currentPrice;
   }
 
+  // Short display settings / Only current price
+  if (
+    settings.onlyShowDynamicNowPrice === true
+      && !item.hasStaticStock
+  ) return `+ Now: ${ sellDynamicStockNow }`;
+
   // Construct our final string
   return item.hasStaticPrice
     ? `+ ${ sellDynamicHigh } ${ currencyDisplayName }`
@@ -173,7 +185,7 @@ const resolveSellPriceOutput = async (item, category, trader, zone) => {
 // Fuck it, take the cognitive complexity through the roof,
 // It's all really simple - no need to split it up and legit complicate it
 // eslint-disable-next-line sonarjs/cognitive-complexity
-const getItemDataEmbed = async (className, category, trader) => {
+const getItemDataEmbed = async (settings, className, category, trader) => {
   const item = category.items[0];
   let ign = item.displayName;
   if (!ign) ign = prettifyClassName(className, true);
@@ -236,7 +248,7 @@ const getItemDataEmbed = async (className, category, trader) => {
         value: `\`\`\`diff\n${
           hasAnnotation && (activeAnnotation === 2 || activeAnnotation === 3)
             ? '- n/a'
-            : await resolveBuyPriceOutput(item, category, trader, zone)
+            : await resolveBuyPriceOutput(settings, item, category, trader, zone)
         }\n\`\`\``,
         inline: true
       },
@@ -245,7 +257,7 @@ const getItemDataEmbed = async (className, category, trader) => {
         value: `\`\`\`diff\n${
           hasAnnotation && (activeAnnotation === 0 || activeAnnotation === 3)
             ? '+ n/a'
-            : await resolveSellPriceOutput(item, category, trader, zone)
+            : await resolveSellPriceOutput(settings, item, category, trader, zone)
         }\n\`\`\``,
         inline: true
       }
