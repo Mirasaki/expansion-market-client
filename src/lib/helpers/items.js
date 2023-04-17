@@ -90,10 +90,9 @@ const resolveBuyPriceOutput = async (settings, item, category, trader, zone) => 
   let buyDynamicStockNow = 'n/a';
   if (!item.hasStaticStock) {
     const stockNow = resolveItemStock(item, category, zone);
-    // const stockNowPercentage = (stockNow / item.maxStockThreshold) * 100;
     const currentStockPercent = (stockNow / item.maxStockThreshold) * 100; // Calculate the current stock percentage
     const priceRange = buyDynamicHigh - buyDynamicLow; // Calculate the price range
-    const priceOffset = (priceRange / 100) * currentStockPercent; // Calculate the price offset based on the current stock percentage
+    const priceOffset = (priceRange / 100) * (100 - currentStockPercent); // Calculate the price offset based on the current stock percentage
     const currentPrice = Math.round(buyDynamicLow + priceOffset); // Calculate the current price based on the price offset and minimum price threshold
     buyDynamicStockNow = currentPrice;
   }
@@ -154,7 +153,6 @@ const resolveSellPriceOutput = async (settings, item, category, trader, zone) =>
   let sellDynamicStockNow = 'n/a';
   if (!item.hasStaticStock) {
     const stockNow = resolveItemStock(item, category, zone);
-    // const stockNowPercentage = (stockNow / item.maxStockThreshold) * 100;
     const currentStockPercent = (stockNow / item.maxStockThreshold) * 100; // Calculate the current stock percentage
     const priceRange = sellDynamicHigh - sellDynamicLow; // Calculate the price range
     const priceOffset = (priceRange / 100) * (100 - currentStockPercent); // Calculate the price offset based on the current stock percentage
