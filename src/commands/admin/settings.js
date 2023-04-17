@@ -25,7 +25,13 @@ const formatSettingToUnderscoreNotation = (str) => {
 };
 
 module.exports = new ChatInputCommand({
+  permLevel: 'Administrator',
   global: true,
+  cooldown: {
+    type: 'guild',
+    usages: 5,
+    duration: 60
+  },
   data: {
     description: 'Manage settings for this server',
     options: [
