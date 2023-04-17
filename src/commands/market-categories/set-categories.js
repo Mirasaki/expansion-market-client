@@ -17,7 +17,7 @@ const {
 const ALLOWED_CONTENT_TYPE = 'application/zip';
 
 module.exports = new ChatInputCommand({
-  global: false,
+  global: true,
   permLevel: 'Administrator',
   cooldown: {
     type: 'guild',
@@ -43,7 +43,8 @@ module.exports = new ChatInputCommand({
     const { emojis } = client.container;
 
     // Defer for test server
-    if (!interaction.replied && !interaction.deferred) await interaction.deferReply();
+    const isStandaloneCommand = !interaction.replied && !interaction.deferred;
+    if (isStandaloneCommand) await interaction.deferReply();
 
     // Check has valid market config option
     const server = await hasValidMarketServer(interaction);
@@ -94,6 +95,9 @@ module.exports = new ChatInputCommand({
     const requestTimerStart = process.hrtime.bigint();
     const res = await putMarketCategories(server, body);
     const requestFetchMS = getRuntime(requestTimerStart).ms;
+
+    // Update initial reply for standalone usages
+    if (isStandaloneCommand) interaction.editReply(`${ emojis.success } ${ member }, finished - see output below`);
 
     // Error embed if the request isn't successful
     if (res.status !== 200) {
