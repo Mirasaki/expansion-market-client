@@ -22,43 +22,52 @@ const requiredMarketServerOption = {
 
 const hasValidMarketServer = async (interaction) => {
   const {
-    guild, options, member
+    guild, options, member, channel
   } = interaction;
 
   // Assign server variables
   const servers = await getGuildMarketServerArr(guild.id);
   const server = options.getString(MARKET_SERVER_CONFIGURATION_OPTION);
-  const activeServer = server
+  const target = servers.find((e) => e.channelId !== null && typeof e.channelId !== 'undefined' && e.channelId === channel?.id);
+  const activeMarketServerId = server
     ? server
-    : servers[0]
-      ? servers[0].value
-      : null;
+    : target
+      ? target.value
+      : servers[0]
+        ? servers[0].value
+        : null;
 
   // Check valid server was supplied
-  if (!activeServer) {
+  if (!activeMarketServerId) {
     interaction.editReply({ content: `${ emojis.error } ${ member }, invalid server configuration provided.` }).catch(() => { /* Void */ });
     return false;
   }
 
   // Is OK
-  else return activeServer;
+  else return activeMarketServerId;
 };
 
 const hasValidMarketServerAutoComplete = async (interaction) => {
-  const { guild, options } = interaction;
+  const {
+    guild, options, channel
+  } = interaction;
 
   // Assign server variables
   const servers = await getGuildMarketServerArr(guild.id);
   const server = options.getString(MARKET_SERVER_CONFIGURATION_OPTION);
-  const activeServer = server
+  const target = servers.find((e) => e.channelId !== null && typeof e.channelId !== 'undefined' && e.channelId === channel?.id);
+  const activeMarketServerId = server
     ? server
-    : servers[0]
-      ? servers[0].value
-      : null;
+    : target
+      ? target.value
+      : servers[0]
+        ? servers[0].value
+        : null;
+
 
   // Check valid server was supplied
-  if (!activeServer) return false;
-  else return activeServer;
+  if (!activeMarketServerId) return false;
+  else return activeMarketServerId;
 };
 
 const getGuildMarketServerArr = async (id) => {
@@ -66,8 +75,10 @@ const getGuildMarketServerArr = async (id) => {
   if (
     clientRes.status === 200
     && 'data' in clientRes
-  ) return clientRes.data.map(({ name, id }) => ({
-    name, value: id
+  ) return clientRes.data.map(({
+    name, channel, id
+  }) => ({
+    name, value: id, channelId: channel
   }));
   else return [];
 };
