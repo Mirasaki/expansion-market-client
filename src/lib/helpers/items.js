@@ -105,7 +105,7 @@ const resolveBuyPriceOutput = async (settings, item, category, trader, zone) => 
 
   // Construct our final string
   // Always return our buy price str
-  return item.hasStaticPrice
+  return item.hasStaticPrice || item.hasStaticStock
     ? `- ${ buyDynamicHigh } ${ currencyDisplayName }`
     : stripIndents`
       - Low:  ${ buyDynamicLow }${
@@ -167,7 +167,7 @@ const resolveSellPriceOutput = async (settings, item, category, trader, zone) =>
   ) return `+ Now: ${ sellDynamicStockNow }`;
 
   // Construct our final string
-  return item.hasStaticPrice
+  return item.hasStaticPrice || item.hasStaticStock
     ? `+ ${ sellDynamicHigh } ${ currencyDisplayName }`
     : stripIndents`
     + Low:  ${ sellDynamicLow }${
