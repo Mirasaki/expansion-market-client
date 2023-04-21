@@ -63,8 +63,6 @@ const hasValidMarketServerAutoComplete = async (interaction) => {
       : servers[0]
         ? servers[0].value
         : null;
-  console.log(servers, server, target, channelId, activeMarketServerId);
-
 
   // Check valid server was supplied
   if (!activeMarketServerId) return false;
