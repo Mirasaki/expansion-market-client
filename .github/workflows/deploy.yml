@@ -35,9 +35,11 @@ jobs:
             source ~/.nvm/nvm.sh
             cd /var/www/expansion-market-client
             pm2 stop expansion-market-client
+            pm2 stop dupes-ecosystem.config.js
             git pull origin main
             npm install
             pm2 restart expansion-market-client
+            pm2 restart dupes-ecosystem.config.js
   notify-finish:
     needs: deploy
     runs-on: ubuntu-latest
