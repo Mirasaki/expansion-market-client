@@ -22,13 +22,13 @@ const requiredMarketServerOption = {
 
 const hasValidMarketServer = async (interaction) => {
   const {
-    guild, options, member, channel
+    guild, options, member, channelId
   } = interaction;
 
   // Assign server variables
   const servers = await getGuildMarketServerArr(guild.id);
   const server = options.getString(MARKET_SERVER_CONFIGURATION_OPTION);
-  const target = servers.find((e) => e.channelId !== null && typeof e.channelId !== 'undefined' && e.channelId === channel?.id);
+  const target = servers.find((e) => e.channelId !== null && typeof e.channelId !== 'undefined' && e.channelId === channelId);
   const activeMarketServerId = server
     ? server
     : target
@@ -49,13 +49,13 @@ const hasValidMarketServer = async (interaction) => {
 
 const hasValidMarketServerAutoComplete = async (interaction) => {
   const {
-    guild, options, channel
+    guild, options, channelId
   } = interaction;
 
   // Assign server variables
   const servers = await getGuildMarketServerArr(guild.id);
   const server = options.getString(MARKET_SERVER_CONFIGURATION_OPTION);
-  const target = servers.find((e) => e.channelId !== null && typeof e.channelId !== 'undefined' && e.channelId === channel?.id);
+  const target = servers.find((e) => e.channelId !== null && typeof e.channelId !== 'undefined' && e.channelId === channelId);
   const activeMarketServerId = server
     ? server
     : target
@@ -63,6 +63,7 @@ const hasValidMarketServerAutoComplete = async (interaction) => {
       : servers[0]
         ? servers[0].value
         : null;
+  console.log(servers, server, target, channelId, activeMarketServerId);
 
 
   // Check valid server was supplied
