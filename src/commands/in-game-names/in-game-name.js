@@ -33,7 +33,8 @@ module.exports = new ChatInputCommand({
     // Destructuring
     const { member, options } = interaction;
     const { emojis, colors } = client.container;
-    const query = options.getString(CLASS_NAME_OPTION_STRING);
+    const query = options.getString(CLASS_NAME_OPTION_STRING)
+      .replace(/[`*\\/]/g, '');
 
     // Deferring our reply
     await interaction.deferReply();

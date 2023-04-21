@@ -221,7 +221,8 @@ module.exports = new ChatInputCommand({
     const embeds = [];
 
     // Check REQUIRED auto-complete enabled "item" option
-    const itemQuery = options.getString(MARKET_BROWSE_AUTOCOMPLETE_OPTION);
+    const itemQuery = options.getString(MARKET_BROWSE_AUTOCOMPLETE_OPTION)
+      .replace(/[`*\\/]/g, '');
 
     // Check missing config
     if (itemQuery === NO_MARKET_CONFIG_OPTION_VALUE) {
