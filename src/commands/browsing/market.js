@@ -106,6 +106,7 @@ const getPaginationComponents = (pageNow, pageTotal, prevCustomId, nextCustomId,
 };
 
 const handleQueryList = async (server, interaction, res, itemQuery, runtimeStart) => {
+  itemQuery = itemQuery.toLowerCase();
   const { guild, member } = interaction;
   const inGameNames = await getInGameNames(server); // Cached in back-end
 
