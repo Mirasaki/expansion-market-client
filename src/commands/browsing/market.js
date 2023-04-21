@@ -1,5 +1,5 @@
 const {
-  ApplicationCommandOptionType, ComponentType, ActionRowBuilder, ButtonBuilder, ButtonStyle
+  ApplicationCommandOptionType, ComponentType, ActionRowBuilder, ButtonBuilder, ButtonStyle, AttachmentBuilder
 } = require('discord.js');
 const { ChatInputCommand } = require('../../classes/Commands');
 const {
@@ -8,12 +8,15 @@ const {
   NO_MARKET_CONFIG_DISPLAY_STR,
   MARKET_ANNOTATION_3_STR,
   MARKET_ITEM_NO_MAP,
-  MARKET_ITEM_NO_ZONE
+  MARKET_ITEM_NO_ZONE,
+  EMBED_DESCRIPTION_MAX_LENGTH
 } = require('../../constants');
 const { prettifyClassName } = require('../../lib/helpers/in-game-names');
-const { getMarketItemByName, getSettingsCache } = require('../../lib/requests');
-const { getItemDataEmbed } = require('../../lib/helpers/items');
-const { getRuntime } = require('../../util');
+const {
+  getMarketItemByName, getSettingsCache, getInGameNames, getAllMarketItems
+} = require('../../lib/requests');
+const { getItemDataEmbed, resolveAllPossibleItems } = require('../../lib/helpers/items');
+const { getRuntime, colorResolver } = require('../../util');
 const { hasValidMarketServer, marketServerOption } = require('../../lib/helpers/marketServers');
 const emojis = require('../../config/emojis.json');
 
@@ -102,6 +105,86 @@ const getPaginationComponents = (pageNow, pageTotal, prevCustomId, nextCustomId,
   ];
 };
 
+const handleQueryList = async (server, interaction, res, itemQuery, runtimeStart) => {
+  const { guild, member } = interaction;
+  const inGameNames = await getInGameNames(server); // Cached in back-end
+
+  // Find all possible combinations of in-game-names
+  // and classnames, prettified, of course
+  let everything;
+  if (inGameNames.status !== 200) {
+    const allRawItems = await getAllMarketItems(server);
+    if (!allRawItems.data || !allRawItems.data[0]) {
+      everything = [
+        {
+          name: 'No configuration, please use /set-market-config', value: NO_MARKET_CONFIG_OPTION_VALUE
+        }
+      ];
+    }
+    else everything = allRawItems
+      .data
+      .map((className) => ({
+        name: prettifyClassName(className, false), value: className
+      }));
+  }
+  else everything = resolveAllPossibleItems(inGameNames.data);
+
+  // Return original res if nothing is found
+  if (!everything || !everything[0]) {
+    interaction.editReply({ content: `${ emojis.error } ${ member } - ${ res.message }` }).catch(() => { /* Void */ });
+    return;
+  }
+
+  // Getting our search query's results
+  const queryResult = everything.filter(
+    (e) => e.name.toLowerCase().indexOf(itemQuery) >= 0
+  );
+
+  // Return original res if nothing is left after query filter
+  if (!queryResult[0]) {
+    interaction.editReply({ content: `${ emojis.error } ${ member } - ${ res.message }` }).catch(() => { /* Void */ });
+    return;
+  }
+
+  const files = [];
+  // eslint-disable-next-line sonarjs/no-nested-template-literals
+  const queryStr = `\`\`\`\n${ queryResult.map((e) => `${ emojis.separator } ${ e.name }`).join('\n') }\n\`\`\``;
+
+  // Attach as a file instead if the overview is too long
+  if (queryStr.length > EMBED_DESCRIPTION_MAX_LENGTH) {
+    // Create a new file holding the quick map overview
+    files.push(
+      new AttachmentBuilder(
+        Buffer.from(queryStr
+          .replace(/[*`]/g, '')
+          .slice(1, -1)) // Slice of start and end newlines
+      ).setName(`${ itemQuery }-query-results-${ guild.id }.txt`)
+    );
+  }
+
+  // Performance tracking
+  const runtime = getRuntime(runtimeStart).ms;
+
+  // Show query results
+  interaction.editReply({
+    embeds: [
+      {
+        color: colorResolver(),
+        author: {
+          name: guild.name,
+          icon_url: guild.iconURL({ dynamic: true })
+        },
+        title: 'Expansion Market query results',
+        description: queryStr.length > EMBED_DESCRIPTION_MAX_LENGTH
+          ? 'View query results in the attached file'
+          : queryStr,
+        footer: { text: `Total Results: ${ queryResult.length }\nTime Taken: ${ runtime }ms` }
+      }
+    ],
+    files
+  });
+};
+
 module.exports = new ChatInputCommand({
   global: true,
   aliases: [ 'trader' ],
@@ -137,31 +220,36 @@ module.exports = new ChatInputCommand({
     const embeds = [];
 
     // Check REQUIRED auto-complete enabled "item" option
-    const className = options.getString(MARKET_BROWSE_AUTOCOMPLETE_OPTION);
+    const itemQuery = options.getString(MARKET_BROWSE_AUTOCOMPLETE_OPTION);
 
     // Check missing config
-    if (className === NO_MARKET_CONFIG_OPTION_VALUE) {
+    if (itemQuery === NO_MARKET_CONFIG_OPTION_VALUE) {
       interaction.editReply(`${ emojis.error } ${ member }, ${ NO_MARKET_CONFIG_DISPLAY_STR }`);
       return;
     }
 
     // Fetch the item configuration
     // Item is attached as category.items[0]
-    const res = await getMarketItemByName(server, className);
+    const res = await getMarketItemByName(server, itemQuery);
+
+    // Query list
+    if (res.status === 404) {
+      handleQueryList(server, interaction, res, itemQuery, runtimeStart);
+      return;
+    }
 
     // Return if not OK
-    if (res.status !== 200) {
+    else if (res.status !== 200) {
       interaction.editReply({ content: `${ emojis.error } ${ member } - ${ res.message }` }).catch(() => { /* Void */ });
       return;
     }
 
-    const settings = await getSettingsCache(guild.id);
-
     // Return early if item is not tradable
+    const settings = await getSettingsCache(guild.id);
     const { category, traders } = res.data;
     const item = category.items[0];
     let ign = item.displayName;
-    if (!ign) ign = prettifyClassName(className, true);
+    if (!ign) ign = prettifyClassName(itemQuery, true);
     if (!traders || !traders[0]) {
       interaction.editReply({ content: `${ emojis.error } ${ member }, \`${ ign }\` currently isn't tradable` }).catch(() => { /* Void */ });
       return;
@@ -169,7 +257,7 @@ module.exports = new ChatInputCommand({
 
     // Construct our embed response
     for await (const trader of traders) {
-      embeds.push(await getItemDataEmbed(settings, className, category, trader));
+      embeds.push(await getItemDataEmbed(settings, itemQuery, category, trader));
     }
 
     // Filter out bad/returned embeds - this is intentional behavior,
@@ -203,6 +291,6 @@ module.exports = new ChatInputCommand({
     // Reply to the interaction with the SINGLE embed
     if (usableEmbeds.length === 1) interaction.editReply({ embeds: usableEmbeds }).catch(() => { /* Void */ });
     // Properly handle pagination for multiple embeds
-    else handlePagination(interaction, member, usableEmbeds, className);
+    else handlePagination(interaction, member, usableEmbeds, itemQuery);
   }
 });
