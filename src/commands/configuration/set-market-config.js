@@ -58,7 +58,7 @@ module.exports = new ChatInputCommand({
       {
         type: ApplicationCommandOptionType.Attachment,
         name: MARKET_TRADER_MAPS_OPTION_NAME,
-        description: 'server/mpmissions/your.mission/expansion/objects',
+        description: 'server/mpmissions/your.mission/expansion/traders',
         required: true
       }
     ]
