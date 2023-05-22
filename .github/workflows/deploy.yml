@@ -16,7 +16,7 @@ jobs:
           embed-author-name: "⬇️ Client | Expansion Market Trader"
           embed-author-url: "https://gmt.mirasaki.dev/"
           embed-color: 14228765
-          embed-description: "⌛ Deploying **`${{ github.repository }}`**...\n📤 Service is now temporarily unavailable."
+          embed-description: "⌛ Deploying **`@${{ github.repository }}`**...\n📤 Service is now temporarily unavailable."
   deploy:
     needs: notify-start
     runs-on: ubuntu-latest
