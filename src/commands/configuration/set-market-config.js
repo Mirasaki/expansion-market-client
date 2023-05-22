@@ -8,13 +8,9 @@ const setMapsCommand = require('../market-maps/set-maps');
 
 const {
   MARKET_CATEGORIES_OPTION_NAME,
-  MARKET_CATEGORIES_REAL_FILE_NAME,
   MARKET_TRADERS_OPTION_NAME,
-  MARKET_TRADERS_REAL_FILE_NAME,
   MARKET_TRADER_ZONES_OPTION_NAME,
-  MARKET_TRADER_ZONES_REAL_FILE_NAME,
-  MARKET_TRADER_MAPS_OPTION_NAME,
-  MARKET_TRADER_MAPS_REAL_FILE_NAME
+  MARKET_TRADER_MAPS_OPTION_NAME
 } = require('../../constants');
 
 module.exports = new ChatInputCommand({
@@ -41,28 +37,28 @@ module.exports = new ChatInputCommand({
       {
         type: ApplicationCommandOptionType.Attachment,
         name: MARKET_CATEGORIES_OPTION_NAME,
-        description: `Your "${ MARKET_CATEGORIES_REAL_FILE_NAME }" file.`,
+        description: 'server/profiles/ExpansionMod/Market',
         required: true
       },
       // Traders
       {
         type: ApplicationCommandOptionType.Attachment,
         name: MARKET_TRADERS_OPTION_NAME,
-        description: `Your "${ MARKET_TRADERS_REAL_FILE_NAME }" file.`,
+        description: 'server/profiles/ExpansionMod/Traders',
         required: true
       },
       // Zones
       {
         type: ApplicationCommandOptionType.Attachment,
         name: MARKET_TRADER_ZONES_OPTION_NAME,
-        description: `Your "${ MARKET_TRADER_ZONES_REAL_FILE_NAME }" file.`,
+        description: 'server/mpmissions/your.mission/expansion/traderzones',
         required: true
       },
       // Maps
       {
         type: ApplicationCommandOptionType.Attachment,
         name: MARKET_TRADER_MAPS_OPTION_NAME,
-        description: `Your "${ MARKET_TRADER_MAPS_REAL_FILE_NAME }" file.`,
+        description: 'server/mpmissions/your.mission/expansion/objects',
         required: true
       }
     ]
