@@ -276,14 +276,14 @@ const getItemDataEmbed = async (settings, className, category, trader) => {
 
   // Display SpawnAttachments conditionally
   if (item.spawnAttachments.length >= 1) {
-    const resolvedCurrencyArray = matchResolvedInGameNameArray(
+    const resolvedSpawnAttachmentsArray = matchResolvedInGameNameArray(
       item.spawnAttachments,
       await bulkResolveInGameNames(category.MarketServerId, item.spawnAttachments, true, false),
       true // Prettify, always - checked sometimes unresolved
     );
     embed.fields.push({
       name: 'Attachments',
-      value: `\`\`\`diff\n• ${ resolvedCurrencyArray.join('\n• ') }\`\`\``,
+      value: `\`\`\`diff\n• ${ resolvedSpawnAttachmentsArray.join('\n• ') }\`\`\``,
       inline: hasSpacing
     });
     hasSpacing = true;
@@ -291,7 +291,7 @@ const getItemDataEmbed = async (settings, className, category, trader) => {
 
   // Display Variants conditionally
   if (item.variants.length >= 1) {
-    const resolvedCurrencyArray = matchResolvedInGameNameArray(
+    const resolvedVariantsArray = matchResolvedInGameNameArray(
       item.variants,
       await bulkResolveInGameNames(category.MarketServerId, item.variants, true, false),
       true, // Prettify, always - checked sometimes unresolved
@@ -299,7 +299,7 @@ const getItemDataEmbed = async (settings, className, category, trader) => {
     );
     embed.fields.push({
       name: 'Variants',
-      value: `\`\`\`diff\n• ${ resolvedCurrencyArray.join('\n• ') }\`\`\``,
+      value: `\`\`\`diff\n• ${ resolvedVariantsArray.join('\n• ') }\`\`\``,
       inline: hasSpacing
     });
   }
