@@ -6,6 +6,8 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 
+dupes-ecosystem.config.js
+
 # JSON config file
 /config.js
 
