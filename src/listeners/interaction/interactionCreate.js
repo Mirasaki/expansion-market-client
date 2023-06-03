@@ -10,8 +10,7 @@ const { titleCase, getRuntime } = require('../../util');
 // used in multiple functions
 const { emojis } = require('../../client');
 
-const { DEBUG_ENABLED,
-  DEBUG_INTERACTIONS } = process.env;
+const { DEBUG_INTERACTIONS } = process.env;
 
 const checkInteractionAvailability = (interaction) => {
   const { member, guild } = interaction;
@@ -119,10 +118,7 @@ const runCommand = (client, interaction, activeId, cmdRunTimeStart) => {
       console.error(err);
     }
 
-    // Log command execution time
-    if (DEBUG_ENABLED === 'true') {
-      logger.debug(`${ chalk.white(activeId) } executed in ${ getRuntime(cmdRunTimeStart).ms } ms`);
-    }
+    logger.debug(`${ chalk.white(activeId) } executed in ${ getRuntime(cmdRunTimeStart).ms } ms`);
   })();
 
   // Logging the Command to our console

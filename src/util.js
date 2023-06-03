@@ -19,7 +19,7 @@ const chalk = require('chalk');
 const path = require('path');
 const colors = require('./config/colors.json');
 
-const { NODE_ENV, DEBUG_ENABLED } = process.env;
+const { NODE_ENV, DEBUG_FILE_UPLOAD_REQUESTS } = process.env;
 
 // Import our constants
 const {
@@ -267,7 +267,7 @@ const fetchAttachment = async (attachment, convertResToJSON = false, allowedSize
 
   // Performance logging
   const runtime = getRuntime(startFetching);
-  if (DEBUG_ENABLED === 'true') {
+  if (DEBUG_FILE_UPLOAD_REQUESTS === 'true') {
     logger.debug(`${ chalk.blue('Fetched attachment') } of ${ chalk.yellow(attachmentSizeInKB) } KiB in ${ chalk.yellow(runtime.ms) } ms (${ chalk.yellow(runtime.seconds) } seconds)`);
   }
 
