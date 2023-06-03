@@ -19,7 +19,8 @@ module.exports = new ComponentCommand({ run: async (client, interaction, query) 
     if (!allRawItems.data || !allRawItems.data[0]) {
       everything = [
         {
-          name: 'No configuration, please use /set-market-config', value: NO_MARKET_CONFIG_OPTION_VALUE
+          name: 'No configuration, please use /set-market-config',
+          value: NO_MARKET_CONFIG_OPTION_VALUE
         }
       ];
     }
