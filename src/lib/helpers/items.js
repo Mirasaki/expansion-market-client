@@ -274,13 +274,14 @@ const getItemDataEmbed = async (settings, className, category, trader) => {
   // Properly organize embed content
   let hasSpacing = false;
 
-  // Display SpawnAttachments conditionally
+  // Display spawnAttachments conditionally
   if (item.spawnAttachments.length >= 1) {
-    const resolvedSpawnAttachmentsArray = matchResolvedInGameNameArray(
-      item.spawnAttachments,
-      await bulkResolveInGameNames(category.MarketServerId, item.spawnAttachments, true, false),
-      true // Prettify, always - checked sometimes unresolved
-    );
+    // Resolve all display names for spawnAttachments
+    const resolvedSpawnAttachmentsArray = item.spawnAttachments
+      .map((e) => {
+        const item = e.category?.items[0];
+        return item?.displayName ?? prettifyClassName(item?.className, false);
+      });
     embed.fields.push({
       name: 'Attachments',
       value: `\`\`\`diff\n• ${ resolvedSpawnAttachmentsArray.join('\n• ') }\`\`\``,
@@ -291,6 +292,7 @@ const getItemDataEmbed = async (settings, className, category, trader) => {
 
   // Display Variants conditionally
   if (item.variants.length >= 1) {
+    // Resolve all in game names, old approach
     const resolvedVariantsArray = matchResolvedInGameNameArray(
       item.variants,
       await bulkResolveInGameNames(category.MarketServerId, item.variants, true, false),
