@@ -279,7 +279,7 @@ const getItemDataEmbed = async (settings, className, category, trader) => {
     const resolvedCurrencyArray = matchResolvedInGameNameArray(
       item.spawnAttachments,
       await bulkResolveInGameNames(category.MarketServerId, item.spawnAttachments, true, false),
-      false // Already prettified
+      true // Prettify, always - checked sometimes unresolved
     );
     embed.fields.push({
       name: 'Attachments',
@@ -294,7 +294,7 @@ const getItemDataEmbed = async (settings, className, category, trader) => {
     const resolvedCurrencyArray = matchResolvedInGameNameArray(
       item.variants,
       await bulkResolveInGameNames(category.MarketServerId, item.variants, true, false),
-      false, // Already prettified
+      true, // Prettify, always - checked sometimes unresolved
       true
     );
     embed.fields.push({
