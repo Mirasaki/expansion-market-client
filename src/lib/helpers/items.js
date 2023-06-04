@@ -68,7 +68,7 @@ const resolveItemStock = (item, category, zone) => {
     : itemStockLevel;
 };
 
-const resolveBuyPriceOutput = async (settings, item, category, trader, zone) => {
+const getBuyPriceData = async (settings, item, category, zone) => {
   // Use zone buyPricePercent if a valid value is provided
   const activeBuyPercent = (
     !isNaN(zone.buyPricePercent)
@@ -83,42 +83,93 @@ const resolveBuyPriceOutput = async (settings, item, category, trader, zone) => 
   const buyDynamicHigh = Math.round((item.maxPriceThreshold / 100) * activeBuyPercent);
   const buyDynamicLow = Math.round((item.minPriceThreshold / 100) * activeBuyPercent);
 
-  // Resolve the currency name to display
-  const currencyDisplayName = await resolveInGameName(trader.MarketServerId, trader.lowestCurrency);
-
   // Calculate price now
-  let buyDynamicStockNow = 'n/a';
+  let buyDynamicNow = 'n/a';
   if (!item.hasStaticStock) {
     const stockNow = resolveItemStock(item, category, zone);
     const currentStockPercent = (stockNow / item.maxStockThreshold) * 100; // Calculate the current stock percentage
     const priceRange = buyDynamicHigh - buyDynamicLow; // Calculate the price range
     const priceOffset = (priceRange / 100) * (100 - currentStockPercent); // Calculate the price offset based on the current stock percentage
     const currentPrice = Math.round(buyDynamicLow + priceOffset); // Calculate the current price based on the price offset and minimum price threshold
-    buyDynamicStockNow = currentPrice;
+    buyDynamicNow = currentPrice;
   }
 
   // Short display settings / Only current price
   if (
     settings.onlyShowDynamicNowPrice === true
     && !item.hasStaticStock
-  ) return `- Now: ${ buyDynamicStockNow }`;
+  ) return {
+    high: buyDynamicNow,
+    now: buyDynamicNow,
+    low: buyDynamicNow
+  };
+
+  // Always return our buy price
+  return item.hasStaticPrice || item.hasStaticStock
+    ? {
+      high: buyDynamicHigh,
+      now: buyDynamicHigh,
+      low: buyDynamicHigh
+    }
+    : {
+      high: buyDynamicHigh,
+      now: buyDynamicNow,
+      low: buyDynamicLow
+    };
+};
+
+// eslint-disable-next-line sonarjs/cognitive-complexity
+const resolveBuyPriceOutput = async (settings, item, category, trader, zone, spawnAttachments) => {
+  const {
+    high, now, low
+  } = await getBuyPriceData(settings, item, category, zone);
+
+  // Resolve attachment price
+  let spawnAttachmentsOffsetLow = 0;
+  let spawnAttachmentsOffsetNow = 0;
+  let spawnAttachmentsOffsetHigh = 0;
+  if (spawnAttachments && spawnAttachments[0]) {
+    // Resolve price for every attachment
+    for await (const { category } of spawnAttachments) {
+      const {
+        high: saHigh,
+        now: saNow,
+        low: saLow
+      } = await getBuyPriceData(settings, category.items[0], category, zone);
+
+      // Increase price offset
+      if (typeof saHigh === 'number') spawnAttachmentsOffsetHigh += saHigh;
+      if (typeof saNow === 'number') spawnAttachmentsOffsetNow += saNow;
+      if (typeof saLow === 'number') spawnAttachmentsOffsetLow += saLow;
+    }
+  }
+
+  // Resolve the currency name to display
+  const highWithAttachments = high + spawnAttachmentsOffsetHigh;
+  const nowWithAttachments = now + spawnAttachmentsOffsetNow;
+  const lowWithAttachments = low + spawnAttachmentsOffsetLow;
+  const currencyDisplayName = await resolveInGameName(trader.MarketServerId, trader.lowestCurrency);
+
+  // Short display settings / Only current price
+  if (
+    settings.onlyShowDynamicNowPrice === true
+    && !item.hasStaticStock
+  ) return `- Now: ${ nowWithAttachments }`;
 
   // Construct our final string
   // Always return our buy price str
   return item.hasStaticPrice || item.hasStaticStock
-    ? `- ${ buyDynamicHigh } ${ currencyDisplayName }`
+    ? `- ${ highWithAttachments } ${ currencyDisplayName }`
     : stripIndents`
-      - Low:  ${ buyDynamicLow }${
-  !item.hasStaticStock
-    ? `\n- Now: ${ buyDynamicStockNow }`
-    : '' }
-      - High: ${ buyDynamicHigh }
+      - Low:  ${ lowWithAttachments }
+      - Now: ${ nowWithAttachments }
+      - High: ${ highWithAttachments }
       ---
       ${ currencyDisplayName }
     `;
 };
 
-const resolveSellPriceOutput = async (settings, item, category, trader, zone) => {
+const getSellPriceData = async (settings, item, category, zone) => {
   // Check if this item is configured to use the
   // zone sell price percent
   // By default this value is -1.0, meaning the global value from
@@ -146,38 +197,89 @@ const resolveSellPriceOutput = async (settings, item, category, trader, zone) =>
   const sellDynamicHigh = Math.round((item.maxPriceThreshold / 100) * activeSellPercent);
   const sellDynamicLow = Math.round((item.minPriceThreshold / 100) * activeSellPercent);
 
-  // Resolve the currency name to display
-  const currencyDisplayName = await resolveInGameName(trader.MarketServerId, trader.lowestCurrency);
+  // Short display settings / Only current price
+  if (
+    settings.onlyShowDynamicNowPrice === true
+    && !item.hasStaticStock
+  ) return {
+    high: sellDynamicNow,
+    now: sellDynamicNow,
+    low: sellDynamicNow
+  };
 
   // Calculate price now
-  let sellDynamicStockNow = 'n/a';
+  let sellDynamicNow = 'n/a';
   if (!item.hasStaticStock) {
     const stockNow = resolveItemStock(item, category, zone);
     const currentStockPercent = (stockNow / item.maxStockThreshold) * 100; // Calculate the current stock percentage
     const priceRange = sellDynamicHigh - sellDynamicLow; // Calculate the price range
     const priceOffset = (priceRange / 100) * (100 - currentStockPercent); // Calculate the price offset based on the current stock percentage
     const currentPrice = Math.round(sellDynamicLow + priceOffset); // Calculate the current price based on the price offset and minimum price threshold
-    sellDynamicStockNow = currentPrice;
+    sellDynamicNow = currentPrice;
   }
+
+  // Always return our sell price
+  return item.hasStaticPrice || item.hasStaticStock
+    ? {
+      high: sellDynamicHigh,
+      now: sellDynamicHigh,
+      low: sellDynamicHigh
+    }
+    : {
+      high: sellDynamicHigh,
+      now: sellDynamicNow,
+      low: sellDynamicLow
+    };
+};
+
+// eslint-disable-next-line sonarjs/cognitive-complexity
+const resolveSellPriceOutput = async (settings, item, category, trader, zone, spawnAttachments) => {
+  const {
+    high, now, low
+  } = await getSellPriceData(settings, item, category, zone);
+
+  // Resolve attachment price
+  let spawnAttachmentsOffsetLow = 0;
+  let spawnAttachmentsOffsetNow = 0;
+  let spawnAttachmentsOffsetHigh = 0;
+  if (spawnAttachments && spawnAttachments[0]) {
+    // Resolve price for every attachment
+    for await (const { category } of spawnAttachments) {
+      const {
+        high: saHigh,
+        now: saNow,
+        low: saLow
+      } = await getSellPriceData(settings, category.items[0], category, zone);
+
+      // Increase price offset
+      if (typeof saHigh === 'number') spawnAttachmentsOffsetHigh += saHigh;
+      if (typeof saNow === 'number') spawnAttachmentsOffsetNow += saNow;
+      if (typeof saLow === 'number') spawnAttachmentsOffsetLow += saLow;
+    }
+  }
+
+  // Resolve the currency name to display
+  const highWithAttachments = high + spawnAttachmentsOffsetHigh;
+  const nowWithAttachments = now + spawnAttachmentsOffsetNow;
+  const lowWithAttachments = low + spawnAttachmentsOffsetLow;
+  const currencyDisplayName = await resolveInGameName(trader.MarketServerId, trader.lowestCurrency);
 
   // Short display settings / Only current price
   if (
     settings.onlyShowDynamicNowPrice === true
       && !item.hasStaticStock
-  ) return `+ Now: ${ sellDynamicStockNow }`;
+  ) return `+ Now: ${ nowWithAttachments }`;
 
   // Construct our final string
   return item.hasStaticPrice || item.hasStaticStock
-    ? `+ ${ sellDynamicHigh } ${ currencyDisplayName }`
+    ? `+ ${ highWithAttachments } ${ currencyDisplayName }`
     : stripIndents`
-    + Low:  ${ sellDynamicLow }${
-  !item.hasStaticStock
-    ? `\n+ Now: ${ sellDynamicStockNow }`
-    : '' }
-    + High: ${ sellDynamicHigh }
-    ---
-    ${ currencyDisplayName }
-  `;
+      + Low:  ${ lowWithAttachments }
+      + Now: ${ nowWithAttachments }
+      + High: ${ highWithAttachments }
+      ---
+      ${ currencyDisplayName }
+    `;
 };
 
 // Fuck it, take the cognitive complexity through the roof,
@@ -246,7 +348,7 @@ const getItemDataEmbed = async (settings, className, category, trader) => {
         value: `\`\`\`diff\n${
           hasAnnotation && (activeAnnotation === 2 || activeAnnotation === 3)
             ? '- n/a'
-            : await resolveBuyPriceOutput(settings, item, category, trader, zone)
+            : await resolveBuyPriceOutput(settings, item, category, trader, zone, item.spawnAttachments)
         }\n\`\`\``,
         inline: true
       },
@@ -255,7 +357,7 @@ const getItemDataEmbed = async (settings, className, category, trader) => {
         value: `\`\`\`diff\n${
           hasAnnotation && (activeAnnotation === 0 || activeAnnotation === 3)
             ? '+ n/a'
-            : await resolveSellPriceOutput(settings, item, category, trader, zone)
+            : await resolveSellPriceOutput(settings, item, category, trader, zone, item.spawnAttachments)
         }\n\`\`\``,
         inline: true
       }
@@ -274,16 +376,19 @@ const getItemDataEmbed = async (settings, className, category, trader) => {
   // Properly organize embed content
   let hasSpacing = false;
 
-  // Display SpawnAttachments conditionally
+  // Display spawnAttachments conditionally
   if (item.spawnAttachments.length >= 1) {
-    const resolvedCurrencyArray = matchResolvedInGameNameArray(
-      item.spawnAttachments,
-      await bulkResolveInGameNames(category.MarketServerId, item.spawnAttachments, true, false),
-      false // Already prettified
+    // Resolve all display names for spawnAttachments
+    const resolvedSpawnAttachmentsArray = await Promise.all(
+      item.spawnAttachments
+        .map(async (e) => {
+          const item = e.category?.items[0];
+          return `${ item?.displayName ?? prettifyClassName(item?.className, false) } (~${ (await getBuyPriceData(settings, item, e.category, zone)).now })`;
+        })
     );
     embed.fields.push({
       name: 'Attachments',
-      value: `\`\`\`diff\n• ${ resolvedCurrencyArray.join('\n• ') }\`\`\``,
+      value: `\`\`\`diff\n• ${ resolvedSpawnAttachmentsArray.join('\n• ') }\`\`\``,
       inline: hasSpacing
     });
     hasSpacing = true;
@@ -291,15 +396,16 @@ const getItemDataEmbed = async (settings, className, category, trader) => {
 
   // Display Variants conditionally
   if (item.variants.length >= 1) {
-    const resolvedCurrencyArray = matchResolvedInGameNameArray(
+    // Resolve all in game names, old approach
+    const resolvedVariantsArray = matchResolvedInGameNameArray(
       item.variants,
       await bulkResolveInGameNames(category.MarketServerId, item.variants, true, false),
-      false, // Already prettified
+      true, // Prettify, always - checked sometimes unresolved
       true
     );
     embed.fields.push({
       name: 'Variants',
-      value: `\`\`\`diff\n• ${ resolvedCurrencyArray.join('\n• ') }\`\`\``,
+      value: `\`\`\`diff\n• ${ resolvedVariantsArray.join('\n• ') }\`\`\``,
       inline: hasSpacing
     });
   }
@@ -311,6 +417,8 @@ const getItemDataEmbed = async (settings, className, category, trader) => {
 module.exports = {
   resolveAllPossibleItems,
   resolveItemStock,
+  getSellPriceData,
+  getBuyPriceData,
   resolveBuyPriceOutput,
   getItemDataEmbed
 };
