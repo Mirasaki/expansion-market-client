@@ -130,7 +130,7 @@ const resolveBuyPriceOutput = async (settings, item, category, trader, zone, spa
   let spawnAttachmentsOffsetHigh = 0;
   if (spawnAttachments && spawnAttachments[0]) {
     // Resolve price for every attachment
-    for await (const { category } of spawnAttachments.filter((e) => typeof e.category !== 'undefined')) {
+    for await (const { category } of spawnAttachments.filter((e) => typeof e.category?.items[0] !== 'undefined')) {
       const {
         high: saHigh,
         now: saNow,
@@ -244,7 +244,7 @@ const resolveSellPriceOutput = async (settings, item, category, trader, zone, sp
   let spawnAttachmentsOffsetHigh = 0;
   if (spawnAttachments && spawnAttachments[0]) {
     // Resolve price for every attachment
-    for await (const { category } of spawnAttachments.filter((e) => typeof e.category !== 'undefined')) {
+    for await (const { category } of spawnAttachments.filter((e) => typeof e.category?.items[0] !== 'undefined')) {
       const {
         high: saHigh,
         now: saNow,
@@ -381,6 +381,7 @@ const getItemDataEmbed = async (settings, className, category, trader) => {
     // Resolve all display names for spawnAttachments
     const resolvedSpawnAttachmentsArray = await Promise.all(
       item.spawnAttachments
+        .filter((e) => typeof e.category?.items[0] !== 'undefined')
         .map(async (e) => {
           const item = e.category?.items[0];
           return `${ item?.displayName ?? prettifyClassName(item?.className, false) } (~${ (await getBuyPriceData(settings, item, e.category, zone)).now })`;
