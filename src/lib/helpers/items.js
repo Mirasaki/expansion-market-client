@@ -379,7 +379,7 @@ const getItemDataEmbed = async (settings, className, category, trader) => {
   // Display spawnAttachments conditionally
   if (item.spawnAttachments.length >= 1) {
     // Strings
-    if (typeof item.spawnAttachments[0].length === 'string') {
+    if (typeof item.spawnAttachments[0] === 'string') {
       const resolvedSpawnAttachmentsArray = item.spawnAttachments
         .map(async (e) => prettifyClassName(item?.className, false));
 
