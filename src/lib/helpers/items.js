@@ -381,7 +381,7 @@ const getItemDataEmbed = async (settings, className, category, trader) => {
     // Strings
     if (typeof item.spawnAttachments[0] === 'string') {
       const resolvedSpawnAttachmentsArray = item.spawnAttachments
-        .map(async (e) => prettifyClassName(item?.className, false));
+        .map((e) => prettifyClassName(e, false));
 
       embed.fields.push({
         name: 'Attachments',
