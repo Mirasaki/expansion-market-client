@@ -379,6 +379,7 @@ const getItemDataEmbed = async (settings, className, category, trader) => {
   // Display spawnAttachments conditionally
   if (item.spawnAttachments.length >= 1) {
     // Resolve all display names for spawnAttachments
+    console.dir(item.spawnAttachments, { depth: 2 });
     const resolvedSpawnAttachmentsArray = await Promise.all(
       item.spawnAttachments
         .filter((e) => typeof e.category?.items[0] !== 'undefined')
