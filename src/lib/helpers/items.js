@@ -378,21 +378,36 @@ const getItemDataEmbed = async (settings, className, category, trader) => {
 
   // Display spawnAttachments conditionally
   if (item.spawnAttachments.length >= 1) {
-    // Resolve all display names for spawnAttachments
-    console.dir(item.spawnAttachments, { depth: 2 });
-    const resolvedSpawnAttachmentsArray = await Promise.all(
-      item.spawnAttachments
-        .filter((e) => typeof e.category?.items[0] !== 'undefined')
-        .map(async (e) => {
-          const item = e.category?.items[0];
-          return `${ item?.displayName ?? prettifyClassName(item?.className, false) } (~${ (await getBuyPriceData(settings, item, e.category, zone)).now })`;
-        })
-    );
-    embed.fields.push({
-      name: 'Attachments',
-      value: `\`\`\`diff\n• ${ resolvedSpawnAttachmentsArray.join('\n• ') }\`\`\``,
-      inline: hasSpacing
-    });
+    // Strings
+    if (typeof item.spawnAttachments[0].length === 'string') {
+      const resolvedSpawnAttachmentsArray = item.spawnAttachments
+        .map(async (e) => prettifyClassName(item?.className, false));
+
+      embed.fields.push({
+        name: 'Attachments',
+        value: `\`\`\`diff\n• ${ resolvedSpawnAttachmentsArray.join('\n• ') }\`\`\``,
+        inline: hasSpacing
+      });
+    }
+    // Market Category Item configs
+    else {
+      // Resolve all display names for spawnAttachments
+      const resolvedSpawnAttachmentsArray = await Promise.all(
+        item.spawnAttachments
+          .filter((e) => typeof e.category?.items[0] !== 'undefined')
+          .map(async (e) => {
+            const saItem = e.category?.items[0];
+            return `${ saItem?.displayName ?? prettifyClassName(saItem?.className, false) } (~${ (await getBuyPriceData(settings, saItem, e.category, zone)).now })`;
+          })
+      );
+      embed.fields.push({
+        name: 'Attachments',
+        value: `\`\`\`diff\n• ${ resolvedSpawnAttachmentsArray.join('\n• ') }\`\`\``,
+        inline: hasSpacing
+      });
+    }
+
+    // Set spacing unconditionally
     hasSpacing = true;
   }
 
