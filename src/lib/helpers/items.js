@@ -130,7 +130,7 @@ const resolveBuyPriceOutput = async (settings, item, category, trader, zone, spa
   let spawnAttachmentsOffsetHigh = 0;
   if (spawnAttachments && spawnAttachments[0]) {
     // Resolve price for every attachment
-    for await (const { category } of spawnAttachments) {
+    for await (const { category } of spawnAttachments.filter((e) => typeof e.category !== 'undefined')) {
       const {
         high: saHigh,
         now: saNow,
@@ -244,7 +244,7 @@ const resolveSellPriceOutput = async (settings, item, category, trader, zone, sp
   let spawnAttachmentsOffsetHigh = 0;
   if (spawnAttachments && spawnAttachments[0]) {
     // Resolve price for every attachment
-    for await (const { category } of spawnAttachments) {
+    for await (const { category } of spawnAttachments.filter((e) => typeof e.category !== 'undefined')) {
       const {
         high: saHigh,
         now: saNow,
