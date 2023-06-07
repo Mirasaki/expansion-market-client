@@ -197,16 +197,6 @@ const getSellPriceData = async (settings, item, category, zone) => {
   const sellDynamicHigh = Math.round((item.maxPriceThreshold / 100) * activeSellPercent);
   const sellDynamicLow = Math.round((item.minPriceThreshold / 100) * activeSellPercent);
 
-  // Short display settings / Only current price
-  if (
-    settings.onlyShowDynamicNowPrice === true
-    && !item.hasStaticStock
-  ) return {
-    high: sellDynamicNow,
-    now: sellDynamicNow,
-    low: sellDynamicNow
-  };
-
   // Calculate price now
   let sellDynamicNow = 'n/a';
   if (!item.hasStaticStock) {
@@ -217,6 +207,16 @@ const getSellPriceData = async (settings, item, category, zone) => {
     const currentPrice = Math.round(sellDynamicLow + priceOffset); // Calculate the current price based on the price offset and minimum price threshold
     sellDynamicNow = currentPrice;
   }
+
+  // Short display settings / Only current price
+  if (
+    settings.onlyShowDynamicNowPrice === true
+      && !item.hasStaticStock
+  ) return {
+    high: sellDynamicNow,
+    now: sellDynamicNow,
+    low: sellDynamicNow
+  };
 
   // Always return our sell price
   return item.hasStaticPrice || item.hasStaticStock
