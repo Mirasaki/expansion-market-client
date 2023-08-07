@@ -63,7 +63,7 @@ const resolveItemStock = (item, category, zone) => {
       && item.maxStockThreshold >= 1
       && category.initStockPercent >= 1
     )
-      ? Math.round((item.maxStockThreshold / 100) * zone.InitStockPercent)
+      ? Math.round((item.maxStockThreshold / 100) * zone.initStockPercent)
       : 'The amount of items players sold here'
     : itemStockLevel;
 };
@@ -87,7 +87,19 @@ const getBuyPriceData = async (settings, item, category, zone) => {
   let buyDynamicNow = 'n/a';
   if (!item.hasStaticStock) {
     const stockNow = resolveItemStock(item, category, zone);
-    const currentStockPercent = (stockNow / item.maxStockThreshold) * 100; // Calculate the current stock percentage
+    let stockForNowPrice = stockNow;
+    if (typeof stockNow !== 'number') {
+      if (
+        typeof item.maxStockThreshold === 'number'
+        && typeof item.minStockThreshold === 'number'
+      ) {
+        const stockMiddle = Math.round((item.maxStockThreshold + item.minStockThreshold) / 2);
+        stockForNowPrice = stockMiddle;
+      }
+      // [DEV] - Sensible defaults
+      else stockForNowPrice = 1;
+    }
+    const currentStockPercent = (stockForNowPrice / item.maxStockThreshold) * 100; // Calculate the current stock percentage
     const priceRange = buyDynamicHigh - buyDynamicLow; // Calculate the price range
     const priceOffset = (priceRange / 100) * (100 - currentStockPercent); // Calculate the price offset based on the current stock percentage
     const currentPrice = Math.round(buyDynamicLow + priceOffset); // Calculate the current price based on the price offset and minimum price threshold
@@ -169,6 +181,7 @@ const resolveBuyPriceOutput = async (settings, item, category, trader, zone, spa
     `;
 };
 
+// eslint-disable-next-line sonarjs/cognitive-complexity
 const getSellPriceData = async (settings, item, category, zone) => {
   // Check if this item is configured to use the
   // zone sell price percent
@@ -201,12 +214,25 @@ const getSellPriceData = async (settings, item, category, zone) => {
   let sellDynamicNow = 'n/a';
   if (!item.hasStaticStock) {
     const stockNow = resolveItemStock(item, category, zone);
-    const currentStockPercent = (stockNow / item.maxStockThreshold) * 100; // Calculate the current stock percentage
+    let stockForNowPrice = stockNow;
+    if (typeof stockNow !== 'number') {
+      if (
+        typeof item.maxStockThreshold === 'number'
+        && typeof item.minStockThreshold === 'number'
+      ) {
+        const stockMiddle = Math.round((item.maxStockThreshold + item.minStockThreshold) / 2);
+        stockForNowPrice = stockMiddle;
+      }
+      // [DEV] - Sensible defaults
+      else stockForNowPrice = 1;
+    }
+    const currentStockPercent = (stockForNowPrice / item.maxStockThreshold) * 100; // Calculate the current stock percentage
     const priceRange = sellDynamicHigh - sellDynamicLow; // Calculate the price range
     const priceOffset = (priceRange / 100) * (100 - currentStockPercent); // Calculate the price offset based on the current stock percentage
     const currentPrice = Math.round(sellDynamicLow + priceOffset); // Calculate the current price based on the price offset and minimum price threshold
     sellDynamicNow = currentPrice;
   }
+
 
   // Short display settings / Only current price
   if (
@@ -237,6 +263,8 @@ const resolveSellPriceOutput = async (settings, item, category, trader, zone, sp
   const {
     high, now, low
   } = await getSellPriceData(settings, item, category, zone);
+
+  console.log(high, now, low);
 
   // Resolve attachment price
   let spawnAttachmentsOffsetLow = 0;
