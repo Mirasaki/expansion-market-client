@@ -26,7 +26,7 @@
     "types": "npx -p typescript tsc src/**/*.js --declaration --allowJs --emitDeclarationOnly --outDir types"
   },
   "dependencies": {
-    "@discordjs/rest": "^2.0.0",
+    "@discordjs/rest": "^2.0.1",
     "@mirasaki/logger": "^1.0.5",
     "axios": "^1.4.0",
     "common-tags": "^1.8.2",
