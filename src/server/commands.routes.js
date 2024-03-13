@@ -1,7 +1,7 @@
-const { Collection } = require('discord.js');
 const express = require('express');
 const { getFiles } = require('../util');
 const router = express.Router();
+const path = require('path');
 
 // Destructuring from env
 const {
@@ -17,13 +17,20 @@ const {
 // Re-usable callback
 const commandMapCallback = (filePath) => {
   const cmd = require(filePath);
-
-  cmd.load(filePath, new Collection());
-
-  // Delete our origin filePath
-  delete cmd.filePath;
+  cmd.load(filePath, false);
+  delete cmd.filePath; // Delete our origin filePath
   return cmd;
 };
+
+// Don't stringify BigInts when sending response
+// Would otherwise error when any permissions are specified
+const avoidStringifyBigInt = (inp) => JSON.parse(
+  JSON.stringify(
+    inp, (key, value) => typeof value === 'bigint'
+      ? value.toString()
+      : value
+  )
+);
 
 // Utility function to avoid code repetition
 const queryFilterCommands = (arr, category, limit) => {
@@ -33,23 +40,29 @@ const queryFilterCommands = (arr, category, limit) => {
 };
 
 // Client Chat Input Commands
-const clientCommands = getFiles(CHAT_INPUT_COMMAND_DIR)
-  .map(commandMapCallback);
+const clientCommands = getFiles(path.resolve(CHAT_INPUT_COMMAND_DIR))
+  .map(commandMapCallback)
+  .filter((cmd) => cmd.enabled);
 // Client Context Menus
-const clientCtxMenus = getFiles(CONTEXT_MENU_COMMAND_DIR)
-  .map(commandMapCallback);
+const clientCtxMenus = getFiles(path.resolve(CONTEXT_MENU_COMMAND_DIR))
+  .map(commandMapCallback)
+  .filter((cmd) => cmd.enabled);
 // Client Auto Complete Components
-const clientAutoCompletes = getFiles(AUTO_COMPLETE_INTERACTION_DIR)
-  .map(commandMapCallback);
+const clientAutoCompletes = getFiles(path.resolve(AUTO_COMPLETE_INTERACTION_DIR))
+  .map(commandMapCallback)
+  .filter((cmd) => cmd.enabled);
 // Client Button Components
-const clientButtons = getFiles(BUTTON_INTERACTION_DIR)
-  .map(commandMapCallback);
+const clientButtons = getFiles(path.resolve(BUTTON_INTERACTION_DIR))
+  .map(commandMapCallback)
+  .filter((cmd) => cmd.enabled);
 // Client Modal Components
-const clientModals = getFiles(MODAL_INTERACTION_DIR)
-  .map(commandMapCallback);
+const clientModals = getFiles(path.resolve(MODAL_INTERACTION_DIR))
+  .map(commandMapCallback)
+  .filter((cmd) => cmd.enabled);
 // Client Select Menu Components
-const clientSelectMenus = getFiles(SELECT_MENU_INTERACTION_DIR)
-  .map(commandMapCallback);
+const clientSelectMenus = getFiles(path.resolve(SELECT_MENU_INTERACTION_DIR))
+  .map(commandMapCallback)
+  .filter((cmd) => cmd.enabled);
 
 // Application Chat Input Commands
 router.route('/')
@@ -60,17 +73,17 @@ router.route('/')
 
     // Filter by category if requested
     const usesCategoryFilter = category !== undefined;
-
     if (usesCategoryFilter) {
       const result = queryFilterCommands(clientCommands, category, limit);
-
-      res.send(result);
+      res.json(avoidStringifyBigInt(result));
       return;
     }
 
+    // console.log(clientCommands);
+
     // Return our command map if the map is populated
-    res.send(
-      clientCommands
+    res.json(
+      avoidStringifyBigInt(clientCommands)
         // Limiting our result
         .slice(0, limit >= 1 ? limit : clientCommands.length)
     );
@@ -85,17 +98,15 @@ router.route('/context-menus')
 
     // Filter by category if requested
     const usesCategoryFilter = category !== undefined;
-
     if (usesCategoryFilter) {
       const result = queryFilterCommands(clientCtxMenus, category, limit);
-
-      res.send(result);
+      res.json(avoidStringifyBigInt(result));
       return;
     }
 
     // Return our command map if the map is populated
-    res.send(
-      clientCtxMenus
+    res.json(
+      avoidStringifyBigInt(clientCtxMenus)
         // Limiting our result
         .slice(0, limit >= 1 ? limit : clientCtxMenus.length)
     );
@@ -110,17 +121,15 @@ router.route('/auto-complete')
 
     // Filter by category if requested
     const usesCategoryFilter = category !== undefined;
-
     if (usesCategoryFilter) {
       const result = queryFilterCommands(clientAutoCompletes, category, limit);
-
-      res.send(result);
+      res.json(avoidStringifyBigInt(result));
       return;
     }
 
     // Return our command map if the map is populated
-    res.send(
-      clientAutoCompletes
+    res.json(
+      avoidStringifyBigInt(clientAutoCompletes)
         // Limiting our result
         .slice(0, limit >= 1 ? limit : clientAutoCompletes.length)
     );
@@ -135,17 +144,15 @@ router.route('/buttons')
 
     // Filter by category if requested
     const usesCategoryFilter = category !== undefined;
-
     if (usesCategoryFilter) {
       const result = queryFilterCommands(clientButtons, category, limit);
-
-      res.send(result);
+      res.json(avoidStringifyBigInt(result));
       return;
     }
 
     // Return our command map if the map is populated
-    res.send(
-      clientButtons
+    res.json(
+      avoidStringifyBigInt(clientButtons)
         // Limiting our result
         .slice(0, limit >= 1 ? limit : clientButtons.length)
     );
@@ -160,17 +167,15 @@ router.route('/modals')
 
     // Filter by category if requested
     const usesCategoryFilter = category !== undefined;
-
     if (usesCategoryFilter) {
       const result = queryFilterCommands(clientModals, category, limit);
-
-      res.send(result);
+      res.json(avoidStringifyBigInt(result));
       return;
     }
 
     // Return our command map if the map is populated
-    res.send(
-      clientModals
+    res.json(
+      avoidStringifyBigInt(clientModals)
         // Limiting our result
         .slice(0, limit >= 1 ? limit : clientModals.length)
     );
@@ -185,23 +190,21 @@ router.route('/select-menus')
 
     // Filter by category if requested
     const usesCategoryFilter = category !== undefined;
-
     if (usesCategoryFilter) {
       const result = queryFilterCommands(clientSelectMenus, category, limit);
-
-      res.send(result);
+      res.json(avoidStringifyBigInt(result));
       return;
     }
 
     // Return our command map if the map is populated
-    res.send(
-      clientSelectMenus
+    res.json(
+      avoidStringifyBigInt(clientSelectMenus)
         // Limiting our result
         .slice(0, limit >= 1 ? limit : clientSelectMenus.length)
     );
   });
 
-/**
+/*
  * Filter by name, catch all, end of file
  */
 
@@ -212,8 +215,7 @@ router.route('/:name')
     const { name } = req.params;
     // Finding our related command
     const cmd = clientCommands.find((cmd) => cmd.data.name === name);
-
-    if (cmd) res.send(cmd);
+    if (cmd) res.json(avoidStringifyBigInt(cmd));
     else res.sendStatus(404);
   });
 
@@ -224,8 +226,7 @@ router.route('/context-menus/:name')
     const { name } = req.params;
     // Finding our related command
     const cmd = clientCtxMenus.find((cmd) => cmd.data.name === name);
-
-    if (cmd) res.send(cmd);
+    if (cmd) res.json(avoidStringifyBigInt(cmd));
     else res.sendStatus(404);
   });
 
@@ -236,8 +237,7 @@ router.route('/auto-complete/:name')
     const { name } = req.params;
     // Finding our related command
     const cmd = clientAutoCompletes.find((cmd) => cmd.data.name === name);
-
-    if (cmd) res.send(cmd);
+    if (cmd) res.json(avoidStringifyBigInt(cmd));
     else res.sendStatus(404);
   });
 
@@ -248,8 +248,7 @@ router.route('/buttons/:name')
     const { name } = req.params;
     // Finding our related command
     const cmd = clientButtons.find((cmd) => cmd.data.name === name);
-
-    if (cmd) res.send(cmd);
+    if (cmd) res.json(avoidStringifyBigInt(cmd));
     else res.sendStatus(404);
   });
 
@@ -260,8 +259,7 @@ router.route('/modals/:name')
     const { name } = req.params;
     // Finding our related command
     const cmd = clientModals.find((cmd) => cmd.data.name === name);
-
-    if (cmd) res.send(cmd);
+    if (cmd) res.json(avoidStringifyBigInt(cmd));
     else res.sendStatus(404);
   });
 
@@ -272,8 +270,7 @@ router.route('/select-menus/:name')
     const { name } = req.params;
     // Finding our related command
     const cmd = clientSelectMenus.find((cmd) => cmd.data.name === name);
-
-    if (cmd) res.send(cmd);
+    if (cmd) res.json(avoidStringifyBigInt(cmd));
     else res.sendStatus(404);
   });
 
